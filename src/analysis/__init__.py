@@ -7,6 +7,12 @@ from .prioritize import (
     write_monthly_analysis_file,
 )
 from .priority_analyzer import filter_high_priority
+from .monthly_data import (
+    MonthlySummary,
+    MonthlyItem,
+    build_monthly_summary,
+    write_monthly_data_to_repo,
+)
 
 __all__ = [
     "PrioritizedItem",
@@ -14,4 +20,8 @@ __all__ = [
     "generate_monthly_analysis_markdown",
     "write_monthly_analysis_file",
     "filter_high_priority",
+    "MonthlySummary",
+    "MonthlyItem",
+    "build_monthly_summary",
+    "write_monthly_data_to_repo",
 ]

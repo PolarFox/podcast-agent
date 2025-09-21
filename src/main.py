@@ -16,7 +16,12 @@ from pathlib import Path
 from .utils.logging import configure_logging, get_logger
 from .utils.config_loader import load_sources_config
 from .orchestrator import Orchestrator
-from .analysis import prioritize_articles, write_monthly_analysis_file
+from .analysis import (
+    prioritize_articles,
+    write_monthly_analysis_file,
+    build_monthly_summary,
+    write_monthly_data_to_repo,
+)
 from .pipeline.issue_pipeline import run_auto_issue_pipeline
 from .utils.pipeline_config import PipelineConfig
 
@@ -41,6 +46,16 @@ def parse_args() -> argparse.Namespace:
         "--analysis-only",
         action="store_true",
         help="Only generate monthly situational analysis and exit",
+    )
+    parser.add_argument(
+        "--monthly-data-only",
+        action="store_true",
+        help="Only generate monthly data JSON and exit (commit with --commit-monthly-data)",
+    )
+    parser.add_argument(
+        "--commit-monthly-data",
+        action="store_true",
+        help="Commit generated monthly data JSON to the target repository from env",
     )
     parser.add_argument(
         "--auto-issues",
@@ -109,6 +124,28 @@ def main() -> int:
         items = prioritize_articles(prior_arts, horizon_weeks=args.horizon_weeks)
         path = write_monthly_analysis_file(items, horizon_weeks=args.horizon_weeks)
         logger.info("Wrote monthly analysis to %s", path)
+        return 0
+
+    if args.monthly_data_only:
+        # Build processed articles quickly
+        orch = Orchestrator(
+            dry_run=True,
+            max_items_per_source=args.max_items_per_source,
+            max_total_items=args.max_total_items,
+        )
+        prior_arts = []
+        for src in sources:
+            prior_arts.extend(orch._fetch_source(src))
+        summary = build_monthly_summary(prior_arts, horizon_weeks=args.horizon_weeks)
+        if args.commit_monthly_data and not args.dry_run:
+            path_repo = write_monthly_data_to_repo(summary)
+            logger.info("Committed monthly data to %s", path_repo)
+        else:
+            out_dir = Path("docs/monthly")
+            out_dir.mkdir(parents=True, exist_ok=True)
+            out_path = out_dir / f"summaries-{summary.month}.json"
+            out_path.write_text(summary.to_json_str(), encoding="utf-8")
+            logger.info("Wrote monthly data JSON to %s (not committed)", out_path)
         return 0
 
     if args.auto_issues:
