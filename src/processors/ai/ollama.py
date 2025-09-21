@@ -20,16 +20,20 @@ class OllamaClient(AIClient):
     def __init__(self) -> None:
         self.host = os.environ.get("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
         self.model = os.environ.get("OLLAMA_MODEL", "llama3.1:8b-instruct")
+        # Tuning knobs for speed/latency in local dev
+        self.timeout = int(os.environ.get("OLLAMA_TIMEOUT", os.environ.get("AI_TIMEOUT", "30")))
+        self.num_predict = int(os.environ.get("OLLAMA_NUM_PREDICT", "200"))
 
-    def _chat(self, prompt: str, *, temperature: float = 0.2, timeout: int = 60) -> str:
+    def _chat(self, prompt: str, *, temperature: float = 0.2, timeout: int | None = None) -> str:
         url = f"{self.host}/api/generate"
+        to = timeout or self.timeout
         payload = {
             "model": self.model,
             "prompt": prompt,
             "stream": False,
-            "options": {"temperature": temperature},
+            "options": {"temperature": temperature, "num_predict": self.num_predict},
         }
-        resp = requests.post(url, json=payload, timeout=timeout)
+        resp = requests.post(url, json=payload, timeout=to)
         resp.raise_for_status()
         data = resp.json()
         # Ollama returns {'response': '...'}
