@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-import logging
-
 from .ai import AIClient, create_ai_client
 from .ai.retry import summarize_with_retry
+from ..utils.logging import get_logger
 
-logger = logging.getLogger("ja.processors.summarize")
+logger = get_logger("ja.processors.summarize")
 
 
 def _truncate_words(text: str, max_words: int) -> str:
@@ -33,7 +32,7 @@ def summarize_text(text: str, *, ai: AIClient | None = None, max_words: int = 15
         ai = create_ai_client()
 
     # Chunk long content to improve summary quality and avoid context overflow
-    MAX_WORDS_PER_CHUNK = 400
+    MAX_WORDS_PER_CHUNK = int(os.getenv("AI_SUMMARY_CHUNK_WORDS", "300"))
     words = text.split()
     if len(words) > MAX_WORDS_PER_CHUNK * 2:
         chunk_texts = _split_into_word_chunks(text, max_words_per_chunk=MAX_WORDS_PER_CHUNK)

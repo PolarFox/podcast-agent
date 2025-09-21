@@ -1,15 +1,22 @@
 from __future__ import annotations
 
 import json
-import logging
 from typing import Tuple
+
+import os
 
 from .ai import AIClient, create_ai_client
 from .ai.retry import classify_with_retry
+from ..utils.logging import get_logger
 
-logger = logging.getLogger("ja.processors.classify")
+logger = get_logger("ja.processors.classify")
 
 _CATEGORIES = ["Agile", "DevOps", "Architecture/Infra", "Leadership"]
+
+
+def _truncate_words(text: str, max_words: int) -> str:
+    words = text.split()
+    return " ".join(words[:max_words]) if len(words) > max_words else text
 
 
 def classify_text(
@@ -28,6 +35,14 @@ def classify_text(
     content = text.strip()
     if len(content.split()) < 8:
         logger.debug("Very short content; classification may be unreliable")
+
+    # Truncate input for faster classification in local runs
+    try:
+        max_words = int(os.getenv("AI_INPUT_TRUNCATE_WORDS", "600"))
+        if max_words > 0:
+            content = _truncate_words(content, max_words)
+    except Exception:  # noqa: BLE001
+        pass
 
     # Use retry wrapper for resilience against transient backend errors
     category, conf = classify_with_retry(ai, content)
