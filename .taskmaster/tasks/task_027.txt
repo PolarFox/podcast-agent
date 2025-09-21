@@ -1,0 +1,11 @@
+# Task ID: 27
+# Title: Create Container Image and Dockerfile
+# Status: pending
+# Dependencies: 25
+# Priority: medium
+# Description: Create optimized Docker container for the application with proper Python environment
+# Details:
+Create Dockerfile with: Python 3.11+ base image, multi-stage build for optimization, install dependencies from requirements.txt, copy application code, set proper user permissions (non-root), configure entrypoint. Add .dockerignore for build optimization. Consider distroless or alpine base for security.
+
+# Test Strategy:
+Build and run container locally, test with both AI backends, verify security scanning, test resource usage

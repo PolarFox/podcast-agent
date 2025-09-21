@@ -1,0 +1,63 @@
+# Example sources configuration for the Johtava Arkkitehti Podcast agent
+# Add or modify sources as needed. Supported types: rss, http
+
+sources:
+- name: ThoughtWorks Technology Radar
+  type: rss
+  url: https://www.thoughtworks.com/en/rss.xml
+  keywords: [ "architecture", "technology", "radar" ]
+  category_hints: [ "Architecture/Infra" ]
+
+- name: Martin Fowler Blog
+  type: rss
+  url: https://martinfowler.com/feed.atom
+  keywords: [ "architecture", "refactoring", "patterns" ]
+  category_hints: [ "Architecture/Infra", "Leadership" ]
+
+- name: DORA DevOps Blog
+  type: http
+  url: https://dora.dev/blog/
+  keywords: [ "devops", "metrics", "dora" ]
+  category_hints: [ "DevOps" ]
+
+- name: V01.io
+  type: rss
+  url: https://www.v01.io/posts/index.xml
+  keywords: [ "technology", "software development", "blog" ]
+  category_hints: [ "Architecture/Infra", "DevOps" ]
+
+- name: Richard Seroter's Blog
+  type: rss
+  url: https://seroter.com/feed/
+  keywords: [ "architecture", "cloud", "devops", "ai", "leadership" ]
+  category_hints: [ "Architecture/Infra", "Leadership", "DevOps" ]
+
+- name: DZone Agile
+  type: rss
+  url: https://feeds.dzone.com/agile
+  keywords: [ "agile", "scrum", "devops", "project management" ]
+  category_hints: [ "Agile", "Leadership" ]
+
+- name: DZone Team Management
+  type: rss
+  url: https://feeds.dzone.com/team-management
+  keywords: [ "leadership", "management", "agile", "productivity" ]
+  category_hints: [ "Leadership" ]
+
+- name: DZone DevOps
+  type: rss
+  url: https://feeds.dzone.com/devops-and-cicd
+  keywords: [ "devops", "cicd", "kubernetes", "docker", "automation" ]
+  category_hints: [ "DevOps", "Architecture/Infra" ]
+
+- name: DZone Methodologies
+  type: rss
+  url: https://feeds.dzone.com/methodologies
+  keywords: [ "agile", "scrum", "devops", "architecture", "bdd" ]
+  category_hints: [ "Agile", "Architecture/Infra" ]
+
+- name: The Pragmatic Engineer
+  type: rss
+  url: https://blog.pragmaticengineer.com/rss/
+  keywords: [ "engineering", "leadership", "big tech", "career" ]
+  category_hints: [ "Leadership", "Architecture/Infra" ]

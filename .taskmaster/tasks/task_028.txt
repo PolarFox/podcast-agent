@@ -1,0 +1,11 @@
+# Task ID: 28
+# Title: Create Configuration Templates and Documentation
+# Status: pending
+# Dependencies: 26, 27
+# Priority: medium
+# Description: Create sources.yaml template, GitHub issue template, and comprehensive documentation
+# Details:
+Create: sources.yaml with example RSS feeds and keywords for each category, .github/ISSUE_TEMPLATE/ for consistent issue format, README.md with deployment instructions, configuration guide, GitHub token setup. Document environment variables, Terraform variables, and operational procedures. Include troubleshooting guide.
+
+# Test Strategy:
+Validate YAML syntax, test issue template rendering, verify documentation completeness and accuracy

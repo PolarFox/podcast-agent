@@ -1,0 +1,37 @@
+# Task ID: 16
+# Title: Setup Project Structure and Configuration
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Initialize the project repository structure with proper Python packaging, configuration files, and development environment setup
+# Details:
+Create project structure with: src/uutisagentti/ for Python modules, terraform/ for infrastructure code, docs/ for documentation, tests/ for unit tests. Setup pyproject.toml with dependencies (requests, pyyaml, google-generativeai, ollama-python, github-api). Create .gitignore, requirements.txt, and development setup scripts. Initialize sources.yaml template with RSS feed configurations.
+
+# Test Strategy:
+Verify project structure is correct, dependencies install properly, and configuration files are valid YAML/TOML
+
+# Subtasks:
+## 1. Create Directory Structure and Python Packaging Files [pending]
+### Dependencies: None
+### Description: Set up the complete project directory structure with proper Python packaging configuration
+### Details:
+Create directories: src/uutisagentti/, terraform/, docs/, tests/. Initialize Python package with __init__.py files. Create pyproject.toml with project metadata, build system configuration, and tool configurations for black, isort, and pytest. Set up proper package structure following Python packaging standards.
+
+## 2. Setup Dependency Management Configuration [pending]
+### Dependencies: 16.1
+### Description: Configure project dependencies in pyproject.toml and create requirements.txt for compatibility
+### Details:
+Add dependencies to pyproject.toml: requests, pyyaml, google-generativeai, ollama-python, github-api. Include development dependencies: pytest, black, isort, mypy. Generate requirements.txt from pyproject.toml for backward compatibility. Configure dependency groups for development, testing, and production environments.
+
+## 3. Create Development Environment Configuration Files [pending]
+### Dependencies: 16.1
+### Description: Set up development tooling configuration and environment files
+### Details:
+Create comprehensive .gitignore for Python projects (including __pycache__, .env, .venv, IDE files, OS files). Create development setup scripts (setup.sh for Unix, setup.bat for Windows) to initialize virtual environment and install dependencies. Add pre-commit configuration and development workflow documentation.
+
+## 4. Initialize Sources Configuration Template [pending]
+### Dependencies: 16.2
+### Description: Create sources.yaml template with example RSS feed configurations
+### Details:
+Create sources.yaml template in config/ directory with example RSS feed configurations (using placeholder URLs like example.com/rss). Include structure for feed metadata: name, url, category, language, update_frequency. Add validation schema comments and documentation for configuration format. Ensure template demonstrates all supported configuration options without real URLs.
+

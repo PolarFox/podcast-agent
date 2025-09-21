@@ -1,0 +1,11 @@
+---
+alwaysApply: true
+description: "Rules for Git commits and version control workflow."
+---
+
+# Git Workflow
+
+-   **Commit Frequency**: A commit should be made after each `task-master` task or subtask is completed.
+-   **Commit Scope**: Each commit should be self-contained and relate to the completed task.
+-   **Track `tasks.json`**: The `[.taskmaster/tasks/tasks.json](mdc:.taskmaster/tasks/tasks.json)` file **must** be tracked in Git and included in commits when tasks are updated or completed. This keeps the project plan synchronized with the codebase.
+-   **Commit Messages**: Write clear and descriptive commit messages. If a commit corresponds to a task, reference the task ID in the message (e.g., `feat: Implement content fetcher (Task #3)`).

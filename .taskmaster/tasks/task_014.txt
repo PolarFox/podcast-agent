@@ -1,0 +1,75 @@
+# Task ID: 14
+# Title: Enhance Terraform K8s: imagePullSecrets and ConfigMaps
+# Status: done
+# Dependencies: 11, 13
+# Priority: high
+# Description: Extend Terraform Kubernetes deployment to reference externally managed Secrets and ConfigMaps for private image pulls and environment configuration, including sources.yaml
+# Details:
+- Reference existing Kubernetes Secret of type kubernetes.io/dockerconfigjson for imagePullSecrets to pull images from private registries (e.g., GitHub Container Registry). Reference secret in CronJob podSpec.
+- Reference existing ConfigMaps for application env (PYTHON envs) and for config/sources.yaml content; mount/env-inject into the CronJob.
+- Parameterize via Terraform variables for resource names only - no credentials or config content in code or state.
+- Document external resource creation and validation steps for operators.
+- IMPORTANT: Secrets and ConfigMaps are created and maintained OUTSIDE this repo. Terraform will only reference them by name; operators must provision them separately. Add validation step to fail fast if names are unset.
+
+# Test Strategy:
+- terraform plan/apply against a test cluster with pre-created Secrets/ConfigMaps; verify CronJob references external resources correctly. Validate pod can pull private image and app can read envs and sources.yaml from external resources.
+
+# Subtasks:
+## 1. Reference external dockerconfigjson Secret for imagePullSecrets [done]
+### Dependencies: None
+### Description: Configure CronJob to reference externally managed registry auth secret
+### Details:
+- Reference existing kubernetes_secret with type kubernetes.io/dockerconfigjson via data source or name parameter. Add to podSpec.imagePullSecrets.
+- Support parameterized secret name via Terraform variable (e.g., image_pull_secret_name).
+- No credential creation in Terraform - only reference external resource.
+- Secret is maintained OUTSIDE this repo - operators must create it separately.
+
+## 2. Reference external ConfigMap for application envs [done]
+### Dependencies: None
+### Description: Configure CronJob to use externally managed ConfigMap for Python app env variables
+### Details:
+- Reference existing kubernetes_config_map via data source or name parameter for app configuration (e.g., LOG_LEVEL, PROCESSING_BACKEND). Map to container env via valueFrom.configMapKeyRef.
+- Parameterize ConfigMap name in variables.tf (e.g., app_env_configmap_name).
+- No config content creation in Terraform - only reference external resource.
+- ConfigMap is maintained OUTSIDE this repo - operators must create it separately.
+
+## 3. Reference external ConfigMap for sources.yaml [done]
+### Dependencies: None
+### Description: Configure CronJob to mount externally managed `config/sources.yaml` ConfigMap
+### Details:
+- Reference existing kubernetes_config_map with key `sources.yaml` via data source or name parameter.
+- Mount into container at `/app/config/sources.yaml` via volumeMounts.
+- Parameterize ConfigMap name (e.g., sources_configmap_name).
+- No sources.yaml content creation in Terraform - only reference external resource.
+- ConfigMap is maintained OUTSIDE this repo - operators must create it separately.
+<info added on 2025-09-21T11:43:17.881Z>
+Reference external ConfigMap by name using sources_configmap_name parameter. Mount the sources.yaml key specifically at /app/config/sources.yaml path. Ensure Terraform only references the external resource without creating or managing the ConfigMap content itself.
+</info added on 2025-09-21T11:43:17.881Z>
+
+## 4. Wire external Secret and ConfigMap references in CronJob spec [done]
+### Dependencies: None
+### Description: Update CronJob to reference external imagePullSecrets, envFrom/configMapKeyRef, and volumes/volumeMounts
+### Details:
+- Update CronJob template to include: imagePullSecrets (by name), env (valueFrom external configMap), envFrom (optional), volume + volumeMount for external `sources.yaml` ConfigMap.
+- Confirm SA/Secret from Task 13 still mounts GitHub PAT and AI keys.
+- All references use parameterized names, no inline resource creation.
+- All external resources are maintained OUTSIDE this repo.
+
+## 5. Parameterize external resource names and document creation [done]
+### Dependencies: None
+### Description: Add variables for external resource names and document external resource creation steps
+### Details:
+- variables: image_pull_secret_name, app_env_configmap_name, sources_configmap_name (all string type, no sensitive content).
+- Create documentation for operators on how to create required external Secrets/ConfigMaps before applying Terraform.
+- Include validation steps to verify external resources exist and have correct structure.
+- Document that all external resources are maintained OUTSIDE this repo.
+
+## 6. Add validation for external resource names [done]
+### Dependencies: None
+### Description: Implement Terraform validation to fail fast if external resource names are unset
+### Details:
+- Add validation blocks to Terraform variables to ensure image_pull_secret_name, app_env_configmap_name, and sources_configmap_name are not empty or null.
+- Use validation rules to check that variable values are non-empty strings.
+- Provide clear error messages when validation fails to guide operators on required external resources.
+- Consider adding data source checks to verify external resources exist before applying CronJob configuration.
+

@@ -1,0 +1,8 @@
+# Code owners for infra and pipeline
+# syntax: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+*       @mikkoruohola
+/.github @mikkoruohola
+/k8s    @mikkoruohola
+/terraform @mikkoruohola
+/src    @mikkoruohola

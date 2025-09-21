@@ -1,0 +1,37 @@
+# Task ID: 18
+# Title: Implement Content Normalization and Deduplication
+# Status: pending
+# Dependencies: 17
+# Priority: high
+# Description: Create content normalization and duplicate detection system using hashing and similarity matching
+# Details:
+Implement src/uutisagentti/deduplicator.py with content hashing (SHA-256 of normalized title+description). Add similarity detection using TF-IDF cosine similarity with threshold (e.g., 0.8). Normalize text by removing HTML tags, converting to lowercase, removing extra whitespace. Store processed items with hashes for comparison. Use scikit-learn for similarity calculations.
+
+# Test Strategy:
+Test with duplicate articles, near-duplicate content, and completely different articles. Verify hash consistency and similarity threshold accuracy
+
+# Subtasks:
+## 1. Implement Text Normalization Functions [pending]
+### Dependencies: None
+### Description: Create text normalization utilities for HTML cleaning, whitespace handling, and case conversion
+### Details:
+Implement text normalization functions in src/uutisagentti/deduplicator.py: HTML tag removal using BeautifulSoup, convert to lowercase, normalize whitespace (remove extra spaces, tabs, newlines), handle special characters and encoding. Create normalize_content() function that takes title and description and returns cleaned text suitable for comparison.
+
+## 2. Create Content Hashing System [pending]
+### Dependencies: 18.1
+### Description: Implement SHA-256 hashing system for exact duplicate detection
+### Details:
+Create content hashing system using SHA-256 for exact duplicate detection. Hash normalized title+description concatenation. Implement generate_content_hash() function and hash storage mechanism. Create hash comparison logic to identify exact duplicates efficiently. Store hashes with metadata for quick lookup.
+
+## 3. Implement Similarity Detection [pending]
+### Dependencies: 18.1
+### Description: Create similarity detection using fuzzy matching and token shingling without ML libraries
+### Details:
+Implement similarity detection using stdlib only: fuzzy title matching with difflib.SequenceMatcher, token shingling with Jaccard similarity for content comparison. Create configurable similarity thresholds (default 0.8). Implement calculate_similarity() function that returns similarity scores between articles.
+
+## 4. Create Deduplication Pipeline [pending]
+### Dependencies: 18.2, 18.3
+### Description: Integrate normalization, hashing, and similarity detection into complete deduplication pipeline
+### Details:
+Create complete deduplication pipeline that combines exact hash matching and similarity detection. Implement Deduplicator class with methods: add_article(), find_duplicates(), get_unique_articles(). Include configurable thresholds, storage for processed items, and integration points for the main processing pipeline. Add logging and performance metrics.
+

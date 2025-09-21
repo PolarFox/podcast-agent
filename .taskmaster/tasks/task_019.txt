@@ -1,0 +1,43 @@
+# Task ID: 19
+# Title: Implement AI Backend Abstraction Layer
+# Status: pending
+# Dependencies: 16
+# Priority: high
+# Description: Create abstraction layer supporting both Ollama (development) and Gemini Flash (production) AI backends
+# Details:
+Implement src/uutisagentti/ai_backend.py with abstract base class AIBackend and concrete implementations: OllamaBackend (using ollama-python) and GeminiBackend (using google-generativeai). Support environment-based backend selection. Implement retry logic, error handling, and rate limiting. Add prompt template system for consistent AI interactions across backends.
+
+# Test Strategy:
+Mock both backends for unit tests, integration tests with actual Ollama and Gemini instances, test backend switching and error scenarios
+
+# Subtasks:
+## 1. Design Abstract Base Class Interface [pending]
+### Dependencies: None
+### Description: Create abstract base class AIBackend defining common interface for AI operations including generate_text, validate_response, and get_backend_info methods
+### Details:
+Design src/uutisagentti/ai_backend.py with abstract base class AIBackend using ABC. Define interface methods: generate_text(prompt, max_tokens, temperature), validate_response(response), get_backend_info(). Include type hints and comprehensive docstrings. Define common response format and error handling interface.
+
+## 2. Implement Ollama Backend Client [pending]
+### Dependencies: 19.1
+### Description: Create OllamaBackend implementation using direct HTTP requests to /api/generate endpoint
+### Details:
+Implement OllamaBackend class inheriting from AIBackend. Use requests library to call Ollama's /api/generate endpoint. Handle streaming and non-streaming responses. Parse JSON responses and map to common format. Include model configuration (default: llama3.2). Add connection validation and health checks.
+
+## 3. Implement Gemini Backend Client [pending]
+### Dependencies: 19.1
+### Description: Create GeminiBackend implementation using Google AI Studio v1beta generateContent API
+### Details:
+Implement GeminiBackend class inheriting from AIBackend. Use requests library to call Google AI Studio v1beta generateContent endpoint. Handle API key authentication via headers. Parse JSON responses and map to common format. Include model configuration (default: gemini-1.5-flash). Add quota and safety settings handling.
+
+## 4. Add Backend Selection and Configuration [pending]
+### Dependencies: 19.2, 19.3
+### Description: Implement environment-based backend selection and configuration management system
+### Details:
+Create backend factory function get_ai_backend() that selects backend based on AI_BACKEND environment variable (ollama/gemini). Add configuration loading from environment variables: OLLAMA_BASE_URL, GEMINI_API_KEY, model names, timeouts. Include validation for required configuration per backend. Add backend switching capability for testing.
+
+## 5. Implement Retry Logic and Error Handling [pending]
+### Dependencies: 19.2, 19.3
+### Description: Add comprehensive retry logic, exponential backoff, and structured logging for both backends
+### Details:
+Implement retry decorator with exponential backoff for transient failures. Add specific error handling for: network timeouts, API rate limits, authentication errors, model unavailability. Include structured logging with request/response details, timing metrics, and error context. Add circuit breaker pattern for repeated failures. Configure retry attempts and backoff parameters per backend type.
+

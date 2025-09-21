@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: johtava-arkkitehti-agent
+spec:
+  schedule: "0 6 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: agent
+            image: ghcr.io/polarfox/johtava-arkkitehti-agent:latest
+            imagePullPolicy: IfNotPresent
+            env:
+            - name: LOG_LEVEL
+              value: INFO
+            args: [ "python", "-m", "src.main", "--config", "/app/config/sources.yaml" ]
+            volumeMounts:
+            - name: config
+              mountPath: /app/config
+          volumes:
+          - name: config
+            configMap:
+              name: sources-config

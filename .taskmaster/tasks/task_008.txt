@@ -1,0 +1,43 @@
+# Task ID: 8
+# Title: Create GitHub Issue Template and Formatter
+# Status: done
+# Dependencies: 7
+# Priority: medium
+# Description: Implement GitHub issue creation with proper formatting and labels
+# Details:
+Create issue template with sections: Summary, Impact to Teams, Original Source, Recommendation. Format title as '[CATEGORY] Article Title'. Generate appropriate labels: draft + category (agile|devops|architecture|leadership). Include markdown formatting for readability. Add recommendation for podcast episode assignment based on category.
+
+# Test Strategy:
+Unit tests for template formatting, markdown generation. Test with various article types and categories
+
+# Subtasks:
+## 1. Create Issue Template Structure and Markdown Formatter [done]
+### Dependencies: None
+### Description: Implement the core issue template with required sections and markdown formatting functionality
+### Details:
+Create a template class that generates GitHub issue content with sections: Summary, Impact to Teams, Original Source, Recommendation. Implement markdown formatting functions for headers, bullet points, and code blocks. Include template variables for dynamic content insertion. Format title as '[CATEGORY] Article Title' pattern. Add proper spacing and readability formatting.
+
+## 2. Implement Dynamic Label Generation System [done]
+### Dependencies: 8.1
+### Description: Build label generation logic based on content category and draft status
+### Details:
+Create label generator that produces 'draft' label plus category-specific labels (agile, devops, architecture, leadership). Implement mapping from classification results to GitHub label names. Include validation for label format and GitHub API compatibility. Handle edge cases for unknown or multiple categories.
+
+## 3. Add Category-Based Podcast Episode Recommendations [done]
+### Dependencies: 8.1
+### Description: Implement recommendation system for podcast episode assignments based on content category
+### Details:
+Create recommendation engine that suggests podcast episode assignments based on article category. Define mapping between categories (agile, devops, architecture, leadership) and appropriate podcast formats or hosts. Include recommendation text in the issue template's Recommendation section. Add fallback recommendations for uncategorized content.
+
+## 4. Build Issue Content Assembly Pipeline [done]
+### Dependencies: 8.1, 8.2, 8.3
+### Description: Create the main formatter that assembles all components into final GitHub issue content
+### Details:
+Implement main IssueFormatter class that combines template rendering, label generation, and recommendations into complete GitHub issue payload. Include methods for content validation and formatting consistency. Add support for different content types (RSS articles, web pages). Ensure proper encoding and special character handling for GitHub API compatibility.
+
+## 5. Add Configuration and Customization Support [done]
+### Dependencies: 8.4
+### Description: Implement configuration system for template customization and formatting options
+### Details:
+Create configuration system allowing customization of issue templates, label mappings, and recommendation rules. Support loading custom templates from files or configuration. Add options for different formatting styles and section ordering. Include validation for custom configurations and fallback to defaults. Support environment-specific customizations.
+

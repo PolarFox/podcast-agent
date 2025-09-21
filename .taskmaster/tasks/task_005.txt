@@ -1,0 +1,31 @@
+# Task ID: 5
+# Title: Build Deduplication System
+# Status: done
+# Dependencies: 4
+# Priority: medium
+# Description: Implement hash-based and similarity-based duplicate detection to avoid processing same content multiple times
+# Details:
+Implement content hashing using SHA-256 of normalized title+content. Use sentence-transformers for semantic similarity (all-MiniLM-L6-v2 model). Set similarity threshold at 0.85 for duplicates. Store processed article hashes in local JSON file for persistence across runs. Implement fuzzy matching for titles using difflib for near-duplicates.
+
+# Test Strategy:
+Unit tests for hash generation, similarity calculation. Test with known duplicates and near-duplicates. Performance tests with large article sets
+
+# Subtasks:
+## 1. Implement Content Hashing and Storage System [done]
+### Dependencies: None
+### Description: Create SHA-256 hash-based duplicate detection with persistent storage for processed articles
+### Details:
+Implement content normalization by cleaning whitespace, converting to lowercase, and removing special characters from title+content concatenation. Generate SHA-256 hashes of normalized content. Create JSON-based storage system to persist processed article hashes across application runs. Include functions to load existing hashes on startup, add new hashes, and save to file. Implement robust error handling for file I/O operations and malformed JSON. Use environment configuration for storage file path.
+
+## 2. Build Fuzzy Title Matching System [done]
+### Dependencies: 5.1
+### Description: Implement fuzzy string matching for article titles to detect near-duplicate content
+### Details:
+Use Python's difflib.SequenceMatcher for fuzzy title comparison. Implement title normalization (lowercase, strip whitespace, remove punctuation). Set similarity threshold at 0.85 for near-duplicate detection. Create efficient comparison logic that checks new articles against stored titles. Include configurable similarity threshold via environment variables. Add logging for fuzzy matches found. Store normalized titles alongside hashes for comparison purposes.
+
+## 3. Integrate Deduplication with Article Processing Pipeline [done]
+### Dependencies: 5.1, 5.2
+### Description: Connect deduplication system to main article processing workflow with comprehensive duplicate detection
+### Details:
+Create main deduplication service that combines hash-based and fuzzy matching. Implement check_duplicate() function that returns duplicate status and match details. Integrate with article processing pipeline to skip duplicate articles early in the workflow. Add comprehensive logging for duplicate detection events including match type (hash/fuzzy) and similarity scores. Implement statistics tracking for duplicate detection rates. Create configuration options for enabling/disabling different deduplication methods. Handle edge cases like empty content or malformed articles gracefully.
+

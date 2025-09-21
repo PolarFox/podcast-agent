@@ -1,0 +1,11 @@
+# Task ID: 25
+# Title: Create Main Application Orchestrator
+# Status: pending
+# Dependencies: 18, 22, 24
+# Priority: high
+# Description: Implement main application logic orchestrating all components in the correct sequence
+# Details:
+Implement src/uutisagentti/main.py as entry point orchestrating: fetch → normalize → dedupe → classify → summarize → score → create_issues → generate_analysis. Add comprehensive logging, error handling, and progress reporting. Support configuration via environment variables and command-line arguments. Include dry-run mode for testing.
+
+# Test Strategy:
+End-to-end integration tests, error injection tests, dry-run verification, performance testing with large article sets

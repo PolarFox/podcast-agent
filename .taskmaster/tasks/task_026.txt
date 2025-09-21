@@ -1,0 +1,11 @@
+# Task ID: 26
+# Title: Create Terraform Infrastructure Configuration
+# Status: pending
+# Dependencies: 25
+# Priority: high
+# Description: Implement Terraform configuration for Kubernetes CronJob deployment with external resource references
+# Details:
+Create terraform/main.tf with: kubernetes provider configuration, CronJob resource (schedule: '0 6 * * *'), ServiceAccount, variables for external references (image_pull_secret_name, app_env_configmap_name, sources_configmap_name). Reference external Secrets and ConfigMaps by name only. Include resource limits, restart policies, and proper RBAC. Use kubernetes and helm providers as specified.
+
+# Test Strategy:
+Terraform plan/validate tests, verify external resource references, test deployment to development cluster

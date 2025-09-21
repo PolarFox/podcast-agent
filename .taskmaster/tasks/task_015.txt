@@ -1,0 +1,76 @@
+# Task ID: 15
+# Title: Add topic prioritization and situational analysis
+# Status: pending
+# Dependencies: 6, 7, 8, 9, 10, 5, 4
+# Priority: high
+# Description: On each run, rank candidate issues by likely relevance for the upcoming month and persist a situational analysis Markdown in the repo to guide editorial planning across the next 4 weeks.
+# Details:
+- Compute an "interestingness" score per article/issue candidate optimized for monthly editorial planning (signals: recency, source authority, novelty vs recent topics, engagement proxies if available, category balance across 4-week horizon)
+- Sort issues by score and annotate output (labels, title prefix, or body section)
+- Generate `docs/analysis/situational-YYYY-MM.md` with ranked list, rationale, and recommendations for the upcoming month's episode selection
+- Commit the analysis file to the repo with a clear commit message (configurable, dry-run supported)
+- Add configurable horizon weeks parameter (default 4) for planning timeframe
+- Keep the pipeline helpful for editorial relevance without external services
+
+# Test Strategy:
+- Unit tests for scoring function and deterministic ranking with monthly horizon
+- Golden-file tests for analysis Markdown content with monthly format
+- Dry-run test ensures no commit; normal run creates or updates analysis file and commits
+- Integration test verifies ranked ordering flows into issue creation order (or annotations)
+- Test configurable horizon weeks parameter
+
+# Subtasks:
+## 1. Design interestingness scoring model for monthly planning [pending]
+### Dependencies: None
+### Description: Define scoring signals and weights optimized for 4-week editorial horizon (recency, source authority, novelty, category balance).
+### Details:
+- Specify formula and weight ranges for monthly relevance; include config knobs via env or config
+- Add configurable horizon weeks parameter (default 4)
+- Ensure deterministic for same inputs; document tie-breakers
+- Plan for optional signals (engagement) without blocking MVP
+- Optimize scoring for editorial planning across multiple weeks rather than immediate relevance
+
+## 2. Implement scoring and ranking for monthly horizon [pending]
+### Dependencies: None
+### Description: Compute scores for candidates optimized for upcoming month and return stable, sorted ordering.
+### Details:
+- Pure function + unit tests; handle missing fields gracefully
+- Expose top-N parameter (default 10); attach scores to results
+- Consider category balance across 4-week planning window
+- Include horizon weeks as configurable parameter
+
+## 3. Generate monthly situational analysis Markdown [pending]
+### Dependencies: None
+### Description: Create `docs/analysis/situational-YYYY-MM.md` with ranked list and monthly editorial recommendations.
+### Details:
+- Include month/year, top-N table, per-item reasoning, category coverage for 4-week horizon
+- Provide recommendations for upcoming month's episode selection and category distribution
+- Idempotent update for same month (not daily)
+- Include planning insights for editorial team across multiple weeks
+
+## 4. Integrate monthly ranking into issue creation/annotations [pending]
+### Dependencies: None
+### Description: Use monthly ranking to influence issue creation order and/or add rank annotations with monthly context.
+### Details:
+- Option A: create issues in ranked order based on monthly relevance
+- Option B: add rank label/body section with score, rationale, and monthly planning context
+- Ensure annotations reflect monthly editorial planning rather than immediate relevance
+
+## 5. Commit monthly analysis file (configurable) [pending]
+### Dependencies: None
+### Description: Write and commit monthly analysis file with descriptive message; support dry-run/no-commit.
+### Details:
+- Commit message: `analysis: situational YYYY-MM (monthly planning)`
+- CLI flags: --analysis-only, --no-commit, --horizon-weeks
+- Avoid committing on failures; clear logging
+- Handle monthly file updates (idempotent per month)
+
+## 6. Documentation and operator guide for monthly planning [pending]
+### Dependencies: None
+### Description: Document monthly scoring model, analysis file location, CLI flags, and editorial workflow for 4-week planning.
+### Details:
+- Update README/PRD sections; show example monthly analysis file
+- Explain how to use monthly analysis for upcoming 4-week episode planning
+- Document horizon weeks configuration and its impact on scoring
+- Include guidance on category balance across monthly planning window
+

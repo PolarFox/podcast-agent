@@ -1,0 +1,11 @@
+# Task ID: 2
+# Title: Create sources.yaml Configuration System
+# Status: done
+# Dependencies: 1
+# Priority: high
+# Description: Implement configuration system for RSS/HTTP sources with keywords and categorization
+# Details:
+Create sources.yaml schema with fields: name, url, type (rss/http), keywords, category_hints. Implement Python configuration loader using PyYAML. Include sample sources for Agile, DevOps, Architecture/Infra, and Leadership topics. Add validation for required fields and URL formats.
+
+# Test Strategy:
+Unit tests for config loader, validation of sample sources.yaml, test loading invalid configurations

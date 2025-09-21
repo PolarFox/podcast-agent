@@ -1,0 +1,43 @@
+# Task ID: 13
+# Title: Setup Terraform project and providers
+# Status: done
+# Dependencies: 10
+# Priority: high
+# Description: Initialize Terraform for Kubernetes: configure backend, kubernetes/helm providers, variables and .gitignore; define base resources (Namespace if needed, ServiceAccount, Secret for GitHub PAT) to support the CronJob.
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Initialize Terraform project structure and backend configuration [done]
+### Dependencies: None
+### Description: Set up the basic Terraform project structure with proper backend configuration for state management
+### Details:
+Create terraform/ directory with main.tf, variables.tf, outputs.tf, and versions.tf files. Configure Terraform backend (local or remote like S3/GCS) in versions.tf. Set minimum Terraform version requirement (>= 1.0). Initialize project with 'terraform init' and validate configuration structure.
+
+## 2. Configure Kubernetes and Helm providers [done]
+### Dependencies: 13.1
+### Description: Set up Kubernetes and Helm providers with proper authentication and configuration
+### Details:
+Configure kubernetes provider in versions.tf with cluster authentication (kubeconfig or in-cluster). Add helm provider for potential chart deployments. Set provider versions and configure authentication methods. Test provider connectivity to target Kubernetes cluster.
+
+## 3. Define Terraform variables and create .gitignore [done]
+### Dependencies: 13.1
+### Description: Create comprehensive variable definitions and proper .gitignore for Terraform project
+### Details:
+Define variables in variables.tf for namespace name, GitHub token, service account name, and other configurable values. Set appropriate defaults and descriptions. Create .gitignore to exclude .terraform/, *.tfstate, *.tfstate.backup, .terraform.lock.hcl, and sensitive files. Include terraform.tfvars in .gitignore for security.
+
+## 4. Create Kubernetes Namespace resource [done]
+### Dependencies: 13.2
+### Description: Define Terraform resource for Kubernetes namespace to isolate CronJob resources
+### Details:
+Create kubernetes_namespace resource in main.tf with configurable name from variables. Add proper labels and annotations for resource management. Configure namespace with appropriate metadata and ensure it's created before other resources.
+
+## 5. Create ServiceAccount and Secret resources for GitHub PAT [done]
+### Dependencies: 13.4
+### Description: Define ServiceAccount and Secret resources to support CronJob authentication and GitHub API access
+### Details:
+Create kubernetes_service_account resource with proper RBAC permissions for CronJob operations. Define kubernetes_secret resource for GitHub Personal Access Token with base64 encoding. Configure Secret mounting and reference in ServiceAccount. Set up proper labels and annotations for resource linking.
+

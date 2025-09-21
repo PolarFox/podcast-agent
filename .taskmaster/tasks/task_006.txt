@@ -1,0 +1,43 @@
+# Task ID: 6
+# Title: Implement Content Classification System
+# Status: done
+# Dependencies: 5
+# Priority: medium
+# Description: Classify articles into 4 categories: Agile, DevOps, Architecture/Infra, Leadership using AI backend (Ollama or Gemini) with structured JSON responses
+# Details:
+Implement AI-powered content classification using configurable backend (Ollama for development, Gemini for production). Create clear classification prompts with JSON schema validation. Parse structured responses with robust error handling. Support categories: Agile, DevOps, Architecture/Infra, Leadership. Return category and confidence score (0-1) in standardized format.
+
+# Test Strategy:
+Unit tests for prompt generation and JSON parsing, integration tests with both AI backends using mock responses. Test error handling for malformed responses and API failures. Validate classification accuracy with sample articles
+
+# Subtasks:
+## 1. Design Classification Prompt Templates with Examples [done]
+### Dependencies: None
+### Description: Create structured prompt templates for AI backends with clear instructions and examples for each category (Agile, DevOps, Architecture/Infra, Leadership)
+### Details:
+Design comprehensive prompt templates that include category definitions, classification criteria, and 2-3 examples per category. Create separate templates for Ollama and Gemini if needed. Include clear instructions for JSON response format with category and confidence score. Test prompts with sample articles to ensure consistent classification behavior.
+
+## 2. Implement JSON Schema and Response Parser [done]
+### Dependencies: 6.1
+### Description: Create JSON schema validation and robust parser for AI backend responses with error handling
+### Details:
+Define JSON schema for classification responses with required fields: category (enum of 4 categories) and confidence (float 0-1). Implement parser with comprehensive error handling for malformed JSON, missing fields, and invalid values. Add fallback mechanisms for partial responses and logging for debugging failed parses.
+
+## 3. Build AI Backend Integration with Retry Logic [done]
+### Dependencies: 6.1, 6.2
+### Description: Implement configurable AI backend client with retry mechanism and exponential backoff with jitter
+### Details:
+Create unified interface for both Ollama and Gemini backends controlled by environment variable. Implement retry logic with exponential backoff and jitter for API failures. Add timeout handling (30s default) and rate limiting respect. Include comprehensive logging for API calls, retries, and failures for debugging.
+
+## 4. Implement Category Validation and Confidence Scoring [done]
+### Dependencies: 6.2, 6.3
+### Description: Build validation system for classification results and confidence score normalization
+### Details:
+Validate that returned categories match exactly one of the 4 defined categories (Agile, DevOps, Architecture/Infra, Leadership). Implement confidence score validation (0-1 range) and normalization if needed. Add logic to handle edge cases like multiple categories or invalid confidence values. Include fallback classification for validation failures.
+
+## 5. Integrate Classification Pipeline with Metrics Collection [done]
+### Dependencies: 6.3, 6.4
+### Description: Integrate classification system into main processing pipeline with performance metrics and monitoring
+### Details:
+Integrate classification system into Article processing pipeline after content normalization. Collect metrics including classification latency, confidence score distribution, category distribution, and error rates. Add monitoring for API usage and costs. Implement batch processing optimization and caching for repeated classifications.
+

@@ -1,0 +1,31 @@
+# Task ID: 12
+# Title: Create Documentation and Deployment Guide
+# Status: pending
+# Dependencies: 11
+# Priority: medium
+# Description: Write comprehensive README and deployment documentation
+# Details:
+Create README.md with: project overview, installation instructions, configuration guide, deployment steps. Document GitHub token setup and permissions required. Include troubleshooting section and example configurations. Create deployment checklist and monitoring recommendations. Add architecture diagram showing data flow.
+
+# Test Strategy:
+Follow deployment guide on clean environment, verify all steps work correctly, test with different configurations
+
+# Subtasks:
+## 1. Create Comprehensive README with Installation and Configuration [pending]
+### Dependencies: None
+### Description: Write detailed README.md covering project overview, installation instructions, and configuration guides for all system components
+### Details:
+Create README.md with project overview explaining the automated content curation system. Include step-by-step installation instructions for Python dependencies, Docker setup, and local development environment. Document configuration of sources.yaml with examples for RSS/HTTP sources, keywords, and categorization. Add AI backend configuration sections for Ollama and Gemini setup including API keys and endpoints. Include environment variable documentation and example .env file. Document Kubernetes secrets and environment variable requirements.
+
+## 2. Create Deployment Documentation with GitHub Integration [pending]
+### Dependencies: 12.1
+### Description: Document deployment processes, GitHub token setup, permissions, and Terraform integration steps
+### Details:
+Create deployment guide covering GitHub token creation and required permissions (repo access, issue creation). Document Terraform integration steps for Kubernetes deployment including provider configuration and state management. Include deployment checklist with pre-deployment verification steps. Add monitoring recommendations for CronJob execution and system health. Document Kubernetes secrets creation for GitHub tokens and AI API keys. Include example Terraform configurations and kubectl commands for manual deployment verification.
+
+## 3. Create Troubleshooting Guide and Architecture Documentation [pending]
+### Dependencies: 12.1, 12.2
+### Description: Develop comprehensive troubleshooting guide and create architecture diagrams showing system data flow
+### Details:
+Create troubleshooting section covering common issues: AI API errors and rate limits, GitHub authentication failures, Kubernetes deployment problems, and configuration validation errors. Include diagnostic commands and log analysis guidance. Create architecture diagram showing data flow from RSS/HTTP sources through content processing pipeline to GitHub issue creation. Document component interactions between configuration loader, content fetcher, AI classification/summarization, and GitHub integration. Add references to monitoring and debugging approaches for each system component.
+
