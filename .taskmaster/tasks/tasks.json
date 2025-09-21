@@ -1118,7 +1118,7 @@
         "dependencies": [
           19
         ],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -1132,7 +1132,7 @@
           20,
           21
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -1145,7 +1145,7 @@
         "dependencies": [
           20
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -1241,11 +1241,268 @@
         ],
         "status": "pending",
         "subtasks": []
+      },
+      {
+        "id": 31,
+        "title": "Implement Configurable Logging System",
+        "description": "Create a flexible logging system that logs to files by default but switches to stdout in Kubernetes environments, with configurable behavior via environment variables.",
+        "details": "Implement src/uutisagentti/logger.py with Python's logging module to create a configurable logging system. Support multiple output modes: file logging (default), stdout logging (for Kubernetes), and hybrid mode. Use environment variables for configuration: LOG_OUTPUT (file|stdout|both), LOG_LEVEL (DEBUG|INFO|WARNING|ERROR), LOG_FILE_PATH (default: logs/uutisagentti.log), LOG_FORMAT (structured JSON or plain text). Detect Kubernetes environment automatically via K8S_CLUSTER or KUBERNETES_SERVICE_HOST environment variables. Implement log rotation for file output using RotatingFileHandler with configurable size limits. Add structured logging with contextual information (timestamp, level, component, message). Include correlation IDs for tracing requests across components. Ensure thread-safety for concurrent logging operations. Create logger factory function that other modules can import and use consistently.",
+        "testStrategy": "Unit tests for logger configuration with different environment variable combinations. Test file logging with rotation limits and directory creation. Test stdout logging format and output capture. Test Kubernetes environment detection logic. Integration tests verifying logging works across all application components (fetcher, classifier, summarizer, etc.). Test log level filtering and format consistency. Performance tests for high-volume logging scenarios. Test error handling when log directories are not writable or disk space is full.",
+        "status": "done",
+        "dependencies": [
+          25
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Logging Configuration Setup",
+            "description": "Create the core logging configuration system that reads environment variables and sets up the base logging infrastructure with configurable parameters.",
+            "dependencies": [],
+            "details": "Create src/uutisagentti/logger.py with configuration class that reads environment variables: LOG_OUTPUT (file|stdout|both), LOG_LEVEL (DEBUG|INFO|WARNING|ERROR), LOG_FILE_PATH (default: logs/uutisagentti.log), LOG_FORMAT (structured JSON or plain text). Implement configuration validation and default value handling. Create structured logging formatters for both JSON and plain text formats. Include correlation ID generation for request tracing. Ensure thread-safety with proper locking mechanisms.\n<info added on 2025-09-21T13:22:32.757Z>\nInitial implementation completed in src/utils/logging.py with environment variable configuration (LOG_LEVEL, LOG_OUTPUT, LOG_FILE_PATH, LOG_FORMAT), Kubernetes environment detection via is_kubernetes_env function, configurable handlers for stdout/file/both outputs, support for text and JSON formats, RotatingFileHandler for file logging, and get_logger function for easy logger retrieval. Ready for application-wide integration.\n</info added on 2025-09-21T13:22:32.757Z>",
+            "status": "done",
+            "testStrategy": "Unit tests for configuration parsing with various environment variable combinations, validation of default values, and formatter output verification"
+          },
+          {
+            "id": 2,
+            "title": "Implement Kubernetes Environment Detection",
+            "description": "Create automatic detection mechanism for Kubernetes environments to enable context-aware logging behavior.",
+            "dependencies": [
+              "31.1"
+            ],
+            "details": "Implement environment detection function that checks for K8S_CLUSTER or KUBERNETES_SERVICE_HOST environment variables. Create fallback detection by checking for /var/run/secrets/kubernetes.io/serviceaccount directory. Add configuration override capability to force specific environments for testing. Return boolean indicating Kubernetes environment status and integrate with logging configuration to automatically switch to stdout mode when detected.",
+            "status": "done",
+            "testStrategy": "Unit tests with mocked environment variables and filesystem checks, test override functionality and integration with logging configuration"
+          },
+          {
+            "id": 3,
+            "title": "Implement File Logging System",
+            "description": "Create file-based logging system with rotation capabilities for local development and non-Kubernetes environments.",
+            "dependencies": [
+              "31.1"
+            ],
+            "details": "Implement file logging using RotatingFileHandler with configurable size limits (default 10MB, 5 backup files). Create automatic directory creation for log file paths. Add file permissions handling and error recovery for file access issues. Implement log rotation with timestamp-based backup naming. Include file locking for concurrent access safety. Support both JSON and plain text formats based on configuration.",
+            "status": "done",
+            "testStrategy": "Test file creation, rotation limits, directory creation, concurrent access, and different format outputs"
+          },
+          {
+            "id": 4,
+            "title": "Implement Console Logging System",
+            "description": "Create stdout/console logging system optimized for Kubernetes environments and container orchestration.",
+            "dependencies": [
+              "31.1"
+            ],
+            "details": "Implement console logging using StreamHandler targeting stdout. Optimize output format for container log aggregation systems. Support structured JSON logging for better parsing by log collectors. Include proper encoding handling for special characters. Add buffering configuration for performance in high-throughput scenarios. Ensure compatibility with container runtime log drivers.",
+            "status": "done",
+            "testStrategy": "Test stdout output capture, JSON format validation, encoding handling, and performance under load"
+          },
+          {
+            "id": 5,
+            "title": "Integrate Logging System Throughout Application",
+            "description": "Replace existing logging mechanisms throughout the application and create consistent logger factory for all modules.",
+            "dependencies": [
+              "31.2",
+              "31.3",
+              "31.4"
+            ],
+            "details": "Create logger factory function get_logger(component_name) that returns configured logger instances. Replace all print statements and basic logging calls across existing modules (classifier.py, summarizer.py, scorer.py, github_client.py, analyzer.py). Add contextual logging with component names and correlation IDs. Implement proper exception logging with stack traces. Create logging middleware for request/response tracking. Add performance logging for key operations with timing information.\n<info added on 2025-09-21T13:25:13.539Z>\nSuccessfully integrated the new logging system across 8 application modules by replacing legacy `logging.getLogger` calls with the standardized `get_logger` function. Updated modules include: main.py, orchestrator.py, processors (summarize.py, classify.py, ai/retry.py), output (github_client.py), and fetchers (rss.py, http.py). This establishes consistent logging patterns and component identification throughout the entire application codebase.\n</info added on 2025-09-21T13:25:13.539Z>",
+            "status": "done",
+            "testStrategy": "Integration tests verifying logging works across all application components, test correlation ID propagation, verify no print statements remain, and check log output consistency"
+          }
+        ]
+      },
+      {
+        "id": 32,
+        "title": "Implement Automated GitHub Issue Creation Pipeline",
+        "description": "Create automated system that identifies high-priority articles from summarization results and creates GitHub issues with proper formatting, linking multiple sources together.",
+        "details": "Implement GitHub issue creation pipeline that: 1) Analyzes summarized articles to identify timely and interesting content based on scoring thresholds and relevance criteria, 2) Groups related articles by topic/category to create comprehensive issues linking multiple sources, 3) Creates GitHub issues using the established template format with sections for Summary, Impact to Teams, Original Sources (multiple), and Recommendations, 4) Applies appropriate labels (draft + category) and assigns to relevant team members, 5) Implements rate limiting and error handling for GitHub API calls, 6) Maintains issue creation history to avoid duplicates, 7) Generates summary reports of created issues. Include configuration for priority thresholds, grouping criteria, and GitHub repository settings. Handle authentication via GitHub token and implement proper error recovery for API failures.",
+        "testStrategy": "Test with mock summarized articles of varying priority scores, verify issue grouping logic with related articles, validate GitHub API integration with test repository, test rate limiting and error handling scenarios, verify issue template formatting and label application, test duplicate prevention mechanisms, validate summary report generation",
+        "status": "pending",
+        "dependencies": [
+          25,
+          8
+        ],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Article Priority Analysis Engine",
+            "description": "Create system to analyze summarized articles and identify high-priority content based on scoring thresholds and relevance criteria",
+            "dependencies": [],
+            "details": "Implement src/uutisagentti/priority_analyzer.py that takes scored articles from the scoring system and applies configurable thresholds to identify high-priority content. Include methods to filter articles based on minimum score thresholds, recency requirements, and category-specific criteria. Add configuration support for priority thresholds per category and overall minimum scores. Integrate with existing scorer.py to leverage article scores and metadata.",
+            "status": "pending",
+            "testStrategy": "Test with articles of varying scores, verify threshold filtering works correctly, test category-specific priority rules"
+          },
+          {
+            "id": 2,
+            "title": "Implement Article Grouping and Topic Clustering",
+            "description": "Create system to group related articles by topic/category to create comprehensive issues linking multiple sources",
+            "dependencies": [
+              "32.1"
+            ],
+            "details": "Implement src/uutisagentti/article_grouper.py that analyzes high-priority articles and groups them by similarity and topic relevance. Use article titles, summaries, and categories to identify related content. Implement clustering algorithms (e.g., semantic similarity using embeddings or keyword overlap) to group articles that should be combined into single GitHub issues. Add configuration for grouping sensitivity and maximum articles per group.",
+            "status": "pending",
+            "testStrategy": "Test grouping with related and unrelated articles, verify cluster quality and size limits, test edge cases with single articles"
+          },
+          {
+            "id": 3,
+            "title": "Create GitHub Issue Template Generator",
+            "description": "Implement template system for generating properly formatted GitHub issue content with multiple sources",
+            "dependencies": [
+              "32.2"
+            ],
+            "details": "Implement src/uutisagentti/issue_template.py that generates GitHub issue content using established template format. Create templates with sections for Summary (combining multiple article summaries), Impact to Teams (aggregated team impact bullets), Original Sources (multiple article links), and Recommendations. Support both single-article and multi-article issue generation. Include title generation that reflects grouped content appropriately.",
+            "status": "pending",
+            "testStrategy": "Test template generation with single and multiple articles, verify all required sections are included, test formatting consistency"
+          },
+          {
+            "id": 4,
+            "title": "Implement GitHub API Client with Rate Limiting",
+            "description": "Create robust GitHub API client with rate limiting, error handling, and authentication management",
+            "dependencies": [],
+            "details": "Extend existing src/uutisagentti/github_client.py to add advanced rate limiting, retry mechanisms with exponential backoff, and comprehensive error handling for API failures. Implement request queuing to respect GitHub API rate limits (5000 requests/hour). Add authentication validation and token refresh capabilities. Include detailed logging for API interactions and error recovery strategies.",
+            "status": "pending",
+            "testStrategy": "Test rate limiting with high-volume requests, verify error handling and retry logic, test authentication scenarios"
+          },
+          {
+            "id": 5,
+            "title": "Implement Issue Creation History and Duplicate Prevention",
+            "description": "Create system to track created issues and prevent duplicate issue creation",
+            "dependencies": [
+              "32.4"
+            ],
+            "details": "Implement src/uutisagentti/issue_tracker.py that maintains a persistent history of created GitHub issues. Store issue metadata including article IDs, creation timestamps, and GitHub issue URLs. Implement duplicate detection logic that checks if articles have already been processed into issues. Add cleanup mechanisms for old history entries and support for manual override of duplicate prevention when needed.",
+            "status": "pending",
+            "testStrategy": "Test duplicate detection with same articles, verify history persistence, test cleanup mechanisms and override functionality"
+          },
+          {
+            "id": 6,
+            "title": "Implement Issue Creation Pipeline Orchestrator",
+            "description": "Create main pipeline that orchestrates the entire issue creation process from analysis to GitHub issue creation",
+            "dependencies": [
+              "32.3",
+              "32.5"
+            ],
+            "details": "Implement src/uutisagentti/issue_pipeline.py that coordinates the entire pipeline: analyze articles for priority, group related content, generate issue templates, check for duplicates, create GitHub issues with proper labels and assignments. Include configuration management for all pipeline parameters, dry-run mode for testing, and comprehensive error handling with rollback capabilities for partial failures.",
+            "status": "pending",
+            "testStrategy": "Test complete pipeline with various article sets, verify dry-run mode works correctly, test error scenarios and rollback mechanisms"
+          },
+          {
+            "id": 7,
+            "title": "Implement Issue Labeling and Assignment System",
+            "description": "Create system to apply appropriate labels and assign issues to relevant team members",
+            "dependencies": [
+              "32.6"
+            ],
+            "details": "Implement src/uutisagentti/issue_manager.py that handles GitHub issue labeling and assignment. Apply 'draft' label plus category-specific labels based on article classification. Implement team member assignment logic based on article categories and configurable assignment rules. Support multiple assignees for cross-category issues and include fallback assignment strategies when primary assignees are unavailable.",
+            "status": "pending",
+            "testStrategy": "Test label application for different categories, verify assignment logic with various team configurations, test fallback scenarios"
+          },
+          {
+            "id": 8,
+            "title": "Implement Pipeline Reporting and Configuration System",
+            "description": "Create comprehensive reporting system and configuration management for the issue creation pipeline",
+            "dependencies": [
+              "32.7"
+            ],
+            "details": "Implement src/uutisagentti/pipeline_reporter.py that generates summary reports of created issues including statistics on articles processed, issues created, categories covered, and any errors encountered. Add configuration system in src/uutisagentti/config/pipeline_config.py for all pipeline parameters including priority thresholds, grouping criteria, GitHub repository settings, and team assignments. Include configuration validation and environment-specific overrides.",
+            "status": "pending",
+            "testStrategy": "Test report generation with various pipeline runs, verify configuration loading and validation, test environment-specific configurations"
+          },
+          {
+            "id": 9,
+            "title": "Implement Article Priority Analysis Module",
+            "description": "Create module to analyze summarized articles and identify high-priority content based on scoring thresholds and relevance criteria",
+            "dependencies": [],
+            "details": "Implement src/uutisagentti/priority_analyzer.py that integrates with existing scorer.py to filter articles above configurable priority thresholds. Add methods to evaluate article relevance based on category balance, freshness scores, and source authority. Include configuration for minimum score thresholds per category and overall priority cutoffs. Return filtered article lists with priority rankings.",
+            "status": "pending",
+            "testStrategy": "Test with mock articles of varying scores, verify threshold filtering works correctly, test edge cases with articles at threshold boundaries"
+          },
+          {
+            "id": 10,
+            "title": "Implement Article Grouping and Topic Clustering",
+            "description": "Create system to group related articles by topic/category to create comprehensive issues linking multiple sources",
+            "dependencies": [
+              "32.1"
+            ],
+            "details": "Implement src/uutisagentti/article_grouper.py using similarity analysis to cluster related articles. Use article titles, summaries, and categories to identify related content. Implement configurable similarity thresholds and maximum group sizes. Create grouping strategies: by category, by keyword similarity, and by temporal proximity. Return grouped article collections with primary article identification.",
+            "status": "pending",
+            "testStrategy": "Test grouping with articles on similar topics, verify groups don't exceed size limits, test with articles spanning multiple categories"
+          },
+          {
+            "id": 11,
+            "title": "Create GitHub Issue Template Generator",
+            "description": "Implement template system for generating properly formatted GitHub issues with sections for Summary, Impact to Teams, Original Sources, and Recommendations",
+            "dependencies": [
+              "32.2"
+            ],
+            "details": "Implement src/uutisagentti/issue_template.py to generate issue content from grouped articles. Create templates with sections: Summary (combining multiple article summaries), Impact to Teams (aggregated team impacts), Original Sources (formatted list with links), and Recommendations (synthesized from multiple sources). Support both single-article and multi-article issue formats. Include title generation following '[CATEGORY] Topic Summary' format.",
+            "status": "pending",
+            "testStrategy": "Test template generation with single articles and article groups, verify all sections are populated correctly, test with edge cases like missing data"
+          },
+          {
+            "id": 12,
+            "title": "Implement GitHub API Integration with Rate Limiting",
+            "description": "Create robust GitHub API client with rate limiting, error handling, and authentication for issue creation",
+            "dependencies": [],
+            "details": "Extend existing src/uutisagentti/github_client.py to add rate limiting using token bucket algorithm or similar. Implement exponential backoff for API failures, proper error handling for different HTTP status codes, and authentication validation. Add methods for batch issue creation with delays between requests. Include configuration for rate limits (requests per hour) and retry policies.",
+            "status": "pending",
+            "testStrategy": "Test rate limiting with rapid API calls, verify error handling with mock API failures, test authentication with invalid tokens"
+          },
+          {
+            "id": 13,
+            "title": "Implement Issue Creation History and Duplicate Prevention",
+            "description": "Create system to track created issues and prevent duplicate issue creation",
+            "dependencies": [
+              "32.4"
+            ],
+            "details": "Implement src/uutisagentti/issue_tracker.py to maintain history of created issues using local database or file storage. Track issue creation by article URL, title hash, and creation timestamp. Implement duplicate detection using content similarity and URL matching. Add methods to check for existing issues before creation and update tracking after successful creation. Include cleanup for old tracking data.",
+            "status": "pending",
+            "testStrategy": "Test duplicate detection with identical and similar articles, verify tracking persistence across runs, test cleanup of old tracking data"
+          },
+          {
+            "id": 14,
+            "title": "Implement Label Management and Team Assignment",
+            "description": "Create system for applying appropriate labels and assigning issues to relevant team members",
+            "dependencies": [
+              "32.3"
+            ],
+            "details": "Implement src/uutisagentti/label_manager.py to handle GitHub label application and team assignment. Create mapping between article categories and GitHub labels, ensure 'draft' label is always applied. Implement team assignment logic based on article categories and configurable team mappings. Add validation for label existence and team member availability. Support custom label creation if needed.",
+            "status": "pending",
+            "testStrategy": "Test label application for all categories, verify team assignment logic, test with non-existent labels and team members"
+          },
+          {
+            "id": 15,
+            "title": "Create Pipeline Configuration and Settings Management",
+            "description": "Implement comprehensive configuration system for priority thresholds, grouping criteria, and GitHub repository settings",
+            "dependencies": [],
+            "details": "Create src/uutisagentti/pipeline_config.py with configuration classes for all pipeline settings. Include priority thresholds per category, article grouping parameters, GitHub repository settings, rate limiting configuration, and team assignment mappings. Support environment variable overrides and configuration file loading. Add validation for all configuration parameters and sensible defaults.",
+            "status": "pending",
+            "testStrategy": "Test configuration loading from files and environment variables, verify validation catches invalid settings, test with missing configuration files"
+          },
+          {
+            "id": 16,
+            "title": "Implement Main Pipeline Orchestrator and Reporting",
+            "description": "Create main pipeline orchestrator that coordinates all components and generates summary reports of created issues",
+            "dependencies": [
+              "32.1",
+              "32.2",
+              "32.3",
+              "32.4",
+              "32.5",
+              "32.6",
+              "32.7"
+            ],
+            "details": "Implement src/uutisagentti/issue_pipeline.py as main orchestrator that coordinates priority analysis, article grouping, issue creation, and reporting. Include methods to run full pipeline, generate summary reports with statistics (issues created, articles processed, errors encountered), and handle overall error recovery. Add logging throughout pipeline execution and support for dry-run mode. Create CLI interface for pipeline execution.",
+            "status": "pending",
+            "testStrategy": "Test full pipeline integration with mock data, verify error handling and recovery, test dry-run mode, validate summary report accuracy"
+          }
+        ]
       }
     ],
     "metadata": {
       "created": "2025-09-21T08:00:58.083Z",
-      "updated": "2025-09-21T12:46:37.338Z",
+      "updated": "2025-09-21T14:32:34.519Z",
       "description": "Tasks for master context"
     }
   }

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Iterable, List, Optional
@@ -8,8 +7,9 @@ from typing import Iterable, List, Optional
 import feedparser
 
 from ..models import Source
+from ..utils.logging import get_logger
 
-logger = logging.getLogger("ja.fetchers.rss")
+logger = get_logger("ja.fetchers.rss")
 
 
 @dataclass(slots=True)

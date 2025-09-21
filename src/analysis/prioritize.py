@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, List, Tuple
+from collections import Counter
 
 from ..models import Article
 
@@ -105,6 +106,12 @@ def generate_monthly_analysis_markdown(items: List[PrioritizedItem], *, horizon_
     for idx, it in enumerate(items, start=1):
         lines.append(f"- {idx}. {it.article.title}: {it.rationale}")
     lines.append("")
+    # Category balance
+    lines.extend(_format_category_balance_section(items))
+    lines.append("")
+    # Weekly plan (deterministic distribution)
+    lines.extend(_format_weekly_plan_section(items, weeks=horizon_weeks))
+    lines.append("")
     lines.append("## Recommendations")
     lines.append(
         "Aim for balanced coverage across Architecture/Infra, DevOps, Agile, and Leadership over the next month."
@@ -123,3 +130,63 @@ def write_monthly_analysis_file(
     content = generate_monthly_analysis_markdown(items, horizon_weeks=horizon_weeks)
     file_path.write_text(content, encoding="utf-8")
     return file_path
+
+
+# --- Internals: analysis sections ---
+
+_CATEGORY_ORDER = [
+    "Architecture/Infra",
+    "DevOps",
+    "Agile",
+    "Leadership",
+    "Uncategorized",
+]
+
+
+def _normalize_category(value: str | None) -> str:
+    return value if (value and value.strip()) else "Uncategorized"
+
+
+def _format_category_balance_section(items: List[PrioritizedItem]) -> List[str]:
+    total = max(1, len(items))
+    cats = [_normalize_category(it.article.category) for it in items]
+    counts = Counter(cats)
+    # Ensure all known categories are present for consistent table shape
+    for cat in _CATEGORY_ORDER:
+        counts.setdefault(cat, 0)
+
+    lines: List[str] = []
+    lines.append("## Category Balance")
+    lines.append("")
+    lines.append("| Category | Count | Share |")
+    lines.append("| -------- | -----:| -----:|")
+    for cat in _CATEGORY_ORDER:
+        cnt = counts[cat]
+        share = cnt / total
+        lines.append(f"| {cat} | {cnt} | {share:.0%} |")
+    return lines
+
+
+def _format_weekly_plan_section(items: List[PrioritizedItem], *, weeks: int = 4) -> List[str]:
+    if weeks <= 0:
+        weeks = 4
+    # Deterministic round-robin assignment by original priority order
+    weekly: List[List[PrioritizedItem]] = [[] for _ in range(weeks)]
+    for idx, it in enumerate(items):
+        weekly_idx = idx % weeks
+        weekly[weekly_idx].append(it)
+
+    lines: List[str] = []
+    lines.append("## Weekly Plan")
+    for w_idx, bucket in enumerate(weekly, start=1):
+        lines.append("")
+        lines.append(f"### Week {w_idx}")
+        if not bucket:
+            lines.append("- (no items)")
+            continue
+        for it in bucket:
+            a = it.article
+            title_md = f"[{a.title}]({a.url})"
+            cat = a.category or "-"
+            lines.append(f"- {title_md} — {cat} (score {it.score:.2f})")
+    return lines

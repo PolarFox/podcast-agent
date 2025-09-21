@@ -2,23 +2,6 @@
 # Add or modify sources as needed. Supported types: rss, http
 
 sources:
-- name: ThoughtWorks Technology Radar
-  type: rss
-  url: https://www.thoughtworks.com/en/rss.xml
-  keywords: [ "architecture", "technology", "radar" ]
-  category_hints: [ "Architecture/Infra" ]
-
-- name: Martin Fowler Blog
-  type: rss
-  url: https://martinfowler.com/feed.atom
-  keywords: [ "architecture", "refactoring", "patterns" ]
-  category_hints: [ "Architecture/Infra", "Leadership" ]
-
-- name: DORA DevOps Blog
-  type: http
-  url: https://dora.dev/blog/
-  keywords: [ "devops", "metrics", "dora" ]
-  category_hints: [ "DevOps" ]
 
 - name: V01.io
   type: rss
