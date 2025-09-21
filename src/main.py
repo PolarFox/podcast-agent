@@ -18,6 +18,7 @@ from .utils.config_loader import load_sources_config
 from .orchestrator import Orchestrator
 from .analysis import prioritize_articles, write_monthly_analysis_file
 from .pipeline.issue_pipeline import run_auto_issue_pipeline
+from .utils.pipeline_config import PipelineConfig
 
 
 def parse_args() -> argparse.Namespace:
@@ -120,7 +121,15 @@ def main() -> int:
         candidates = []
         for src in sources:
             candidates.extend(orch._fetch_source(src))
-        results = run_auto_issue_pipeline(candidates, horizon_weeks=args.horizon_weeks, dry_run=args.dry_run)
+        cfg = PipelineConfig()
+        results = run_auto_issue_pipeline(
+            candidates,
+            horizon_weeks=cfg.horizon_weeks,
+            min_score=cfg.min_score,
+            group_max_items=cfg.group_max_items,
+            default_assignees=cfg.default_assignees,
+            dry_run=args.dry_run,
+        )
         logger.info("Auto-issues created: %s", [r for r in results if r is not None])
         return 0
 
