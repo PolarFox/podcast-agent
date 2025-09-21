@@ -25,19 +25,44 @@ class OllamaClient(AIClient):
         self.num_predict = int(os.environ.get("OLLAMA_NUM_PREDICT", "200"))
 
     def _chat(self, prompt: str, *, temperature: float = 0.2, timeout: int | None = None) -> str:
-        url = f"{self.host}/api/generate"
         to = timeout or self.timeout
-        payload = {
+        generate_url = f"{self.host}/api/generate"
+        chat_url = f"{self.host}/api/chat"
+
+        payload_generate = {
             "model": self.model,
             "prompt": prompt,
             "stream": False,
             "options": {"temperature": temperature, "num_predict": self.num_predict},
         }
-        resp = requests.post(url, json=payload, timeout=to)
-        resp.raise_for_status()
-        data = resp.json()
-        # Ollama returns {'response': '...'}
-        return data.get("response", "").strip()
+
+        try:
+            resp = requests.post(generate_url, json=payload_generate, timeout=to)
+            if resp.status_code == 404:
+                # Fallback to chat API for newer servers
+                raise requests.HTTPError("404 on /api/generate", response=resp)
+            resp.raise_for_status()
+            data = resp.json()
+            return data.get("response", "").strip()
+        except requests.HTTPError as http_err:
+            if getattr(http_err, "response", None) is not None and http_err.response.status_code == 404:
+                # Try chat API
+                payload_chat = {
+                    "model": self.model,
+                    "messages": [
+                        {"role": "user", "content": prompt},
+                    ],
+                    "stream": False,
+                    "options": {"temperature": temperature, "num_predict": self.num_predict},
+                }
+                resp2 = requests.post(chat_url, json=payload_chat, timeout=to)
+                resp2.raise_for_status()
+                data2 = resp2.json()
+                # Chat API returns {'message': {'content': '...'}} or {'response': '...'} depending on version
+                msg = data2.get("message") or {}
+                content = (msg.get("content") if isinstance(msg, dict) else None) or data2.get("response", "")
+                return (content or "").strip()
+            raise
 
     def classify(self, text: str) -> Tuple[str, float]:
         # More explicit, structured instructions with clear category definitions
