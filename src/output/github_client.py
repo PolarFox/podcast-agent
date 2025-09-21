@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import time
 import time
-from typing import List, Optional
+from typing import Iterable, List, Optional, Sequence
 
 from github import Github, GithubException
 
@@ -62,7 +62,14 @@ class GitHubClient:
             # If the shape changes or unauthenticated, skip sleeping and try the call
             logger.debug("Skipping rate limit sleep due to error: %s", exc)
 
-    def create_issue(self, *, title: str, body: str, labels: List[str] | None = None) -> Optional[int]:
+    def create_issue(
+        self,
+        *,
+        title: str,
+        body: str,
+        labels: List[str] | None = None,
+        assignees: Optional[Sequence[str]] = None,
+    ) -> Optional[int]:
         labels = labels or ["draft"]
         if self.dry_run:
             logger.info("[DRY-RUN] Would create issue: title=%s labels=%s", title, labels)
@@ -77,7 +84,9 @@ class GitHubClient:
         for attempt in range(4):
             try:
                 self._rate_limit_sleep()
-                issue = self._repo.create_issue(title=title, body=body, labels=labels)
+                issue = self._repo.create_issue(
+                    title=title, body=body, labels=labels, assignees=list(assignees or [])
+                )
                 logger.info("Created GitHub issue #%s", issue.number)
                 return issue.number
             except GithubException as exc:
@@ -97,3 +106,25 @@ class GitHubClient:
                 logger.warning("Unexpected error creating issue: %s; retrying", exc)
                 time.sleep(backoff ** attempt)
         raise RuntimeError("Failed to create issue after retries")
+
+    def create_issues_batch(
+        self,
+        payloads: Iterable[dict],
+        *,
+        delay_seconds: float = 1.0,
+    ) -> List[Optional[int]]:
+        """Create multiple issues sequentially with optional inter-request delay.
+
+        Each payload dict may contain: title (str), body (str), labels (List[str]), assignees (Sequence[str]).
+        """
+        results: List[Optional[int]] = []
+        for idx, payload in enumerate(payloads):
+            title = payload.get("title")
+            body = payload.get("body")
+            labels = payload.get("labels")
+            assignees = payload.get("assignees")
+            num = self.create_issue(title=title, body=body, labels=labels, assignees=assignees)
+            results.append(num)
+            if delay_seconds and idx + 1 < len(results):
+                time.sleep(delay_seconds)
+        return results
