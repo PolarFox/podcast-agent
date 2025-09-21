@@ -1056,7 +1056,7 @@
         "id": 20,
         "title": "Implement Content Classification System",
         "description": "Create AI-powered content classification for the four categories: Agile, DevOps, Architecture/Infra, Leadership",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [
           19
         ],
@@ -1118,7 +1118,7 @@
         "dependencies": [
           19
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": []
       },
       {
@@ -1245,7 +1245,7 @@
     ],
     "metadata": {
       "created": "2025-09-21T08:00:58.083Z",
-      "updated": "2025-09-21T12:45:37.240Z",
+      "updated": "2025-09-21T12:46:37.338Z",
       "description": "Tasks for master context"
     }
   }
