@@ -20,8 +20,16 @@ logger = logging.getLogger("ja.orchestrator")
 
 
 class Orchestrator:
-    def __init__(self, *, dry_run: bool = False) -> None:
+    def __init__(
+        self,
+        *,
+        dry_run: bool = False,
+        max_items_per_source: int | None = None,
+        max_total_items: int | None = None,
+    ) -> None:
         self.dry_run = dry_run
+        self.max_items_per_source = max_items_per_source
+        self.max_total_items = max_total_items
         self.dedup = Deduplicator()
 
     def _fetch_source(self, source: Source) -> List[Article]:
@@ -66,9 +74,14 @@ class Orchestrator:
         summarize_ms = 0.0
         bullets_ms = 0.0
 
+        processed_non_duplicate = 0
         for src in sources:
             fetched = self._fetch_source(src)
             fetched_count += len(fetched)
+
+            # Limit items per source for quick/CI runs
+            if self.max_items_per_source is not None and self.max_items_per_source >= 0:
+                fetched = fetched[: self.max_items_per_source]
 
             for art in fetched:
                 # Normalize
@@ -107,6 +120,25 @@ class Orchestrator:
                 labels = labels_for_article(art)
                 gh.create_issue(title=title, body=body, labels=labels)
                 created_issues += 1
+                processed_non_duplicate += 1
+
+                if (
+                    self.max_total_items is not None
+                    and self.max_total_items >= 0
+                    and processed_non_duplicate >= self.max_total_items
+                ):
+                    logger.info(
+                        "Reached max_total_items=%s; stopping early",
+                        self.max_total_items,
+                    )
+                    break
+
+            if (
+                self.max_total_items is not None
+                and self.max_total_items >= 0
+                and processed_non_duplicate >= self.max_total_items
+            ):
+                break
 
         logger.info(
             "Pipeline finished: fetched=%s, duplicates=%s, created_issues=%s, classify_ms=%.1f, summarize_ms=%.1f, bullets_ms=%.1f",

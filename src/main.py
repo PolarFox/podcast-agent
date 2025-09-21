@@ -51,6 +51,18 @@ def parse_args() -> argparse.Namespace:
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
         help="Logging verbosity",
     )
+    parser.add_argument(
+        "--max-items-per-source",
+        type=int,
+        default=None,
+        help="Limit number of items processed per source (for quick dry-runs)",
+    )
+    parser.add_argument(
+        "--max-total-items",
+        type=int,
+        default=None,
+        help="Stop after processing this many non-duplicate items (for quick runs)",
+    )
     return parser.parse_args()
 
 
@@ -71,7 +83,11 @@ def main() -> int:
 
     if args.analysis_only:
         # Lightweight fetch-only to build candidate list for prioritization
-        orch = Orchestrator(dry_run=True)
+        orch = Orchestrator(
+            dry_run=True,
+            max_items_per_source=args.max_items_per_source,
+            max_total_items=args.max_total_items,
+        )
         prior_arts = []
         for src in sources:
             prior_arts.extend(orch._fetch_source(src))  # intentionally reuse fetch
@@ -80,7 +96,11 @@ def main() -> int:
         logger.info("Wrote monthly analysis to %s", path)
         return 0
 
-    orch = Orchestrator(dry_run=args.dry_run)
+    orch = Orchestrator(
+        dry_run=args.dry_run,
+        max_items_per_source=args.max_items_per_source,
+        max_total_items=args.max_total_items,
+    )
     orch.run(sources)
     return 0
 
