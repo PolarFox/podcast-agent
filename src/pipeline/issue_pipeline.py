@@ -25,6 +25,7 @@ def run_auto_issue_pipeline(
     min_score: float = 0.7,
     group_max_items: int = 4,
     dry_run: bool = False,
+    default_assignees: Sequence[str] | None = None,
 ) -> List[int | None]:
     """Create grouped GitHub issues from high-priority articles.
 
@@ -50,7 +51,12 @@ def run_auto_issue_pipeline(
         body = format_group_issue_body(grp)
         # label by the first article's category
         labels = labels_for_article(grp[0])
-        payloads.append({"title": title, "body": body, "labels": labels})
+        payloads.append({
+            "title": title,
+            "body": body,
+            "labels": labels,
+            "assignees": list(default_assignees or []),
+        })
 
     results = gh.create_issues_batch(payloads, delay_seconds=1.0)
 
