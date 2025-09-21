@@ -1,0 +1,61 @@
+# Task ID: 4
+# Title: Implement Content Normalization and Preprocessing
+# Status: done
+# Dependencies: 3
+# Priority: medium
+# Description: Normalize fetched content into standardized format and implement AI-powered content processing with configurable backend support (local Ollama for development, external Gemini Flash Cloud API for production)
+# Details:
+Create Article dataclass with fields: title, content, url, source, published_date, raw_text, category, summary, confidence_score. Clean HTML tags using BeautifulSoup. Normalize text encoding (UTF-8). Extract meaningful content from HTML articles. Handle different date formats and convert to ISO format. Remove excessive whitespace and normalize line endings. Implement configurable AI backend system controlled by PROCESSING_BACKEND environment variable: 'ollama' for local development using Ollama instance, 'gemini' for production using external Gemini Flash Cloud API with authentication via API key stored as Kubernetes secret. Use factory pattern or conditional logic to initialize appropriate client. Implement content classification into 4 categories (Agile, DevOps, Architecture/Infra, Leadership) and automatic summary generation. Include generalized error handling that works for both Ollama and external Gemini API, with specific handling for rate limiting, authentication errors, and network failures.
+
+# Test Strategy:
+Unit tests for HTML cleaning, date parsing, text normalization. Test with various HTML structures and encoding issues. Integration tests for both Ollama and Gemini backends with mock responses. Test backend selection logic with different PROCESSING_BACKEND values. Test error handling for both local Ollama unavailability and external API issues including rate limiting, authentication failures, and network timeouts. Validate classification accuracy and summary quality with sample data for both backends. Test graceful fallback scenarios when AI services are unavailable.
+
+# Subtasks:
+## 1. Create Article Dataclass and Content Normalization [done]
+### Dependencies: None
+### Description: Implement Article dataclass with all required fields and basic content normalization functions
+### Details:
+Create Article dataclass with fields: title, content, url, source, published_date, raw_text, category, summary, confidence_score. Implement HTML tag cleaning using BeautifulSoup, UTF-8 text encoding normalization, meaningful content extraction from HTML, date format handling with ISO conversion, and whitespace/line ending normalization.
+
+## 2. Implement Environment Configuration Validation [done]
+### Dependencies: None
+### Description: Create environment variable validation system for AI backend configuration
+### Details:
+Validate required environment variables: PROCESSING_BACKEND (ollama/gemini), OLLAMA_HOST, OLLAMA_MODEL for Ollama backend, GOOGLE_API_KEY, GEMINI_MODEL for Gemini backend. Implement configuration validation with clear error messages for missing or invalid values. Support Kubernetes secret integration for sensitive values.
+
+## 3. Build AI Backend Factory System [done]
+### Dependencies: 4.2
+### Description: Implement factory pattern for configurable AI backend selection between Ollama and Gemini
+### Details:
+Create abstract base class for AI backends and concrete implementations for Ollama and Gemini. Use factory pattern with PROCESSING_BACKEND environment variable to instantiate appropriate client. Implement unified interface for both backends supporting classification and summarization operations.
+
+## 4. Implement Ollama Client Integration [done]
+### Dependencies: 4.3
+### Description: Create Ollama client for local development AI processing
+### Details:
+Implement Ollama HTTP client using requests library. Configure connection to local Ollama instance using OLLAMA_HOST and OLLAMA_MODEL environment variables. Handle Ollama-specific request/response format and error conditions. Include connection validation and model availability checks.
+
+## 5. Implement Gemini API Client Integration [done]
+### Dependencies: 4.3
+### Description: Create Gemini Flash Cloud API client for production AI processing
+### Details:
+Implement Gemini API client using requests library with proper authentication via GOOGLE_API_KEY. Configure for Gemini Flash model using GEMINI_MODEL environment variable. Handle Gemini-specific request/response format, authentication headers, and API-specific error responses.
+
+## 6. Create AI Prompt Templates and JSON Response Handling [done]
+### Dependencies: 4.4, 4.5
+### Description: Implement structured prompt templates and JSON response parsing for both classification and summarization
+### Details:
+Create prompt templates for content classification (Agile, DevOps, Architecture/Infra, Leadership) and summarization with clear JSON schema requirements. Implement robust JSON parsing and validation for AI responses. Handle malformed JSON responses with fallback strategies and structured error reporting.
+
+## 7. Implement Comprehensive Error Handling and Retry Logic [done]
+### Dependencies: 4.6
+### Description: Build unified error handling system with retry logic, backoff strategies, and structured logging
+### Details:
+Implement retry logic with exponential backoff and jitter for both Ollama and Gemini backends. Handle specific error types: rate limiting, authentication errors, network failures, and malformed responses. Add structured logging for all AI operations, errors, and retry attempts. Include circuit breaker pattern for persistent failures.
+
+## 8. Create Comprehensive Test Suite [done]
+### Dependencies: 4.7
+### Description: Implement unit and integration tests for all content normalization and AI processing components
+### Details:
+Create unit tests for Article dataclass, HTML cleaning, date parsing, text normalization, and JSON response handling. Implement integration tests for both Ollama and Gemini backends using mock responses. Test backend selection logic, error handling scenarios, retry mechanisms, and environment configuration validation. Include performance tests for content processing pipeline.
+

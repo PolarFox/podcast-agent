@@ -1,0 +1,28 @@
+---
+alwaysApply: true
+description: "High-level overview of the Johtava Arkkitehti Podcast project structure, goals, and key components."
+---
+
+# Johtava Arkkitehti Podcast - Project Overview
+
+This project is a content aggregation and processing pipeline for the Johtava Arkkitehti Podcast. It automates the process of finding relevant articles, summarizing them, and creating draft issues in a GitHub repository for potential podcast topics.
+
+## Core Workflow
+
+1.  **Fetch**: Content is fetched from various RSS and HTTP sources defined in a `sources.yaml` file.
+2.  **Process**: The fetched content is normalized, deduplicated, classified into categories (Agile, DevOps, Architecture/Infra, Leadership), and summarized.
+3.  **Output**: A formatted GitHub issue is created for each processed article, including a TL;DR summary and team impact points.
+
+## Key Technologies
+
+-   **Language**: Python
+-   **Orchestration**: A `main.py` script orchestrates the entire pipeline.
+-   **Deployment**: The application is designed to run as a scheduled Kubernetes CronJob.
+-   **Task Management**: Project tasks are managed with `task-master-ai` and tracked in `[.taskmaster/tasks/tasks.json](mdc:.taskmaster/tasks/tasks.json)`.
+
+## Project Structure
+
+-   `src/`: Contains the main Python source code.
+-   `config/`: Holds configuration files, including `sources.yaml`.
+-   `k8s/`: Contains Kubernetes deployment files, like the CronJob definition.
+-   `docs/`: For project documentation.

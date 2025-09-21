@@ -1,0 +1,37 @@
+# Task ID: 7
+# Title: Build Content Summarization Module
+# Status: done
+# Dependencies: 6
+# Priority: medium
+# Description: Generate TL;DR summaries and team impact bullets for each article
+# Details:
+Use transformers library with BART or T5 model for summarization. Generate 2-3 sentence TL;DR summary. Create 2-3 bullet points for 'Impact to teams' using template-based approach. Include key technical terms and actionable insights. Limit summary to 150 words, bullets to 50 words each. Handle Finnish and English content.
+
+# Test Strategy:
+Unit tests for summary generation, quality tests comparing summaries to original content. Test with various article lengths and languages
+
+# Subtasks:
+## 1. Setup AI Backend Integration for Summarization [done]
+### Dependencies: None
+### Description: Configure Ollama and Gemini backends for content summarization with proper prompt templates and error handling
+### Details:
+Implement AI backend selection logic using PROCESSING_BACKEND environment variable. Create base summarization service class with methods for both Ollama and Gemini APIs. Implement retry logic with exponential backoff and jitter for API failures. Add timeout handling and rate limiting. Create prompt templates for TL;DR generation with clear instructions for 2-3 sentence summaries under 150 words. Include language preservation instructions for Finnish and English content.
+
+## 2. Implement TL;DR Summary Generation [done]
+### Dependencies: 7.1
+### Description: Build core TL;DR summarization functionality using AI backends with proper output formatting and validation
+### Details:
+Create TL;DR generation service that uses configured AI backend. Implement prompt engineering for concise 2-3 sentence summaries. Add output validation to ensure summaries stay within 150-word limit. Implement post-processing to clean and format AI responses. Add language detection and preservation logic. Include technical term extraction and retention. Implement safe truncation if AI output exceeds limits. Add confidence scoring for summary quality.
+
+## 3. Build Team Impact Bullet Point Generator [done]
+### Dependencies: 7.1
+### Description: Create template-based system for generating actionable team impact bullet points using AI backends
+### Details:
+Design prompt templates for generating 2-3 team impact bullet points. Create structured prompts that focus on actionable insights for different team types (development, operations, leadership). Implement bullet point formatting and validation (50 words max per bullet). Add template-based approach with predefined impact categories. Include technical term highlighting and actionable language enforcement. Implement output parsing to extract clean bullet points from AI responses.
+
+## 4. Integrate Summarization Pipeline and Add Metrics [done]
+### Dependencies: 7.2, 7.3
+### Description: Integrate summarization components into main processing pipeline with comprehensive metrics and monitoring
+### Details:
+Create main SummarizationModule class that orchestrates TL;DR and impact bullet generation. Integrate with Article dataclass to populate summary fields. Add comprehensive metrics tracking: processing time, success/failure rates, summary lengths, confidence scores. Implement pipeline integration with error handling and fallback strategies. Add logging for debugging and monitoring. Create unit tests for all summarization components. Add integration tests with mock AI responses. Implement performance benchmarks and quality metrics.
+

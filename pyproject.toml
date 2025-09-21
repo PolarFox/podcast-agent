@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "johtava-arkkitehti-agent"
+version = "0.1.0"
+description = "Content agent for Johtava Arkkitehti Podcast"
+authors = [{ name = "Johtava Arkkitehti", email = "" }]
+requires-python = ">=3.11"
+readme = "docs/README.md"
+dependencies = [
+  "PyYAML>=6.0.2",
+  "feedparser>=6.0.11",
+  "requests>=2.32.3",
+  "beautifulsoup4>=4.12.3",
+  "numpy>=1.26",
+  "PyGithub>=2.4.0",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+addopts = "-q"

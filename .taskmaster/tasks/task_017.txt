@@ -1,0 +1,37 @@
+# Task ID: 17
+# Title: Implement RSS Feed Fetcher
+# Status: pending
+# Dependencies: 16
+# Priority: high
+# Description: Create RSS/HTTP feed fetching functionality that reads from sources.yaml configuration
+# Details:
+Implement src/uutisagentti/fetcher.py with RSS parsing using feedparser library. Support multiple feed formats (RSS, Atom). Handle HTTP errors, timeouts, and malformed feeds gracefully. Parse feed items extracting: title, description, link, published_date, source. Load sources from sources.yaml with feed URLs and keywords. Add retry logic and user-agent headers.
+
+# Test Strategy:
+Unit tests with mock RSS feeds, integration tests with real feeds, error handling tests for network failures and malformed XML
+
+# Subtasks:
+## 1. Implement basic RSS/Atom parsing with feedparser library [pending]
+### Dependencies: None
+### Description: Create core RSS/Atom feed parsing functionality using feedparser library to handle multiple feed formats
+### Details:
+Set up feedparser library integration in src/uutisagentti/fetcher.py. Implement basic feed parsing for both RSS and Atom formats. Create functions to extract essential feed metadata and iterate through feed entries. Handle different feed structures and namespaces. Add basic validation for feed format detection.
+
+## 2. Add HTTP error handling and retry logic with proper timeouts [pending]
+### Dependencies: 17.1
+### Description: Implement robust HTTP request handling with retry mechanisms, timeout controls, and error recovery
+### Details:
+Add requests library integration with proper timeout settings. Implement exponential backoff retry logic for transient failures. Handle HTTP status codes (404, 500, etc.) and network timeouts gracefully. Add user-agent headers to requests. Create configurable retry parameters (max attempts, backoff multiplier). Log errors appropriately for debugging.
+
+## 3. Create configuration loader for sources.yaml integration [pending]
+### Dependencies: None
+### Description: Implement YAML configuration loading system to read feed sources and their associated metadata
+### Details:
+Create YAML configuration loader to read sources.yaml file containing feed URLs, source names, and associated keywords. Implement configuration validation to ensure required fields are present. Add support for source-specific settings like custom timeouts or retry counts. Create data structures to hold source configuration in memory.
+
+## 4. Implement content extraction and normalization from feed items [pending]
+### Dependencies: 17.1, 17.2, 17.3
+### Description: Extract and normalize article data from feed items into standardized internal format
+### Details:
+Implement content extraction from feed items to extract title, description, link, published_date, and source information. Handle missing or malformed data gracefully with fallback values. Normalize date formats to consistent internal representation. Clean and sanitize text content. Map extracted data to internal Article model fields. Handle duplicate detection based on URLs or content hashes.
+

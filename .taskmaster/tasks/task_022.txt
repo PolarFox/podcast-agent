@@ -1,0 +1,11 @@
+# Task ID: 22
+# Title: Implement GitHub Issue Creation
+# Status: pending
+# Dependencies: 20, 21
+# Priority: high
+# Description: Create GitHub API integration for creating draft issues with proper formatting and labels
+# Details:
+Implement src/uutisagentti/github_client.py using PyGithub library. Create issues with format: Title '[CATEGORY] Article Title', Labels 'draft' + category, Body with summary, team impact bullets, original links, and episode recommendation. Handle GitHub API rate limits, authentication with PAT token, and error responses. Support dry-run mode for testing.
+
+# Test Strategy:
+Mock GitHub API for unit tests, integration tests with test repository, verify issue format and content accuracy

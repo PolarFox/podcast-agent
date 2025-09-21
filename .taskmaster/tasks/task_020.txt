@@ -1,0 +1,31 @@
+# Task ID: 20
+# Title: Implement Content Classification System
+# Status: pending
+# Dependencies: 19
+# Priority: medium
+# Description: Create AI-powered content classification for the four categories: Agile, DevOps, Architecture/Infra, Leadership
+# Details:
+Implement src/uutisagentti/classifier.py using AI backend to classify articles into categories. Create classification prompts with clear category definitions and examples. Return classification with confidence scores. Handle edge cases where content fits multiple categories (select primary). Add fallback classification based on keywords if AI fails.
+
+# Test Strategy:
+Test with articles from each category, edge cases spanning multiple categories, and articles that don't fit any category clearly
+
+# Subtasks:
+## 1. Design Classification Prompts and Category Definitions [pending]
+### Dependencies: None
+### Description: Create structured prompts with clear definitions and examples for each category (Agile, DevOps, Architecture/Infra, Leadership) to ensure consistent AI classification
+### Details:
+Define comprehensive category definitions with specific characteristics and examples. Create classification prompts that include category descriptions, example articles for each category, and clear instructions for the AI model. Design JSON schema for classification responses including category, confidence score, and reasoning. Ensure prompts handle edge cases and guide the model to select primary category when content spans multiple areas.
+
+## 2. Implement AI-Powered Classification with Confidence Scoring [pending]
+### Dependencies: 20.1
+### Description: Build the core classification engine using Ollama/Gemini backends with confidence scoring and retry mechanisms
+### Details:
+Implement classifier.py with AI backend abstraction for Ollama/Gemini. Parse JSON responses from AI models and extract classification results. Implement retry logic with exponential backoff for API failures. Add confidence score validation and thresholds. Include metrics collection for classification performance tracking. Handle malformed AI responses gracefully.
+
+## 4. Create Classification Validation and Edge Case Handling [pending]
+### Dependencies: 20.3
+### Description: Implement validation logic and comprehensive edge case handling for the classification system
+### Details:
+Add validation for classification results including confidence score ranges and category validity. Handle edge cases: articles spanning multiple categories (primary selection logic), articles not fitting any category clearly, very short or very long content. Implement logging and monitoring for classification decisions. Add configuration options for confidence thresholds and fallback triggers. Create comprehensive error handling for all failure scenarios.
+

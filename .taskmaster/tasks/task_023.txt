@@ -1,0 +1,11 @@
+# Task ID: 23
+# Title: Implement Scoring and Prioritization System
+# Status: pending
+# Dependencies: 20
+# Priority: medium
+# Description: Create content scoring system based on freshness, source authority, novelty, and category balance
+# Details:
+Implement src/uutisagentti/scorer.py with scoring algorithm considering: freshness (time decay over 4 weeks), source authority (configurable weights), novelty vs previous months, category balance. Store historical data for novelty comparison. Make scoring parameters configurable. Sort articles by score for prioritization.
+
+# Test Strategy:
+Test scoring with articles of different ages, sources, and categories. Verify score consistency and ranking accuracy

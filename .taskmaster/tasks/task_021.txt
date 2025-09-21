@@ -1,0 +1,11 @@
+# Task ID: 21
+# Title: Implement Content Summarization
+# Status: pending
+# Dependencies: 19
+# Priority: medium
+# Description: Create AI-powered summarization generating TL;DR and team impact bullets
+# Details:
+Implement src/uutisagentti/summarizer.py to generate: concise TL;DR summary (1-2 sentences), 2-3 bullet points explaining 'what this means for teams'. Use structured prompts to ensure consistent output format. Handle long articles by chunking if needed. Add validation to ensure summaries meet length requirements.
+
+# Test Strategy:
+Test with various article lengths and complexity, verify output format consistency, check summary quality and relevance

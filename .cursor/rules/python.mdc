@@ -1,0 +1,39 @@
+---
+globs: "*.py"
+description: "Best practices and library usage guidelines for the Python codebase."
+---
+
+# Python Implementation Guidelines
+
+This document outlines the key libraries and patterns to be used in the Python source code for this project.
+
+-   **Configuration**:
+    -   Use `PyYAML` for loading `sources.yaml`.
+    -   Implement strong validation for the configuration schema.
+
+-   **Content Fetching**:
+    -   Use `feedparser` for RSS feeds.
+    -   Use `requests` for standard HTTP GET requests.
+    -   Always include a `User-Agent` header.
+    -   Implement robust error handling, including timeouts (default 30s) and retry logic with exponential backoff.
+
+-   **Content Processing**:
+    -   Use `BeautifulSoup` to parse and clean HTML content.
+    -   Standardize on a consistent `Article` data structure (e.g., a dataclass) to pass between processing steps.
+
+-   **Deduplication**:
+    -   Use `hashlib` (SHA-256) for content hashing.
+    -   Use `sentence-transformers` (e.g., `all-MiniLM-L6-v2` model) for calculating semantic similarity. A similarity threshold of `0.85` is the target for identifying duplicates.
+
+-   **Classification**:
+    -   Use `scikit-learn` for TF-IDF scoring and text classification.
+    -   Maintain keyword dictionaries for the primary categories: `Agile`, `DevOps`, `Architecture/Infra`, `Leadership`.
+
+-   **Summarization**:
+    -   Use the `transformers` library with a suitable model like `BART` or `T5`.
+    -   The summarization logic should handle both English and Finnish content.
+
+-   **GitHub Integration**:
+    -   Use the `PyGithub` library to interact with the GitHub API.
+    -   Authentication should be handled via a Personal Access Token, loaded securely (e.g., from a Kubernetes Secret).
+    -   Implement a "dry-run" mode to prevent accidental issue creation during testing.

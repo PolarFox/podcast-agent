@@ -1,0 +1,43 @@
+# Task ID: 11
+# Title: Create Kubernetes CronJob via Terraform
+# Status: done
+# Dependencies: 10, 13
+# Priority: high
+# Description: Define CronJob using Terraform (kubernetes provider or Helm) with schedule, image, env/secret mounts; ensure it uses ServiceAccount and Secret created by Terraform IaC setup.
+# Details:
+Create Terraform configuration for CronJob with schedule '0 6 * * *' (06:00 UTC daily). Use kubernetes provider or Helm chart to define the CronJob resource. Configure container with Python image and required dependencies. Reference ServiceAccount and Secret resources created by the Terraform IaC setup. Mount ConfigMap for sources.yaml and Secret for GitHub token using Terraform data sources or resource references. Set resource limits (CPU: 500m, Memory: 1Gi). Configure restart policy and failure handling. Add environment variables for configuration through Terraform variables.
+
+# Test Strategy:
+Test Terraform plan and apply for CronJob creation, verify scheduling works correctly on cluster, test secret and configmap mounting through Terraform-managed resources, validate ServiceAccount integration
+
+# Subtasks:
+## 1. Create Terraform CronJob resource with schedule and container specification [done]
+### Dependencies: None
+### Description: Define the core CronJob resource using Terraform kubernetes provider with daily schedule and Python container configuration
+### Details:
+Create kubernetes_cron_job_v1 resource in Terraform with schedule '0 6 * * *' for 06:00 UTC daily execution. Configure job template with Python container image, command to run main.py script, and basic pod specification. Set concurrency policy to Forbid to prevent overlapping jobs. Configure job history limits for successful and failed jobs.
+
+## 2. Configure ServiceAccount and Secret mounting integration [done]
+### Dependencies: 11.1
+### Description: Reference and mount the ServiceAccount and Secret resources created by Terraform IaC setup
+### Details:
+Use Terraform data sources or resource references to link ServiceAccount and Secret from Task 13. Configure pod template to use the ServiceAccount for GitHub API access. Mount Secret containing GitHub token as environment variable or volume. Ensure proper RBAC permissions are inherited from ServiceAccount configuration.
+
+## 3. Mount ConfigMap for sources.yaml configuration [done]
+### Dependencies: 11.2
+### Description: Configure ConfigMap mounting for sources.yaml file created in Task 2
+### Details:
+Create or reference ConfigMap containing sources.yaml configuration. Mount ConfigMap as volume in CronJob pod template at appropriate path (/app/config/sources.yaml). Configure volume mounts and ensure the Python application can read the configuration file. Handle ConfigMap updates and pod restarts.
+
+## 4. Set resource limits and environment variables [done]
+### Dependencies: 11.3
+### Description: Configure container resource constraints and environment variables through Terraform variables
+### Details:
+Set resource requests and limits (CPU: 500m, Memory: 1Gi) in container specification. Define Terraform variables for configurable environment variables like log level, dry-run mode, and GitHub repository settings. Pass environment variables to container including GitHub token reference from Secret. Configure timezone and other runtime settings.
+
+## 5. Configure restart policy and failure handling [done]
+### Dependencies: 11.4
+### Description: Implement proper failure handling, restart policies, and monitoring for the CronJob
+### Details:
+Set restart policy to OnFailure for job pods. Configure backoff limit for failed job retries. Set active deadline seconds to prevent long-running jobs. Add labels and annotations for monitoring and alerting. Configure success and failure job history retention. Implement proper logging configuration for troubleshooting failed executions.
+

@@ -1,0 +1,11 @@
+# Task ID: 30
+# Title: Final Integration and Deployment Validation
+# Status: pending
+# Dependencies: 29
+# Priority: high
+# Description: Perform final integration testing and validate complete deployment pipeline
+# Details:
+Execute complete end-to-end testing: deploy to development K8s cluster, run full pipeline with real RSS feeds, verify GitHub issue creation, validate monthly analysis generation, test both AI backends, verify Terraform deployment. Create deployment checklist and operational runbook. Validate all external dependencies and configurations.
+
+# Test Strategy:
+Full system integration test, deployment verification, rollback testing, monitoring and alerting validation

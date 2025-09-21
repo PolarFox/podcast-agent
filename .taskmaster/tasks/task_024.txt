@@ -1,0 +1,11 @@
+# Task ID: 24
+# Title: Implement Monthly Analysis Generator
+# Status: pending
+# Dependencies: 23
+# Priority: medium
+# Description: Create monthly situational analysis generator producing markdown reports with recommendations
+# Details:
+Implement src/uutisagentti/analyzer.py to generate docs/analysis/situational-YYYY-MM.md files. Include: monthly overview, top-N articles with reasoning, category balance analysis, weekly recommendations (deterministic distribution). Make planning horizon configurable (default 4 weeks). Support both file output and repository commits.
+
+# Test Strategy:
+Test analysis generation with various article sets, verify markdown format, check weekly distribution logic
