@@ -1317,8 +1317,9 @@
         "description": "Create automated system that identifies high-priority articles from summarization results and creates GitHub issues with proper formatting, linking multiple sources together.",
         "status": "in-progress",
         "dependencies": [
+          8,
           25,
-          8
+          "33"
         ],
         "priority": "medium",
         "details": "Implement GitHub issue creation pipeline that: 1) Analyzes summarized articles to identify timely and interesting content based on scoring thresholds and relevance criteria, 2) Groups related articles by topic/category to create comprehensive issues linking multiple sources, 3) Creates GitHub issues using the established template format with sections for Summary, Impact to Teams, Original Sources (multiple), and Recommendations, 4) Applies appropriate labels (draft + category) and assigns to relevant team members, 5) Implements rate limiting and error handling for GitHub API calls, 6) Maintains issue creation history to avoid duplicates, 7) Generates summary reports of created issues. Include configuration for priority thresholds, grouping criteria, and GitHub repository settings. Handle authentication via GitHub token and implement proper error recovery for API failures.",
@@ -1460,13 +1461,103 @@
             "details": "Implement tests/integration/test_issue_pipeline.py with end-to-end pipeline testing using mock GitHub API and test data. Create test scenarios for: successful multi-article issue creation, duplicate prevention, error recovery, rate limiting, and configuration validation. Include performance benchmarks and load testing capabilities. Set up continuous integration testing with various article datasets and GitHub API response scenarios. Provide test data generators for realistic pipeline testing.",
             "status": "pending",
             "testStrategy": "Run complete pipeline tests with realistic article datasets, verify all error scenarios are handled correctly, test performance under load and validate integration with existing codebase"
+          },
+          {
+            "id": 13,
+            "title": "Enforce monthly data prerequisite",
+            "description": "Before creating grouped issues, validate that monthly data JSON exists for the current month in the env-specified repo. If missing, abort with clear instructions or trigger generation.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              33
+            ],
+            "parentTaskId": 32
+          }
+        ]
+      },
+      {
+        "id": 33,
+        "title": "Implement Monthly Data Summary File Generation",
+        "description": "Create a high priority system to generate monthly data files containing article summaries, dates, and metadata to identify recurring themes for potential issue creation. Data directories will be committed to the same repository where GitHub issues are created.",
+        "status": "in-progress",
+        "dependencies": [
+          25,
+          10
+        ],
+        "priority": "high",
+        "details": "Implement a monthly data aggregation module that creates structured files (JSON/CSV) containing: article summaries with timestamps, source information, categories, keywords, and classification scores. Create data/monthly/ directory structure with files named YYYY-MM-summary.json in the same repository where GitHub issues are created. Include fields: article_id, title, summary, publish_date, source, category, keywords, classification_confidence, github_issue_created. Add theme analysis functionality to identify recurring topics, trending keywords, and category distributions. Implement data retention policy (keep 12 months). Create utilities for querying historical data and generating trend reports. Include functionality to flag potential themes that appear frequently but haven't been converted to GitHub issues yet. Ensure all data files are committed to the repository for version control and collaboration. This system will leverage the completed classification (task 20), summarization (task 21), scoring (task 23), GitHub integration (task 22), and analysis (task 24) systems.",
+        "testStrategy": "Unit tests for data file generation and structure validation, integration tests with completed article processing pipeline components (classifier, summarizer, scorer, github_client, analyzer), test monthly file creation with mock data spanning multiple months, verify theme identification accuracy with known recurring topics, test data retention and cleanup functionality, validate JSON schema and CSV format consistency, test repository integration and commit functionality for data files",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Monthly Data Directory Structure and Repository Integration",
+            "description": "Set up the data/monthly/ directory structure in the same repository where GitHub issues are created, implement basic file management utilities for monthly summary files with proper naming conventions, data retention policies, and repository commit functionality.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "Create data/monthly/ directory structure in the target repository (same repo as GitHub issues). Implement file naming convention YYYY-MM-summary.json. Create utility functions for file path generation, directory creation, and data retention policy (keep 12 months of data). Include cleanup functionality to remove files older than 12 months. Add file existence checks and error handling for file operations. Implement repository integration to ensure data files are committed to version control with appropriate commit messages.",
+            "testStrategy": "Test directory creation in repository context, file naming conventions, retention policy cleanup with mock old files, repository commit functionality, and error handling for file system and git operations."
+          },
+          {
+            "id": 2,
+            "title": "Design Monthly Summary Data Schema and Validation",
+            "description": "Define the JSON schema structure for monthly summary files including all required fields and implement validation functions to ensure data integrity, building on completed classification and summarization systems.",
+            "status": "pending",
+            "dependencies": [
+              1
+            ],
+            "details": "Define JSON schema with fields: article_id, title, summary, publish_date, source, category, keywords, classification_confidence, github_issue_created. Create Pydantic models or JSON schema validation for data structure that aligns with outputs from completed classifier.py (task 20) and summarizer.py (task 21). Implement validation functions to ensure all required fields are present and properly formatted. Add type checking for dates, confidence scores, and boolean flags. Ensure schema compatibility with existing scoring system (task 23) outputs.",
+            "testStrategy": "Test schema validation with valid and invalid data structures, missing fields, incorrect data types, and edge cases for each field type. Verify compatibility with completed system outputs."
+          },
+          {
+            "id": 3,
+            "title": "Implement Monthly Data Aggregation Module",
+            "description": "Create the core aggregation module that collects article data from completed classification, summarization, scoring, and GitHub systems and transforms it into the monthly summary format.",
+            "status": "pending",
+            "dependencies": [
+              2
+            ],
+            "details": "Implement src/uutisagentti/monthly_aggregator.py that interfaces with completed systems: classifier.py (task 20), summarizer.py (task 21), scorer.py (task 23), github_client.py (task 22), and analyzer.py (task 24). Extract required data fields from processed articles including summaries, classifications, scores, and GitHub issue creation status. Transform data into monthly summary schema format. Handle data collection for specific month ranges and aggregate articles by month. Include error handling for missing or malformed article data. Integrate with existing scoring and classification confidence data from completed systems.",
+            "testStrategy": "Test data aggregation with mock article data from completed systems, verify correct field mapping from existing classifier and summarizer outputs, test month-based filtering, and validate output format matches schema."
+          },
+          {
+            "id": 4,
+            "title": "Implement Theme Analysis and Pattern Detection",
+            "description": "Create functionality to analyze monthly data for recurring themes, trending keywords, and category distributions to identify potential GitHub issue candidates, leveraging completed classification and analysis systems.",
+            "status": "pending",
+            "dependencies": [
+              3
+            ],
+            "details": "Implement theme analysis functions in src/uutisagentti/theme_analyzer.py. Analyze recurring topics by keyword frequency and semantic similarity, leveraging existing category classifications from completed task 20 and analysis patterns from completed task 24. Identify trending keywords across time periods. Calculate category distribution statistics using existing classification data. Implement pattern detection for themes that appear frequently but haven't been converted to GitHub issues (github_issue_created=false). Create scoring mechanism for theme importance based on frequency, recency, category balance, and integration with completed scorer.py results.",
+            "testStrategy": "Test theme detection with known recurring topics, verify keyword trend analysis accuracy using existing classification data, test category distribution calculations, and validate issue candidate identification logic."
+          },
+          {
+            "id": 5,
+            "title": "Create Historical Data Query and Trend Reporting Utilities",
+            "description": "Implement utilities for querying historical monthly data and generating trend reports across multiple months for analysis and decision-making, with repository-aware data access and integration with completed analysis system.",
+            "status": "pending",
+            "dependencies": [
+              4
+            ],
+            "details": "Implement src/uutisagentti/historical_query.py with functions to query data across multiple months from the repository's data/monthly/ directory. Create trend report generation for keyword evolution, category shifts, and theme persistence, building on patterns established in completed analyzer.py (task 24). Implement data aggregation functions for multi-month analysis. Add utilities for comparing current month data with historical averages. Include export functionality for trend reports in JSON and markdown formats compatible with existing analysis output format. Ensure compatibility with repository-stored data files and version history.",
+            "testStrategy": "Test historical queries with mock multi-month data in repository context, verify trend calculation accuracy, test report generation formats, validate cross-month comparison logic, and test repository data access patterns."
+          },
+          {
+            "id": 6,
+            "title": "Integrate Monthly Summary Generation with Completed Pipeline Components",
+            "description": "Integrate the monthly summary system with all completed article processing pipeline components and create scheduled generation functionality with proper error handling, logging, and repository commit workflow.",
+            "status": "pending",
+            "dependencies": [
+              5
+            ],
+            "details": "Create main integration module src/uutisagentti/monthly_summary.py that orchestrates the entire monthly summary generation process using all completed pipeline components: classifier.py (task 20), summarizer.py (task 21), scorer.py (task 23), github_client.py (task 22), and analyzer.py (task 24). Implement scheduled generation functionality that can be triggered monthly. Add comprehensive logging for all operations. Include configuration management for file paths, retention policies, analysis parameters, and repository settings. Create CLI interface for manual generation and historical analysis. Implement repository commit workflow to ensure data files are properly versioned alongside issue creation and analysis reports.",
+            "testStrategy": "Integration tests with full completed pipeline using mock data spanning multiple months, test scheduled generation simulation, verify error handling and recovery, validate CLI interface functionality, and test repository commit workflow integration with existing systems."
           }
         ]
       }
     ],
     "metadata": {
       "created": "2025-09-21T08:00:58.083Z",
-      "updated": "2025-09-21T14:44:57.735Z",
+      "updated": "2025-09-21T15:04:27.444Z",
       "description": "Tasks for master context"
     }
   }
