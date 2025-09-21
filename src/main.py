@@ -9,10 +9,11 @@ This script orchestrates the high-level flow:
 from __future__ import annotations
 
 import argparse
+import os
 import logging
 from pathlib import Path
 
-from .utils.logging import configure_logging
+from .utils.logging import configure_logging, get_logger
 from .utils.config_loader import load_sources_config
 from .orchestrator import Orchestrator
 from .analysis import prioritize_articles, write_monthly_analysis_file
@@ -67,9 +68,16 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
+    # Optional: load .env
+    try:
+        from dotenv import load_dotenv  # type: ignore
+
+        load_dotenv(override=False)
+    except Exception:
+        pass
     args = parse_args()
     configure_logging(level=args.log_level)
-    logger = logging.getLogger("ja.agent")
+    logger = get_logger("ja.agent")
 
     config_path = Path(args.config)
     logger.info("Loading sources configuration from %s", config_path)

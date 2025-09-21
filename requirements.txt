@@ -16,3 +16,6 @@ PyGithub>=2.4.0
 pytest>=8.3
 mypy>=1.11
 ruff>=0.6
+
+# Env
+python-dotenv>=1.0.1
