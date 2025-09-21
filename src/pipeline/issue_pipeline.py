@@ -13,6 +13,7 @@ from ..output.issue_formatter import (
 )
 from ..output.github_client import GitHubClient
 from ..utils.logging import get_logger
+from ..analysis.monthly_data import monthly_data_exists
 
 
 logger = get_logger("ja.pipeline.issues")
@@ -31,6 +32,11 @@ def run_auto_issue_pipeline(
 
     Returns a list of created issue numbers (or None in dry-run).
     """
+    # Gate on monthly data existence; if missing, do nothing and return
+    if not monthly_data_exists():
+        logger.info("Monthly data missing for current month; skipping issue creation")
+        return []
+
     prioritized = filter_high_priority(articles, horizon_weeks=horizon_weeks, min_score=min_score)
     high_priority_articles: List[Article] = [it.article for it in prioritized]
 

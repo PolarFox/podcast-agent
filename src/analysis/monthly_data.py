@@ -58,6 +58,16 @@ def _month_slug(dt: datetime) -> str:
     return f"{dt.year:04d}-{dt.month:02d}"
 
 
+def previous_month_slug(now: Optional[datetime] = None) -> str:
+    now = now or datetime.now(timezone.utc)
+    year = now.year
+    month = now.month - 1
+    if month == 0:
+        month = 12
+        year -= 1
+    return f"{year:04d}-{month:02d}"
+
+
 def _extract_keywords(title: str) -> List[str]:
     words = [w.strip(".,:;!?()[]\"'") for w in (title or "").lower().split()]
     return [w for w in words if len(w) >= 4]
@@ -235,3 +245,49 @@ def write_monthly_data_to_repo(
             raise
 
     return repo_path
+
+
+def monthly_data_exists(
+    *,
+    month_slug: Optional[str] = None,
+    repo_name: Optional[str] = None,
+    branch: Optional[str] = None,
+    token: Optional[str] = None,
+    path_prefix: str = "data/monthly",
+) -> bool:
+    token = token or os.environ.get("GITHUB_TOKEN") or os.environ.get("GITHUB_API_KEY")
+    if not token:
+        # Without auth we cannot reliably check private repos; treat as missing
+        logger.info("No GitHub token; skipping monthly data existence check (treating as missing)")
+        return False
+
+    repo_name = (
+        repo_name
+        or os.environ.get("MONTHLY_DATA_REPOSITORY")
+        or os.environ.get("DATA_REPOSITORY")
+        or os.environ.get("GITHUB_REPOSITORY")
+    )
+    if not repo_name:
+        logger.warning("No target repository configured for monthly data existence check")
+        return False
+
+    gh = Github(token)
+    repo = gh.get_repo(repo_name)
+    if branch is None:
+        try:
+            branch = repo.default_branch or "main"
+        except Exception:
+            branch = "main"
+
+    if month_slug is None:
+        month_slug = _month_slug(datetime.now(timezone.utc))
+    filename = f"summaries-{month_slug}.json"
+    repo_path = f"{path_prefix.rstrip('/')}/{filename}"
+    try:
+        repo.get_contents(repo_path, ref=branch)
+        return True
+    except GithubException as exc:
+        status = getattr(exc, "status", None)
+        if status == 404:
+            return False
+        raise
