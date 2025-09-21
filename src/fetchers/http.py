@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
@@ -8,8 +7,9 @@ import requests
 from bs4 import BeautifulSoup
 
 from ..models import Source
+from ..utils.logging import get_logger
 
-logger = logging.getLogger("ja.fetchers.http")
+logger = get_logger("ja.fetchers.http")
 
 
 @dataclass(slots=True)
@@ -36,7 +36,9 @@ def fetch_http_entries(source: Source, *, timeout: int = 30) -> List[HTTPItem]:
     headers = {**_DEFAULT_HEADERS, **(source.headers or {})}
     logger.debug("Fetching HTTP content from %s", source.url)
     resp = requests.get(source.url, headers=headers, timeout=timeout)
-    resp.raise_for_status()
+    if resp.status_code >= 400:
+        logger.warning("HTTP fetch failed (%s): %s", resp.status_code, source.url)
+        resp.raise_for_status()
 
     soup = BeautifulSoup(resp.text, "html.parser")
 

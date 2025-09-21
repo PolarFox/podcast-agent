@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 from .ai import AIClient, create_ai_client
 from .ai.retry import summarize_with_retry
 from ..utils.logging import get_logger
