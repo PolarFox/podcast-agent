@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-import logging
 import os
+import time
 import time
 from typing import List, Optional
 
 from github import Github, GithubException
 
-logger = logging.getLogger("ja.output.github")
+from ..utils.logging import get_logger
+
+logger = get_logger("ja.output.github")
 
 
 class GitHubClient:
@@ -25,12 +27,40 @@ class GitHubClient:
     def _rate_limit_sleep(self) -> None:
         if not self._client:
             return
-        core = self._client.get_rate_limit().core
-        if core.remaining <= 1:
-            reset_ts = core.reset.timestamp()
-            sleep_s = max(0, reset_ts - time.time())
-            logger.info("GitHub rate limit reached; sleeping %.1fs until reset", sleep_s)
-            time.sleep(sleep_s)
+        try:
+            rl = self._client.get_rate_limit()
+            remaining = None
+            reset_ts = None
+
+            # PyGithub classic style
+            core = getattr(rl, "core", None)
+            if core is not None:
+                remaining = getattr(core, "remaining", None)
+                reset = getattr(core, "reset", None)
+                if hasattr(reset, "timestamp"):
+                    reset_ts = reset.timestamp()
+
+            # Newer overview style (.resources) or dict-like
+            if remaining is None:
+                resources = getattr(rl, "resources", None)
+                core_res = None
+                if resources is not None:
+                    core_res = getattr(resources, "core", None)
+                    if core_res is None and isinstance(resources, dict):
+                        core_res = resources.get("core")
+                if core_res is not None:
+                    remaining = getattr(core_res, "remaining", None) if not isinstance(core_res, dict) else core_res.get("remaining")
+                    reset = getattr(core_res, "reset", None) if not isinstance(core_res, dict) else core_res.get("reset")
+                    if hasattr(reset, "timestamp"):
+                        reset_ts = reset.timestamp()
+
+            if remaining is not None and reset_ts is not None and remaining <= 1:
+                sleep_s = max(0, reset_ts - time.time())
+                logger.info("GitHub rate limit reached; sleeping %.1fs until reset", sleep_s)
+                time.sleep(sleep_s)
+        except Exception as exc:  # noqa: BLE001
+            # If the shape changes or unauthenticated, skip sleeping and try the call
+            logger.debug("Skipping rate limit sleep due to error: %s", exc)
 
     def create_issue(self, *, title: str, body: str, labels: List[str] | None = None) -> Optional[int]:
         labels = labels or ["draft"]
