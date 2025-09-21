@@ -58,6 +58,16 @@ def parse_args() -> argparse.Namespace:
         help="Commit generated monthly data JSON to the target repository from env",
     )
     parser.add_argument(
+        "--preview-candidates",
+        action="store_true",
+        help="Preview 64 monthly candidates (16 per category) without creating issues",
+    )
+    parser.add_argument(
+        "--create-candidates",
+        action="store_true",
+        help="Create 64 monthly candidate issues (labels only)",
+    )
+    parser.add_argument(
         "--auto-issues",
         action="store_true",
         help="Analyze, group, and automatically create grouped GitHub issues",
@@ -147,6 +157,45 @@ def main() -> int:
             out_path.write_text(summary.to_json_str(), encoding="utf-8")
             logger.info("Wrote monthly data JSON to %s (not committed)", out_path)
         return 0
+
+    if args.preview_candidates or args.create_candidates:
+        # Read monthly summary via fetch path to reuse existing processing; selection uses Article objects
+        orch = Orchestrator(
+            dry_run=True,
+            max_items_per_source=args.max_items_per_source,
+            max_total_items=args.max_total_items,
+        )
+        candidates_src = []
+        for src in sources:
+            candidates_src.extend(orch._fetch_source(src))
+        from .analysis.monthly_gate import ensure_monthly_ready
+        from .analysis.category_selector import select_top_per_category
+
+        ensure_monthly_ready()
+        per_cat = select_top_per_category(candidates_src, per_category=16, horizon_weeks=args.horizon_weeks)
+        total = sum(len(v) for v in per_cat.values())
+        logger.info("Selected candidates per category: %s (total=%s)", {k: len(v) for k, v in per_cat.items()}, total)
+
+        if args.preview_candidates:
+            for cat, items in per_cat.items():
+                logger.info("%s:", cat)
+                for it in items:
+                    logger.info(" - %.2f %s (%s)", it.score, it.article.title, it.article.source)
+            return 0
+
+        if args.create_candidates:
+            from .output.github_client import GitHubClient
+            from .output.issue_formatter import labels_for_article, format_issue_title, format_issue_body
+            gh = GitHubClient(dry_run=args.dry_run)
+            created = 0
+            for cat, items in per_cat.items():
+                for it in items:
+                    a = it.article
+                    labels = labels_for_article(a) + [f"month-{datetime.now().strftime('%Y-%m')}", "candidate"]
+                    gh.create_issue(title=format_issue_title(a), body=format_issue_body(a), labels=labels)
+                    created += 1
+            logger.info("Created %s candidate issues", created)
+            return 0
 
     if args.auto_issues:
         # Fetch only to build candidate list; do not create per-article issues here
