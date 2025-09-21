@@ -13,9 +13,14 @@ from .processors import (
     summarize_text,
 )
 from .processors.impact import generate_impact_points
-from .output.issue_formatter import format_issue_title, format_issue_body, labels_for_article
+from .output.issue_formatter import (
+    format_issue_title,
+    format_issue_body,
+    labels_for_article,
+)
 from .output.github_client import GitHubClient
 from .utils.logging import get_logger
+from .analysis.duplicate_tracker import DuplicateTracker
 
 logger = get_logger("ja.orchestrator")
 
@@ -67,6 +72,7 @@ class Orchestrator:
     def run(self, sources: Iterable[Source]) -> None:
         prior_titles: List[str] = []
         gh = GitHubClient(dry_run=self.dry_run)
+        dup = DuplicateTracker()
 
         fetched_count = 0
         created_issues = 0
@@ -136,7 +142,7 @@ class Orchestrator:
                 impact_points = generate_impact_points(art.raw_text)
                 bullets_ms += (time.perf_counter() - t0) * 1000
 
-                # Format + create issue
+                # Create single-article issue immediately
                 title = format_issue_title(art)
                 body = format_issue_body(art, impact_points=impact_points)
                 labels = labels_for_article(art)
@@ -161,6 +167,8 @@ class Orchestrator:
                 and processed_non_duplicate >= self.max_total_items
             ):
                 break
+
+        # Grouped issues are handled by the auto-issues pipeline via CLI flag
 
         logger.info(
             "Pipeline finished: fetched=%s, duplicates=%s, created_issues=%s, classify_ms=%.1f, summarize_ms=%.1f, bullets_ms=%.1f",

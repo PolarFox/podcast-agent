@@ -17,6 +17,7 @@ from .utils.logging import configure_logging, get_logger
 from .utils.config_loader import load_sources_config
 from .orchestrator import Orchestrator
 from .analysis import prioritize_articles, write_monthly_analysis_file
+from .pipeline.issue_pipeline import run_auto_issue_pipeline
 
 
 def parse_args() -> argparse.Namespace:
@@ -39,6 +40,11 @@ def parse_args() -> argparse.Namespace:
         "--analysis-only",
         action="store_true",
         help="Only generate monthly situational analysis and exit",
+    )
+    parser.add_argument(
+        "--auto-issues",
+        action="store_true",
+        help="Analyze, group, and automatically create grouped GitHub issues",
     )
     parser.add_argument(
         "--horizon-weeks",
@@ -102,6 +108,20 @@ def main() -> int:
         items = prioritize_articles(prior_arts, horizon_weeks=args.horizon_weeks)
         path = write_monthly_analysis_file(items, horizon_weeks=args.horizon_weeks)
         logger.info("Wrote monthly analysis to %s", path)
+        return 0
+
+    if args.auto_issues:
+        # Fetch only to build candidate list; do not create per-article issues here
+        orch = Orchestrator(
+            dry_run=True,
+            max_items_per_source=args.max_items_per_source,
+            max_total_items=args.max_total_items,
+        )
+        candidates = []
+        for src in sources:
+            candidates.extend(orch._fetch_source(src))
+        results = run_auto_issue_pipeline(candidates, horizon_weeks=args.horizon_weeks, dry_run=args.dry_run)
+        logger.info("Auto-issues created: %s", [r for r in results if r is not None])
         return 0
 
     orch = Orchestrator(
