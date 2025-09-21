@@ -87,6 +87,7 @@ class Orchestrator:
                 t0 = time.perf_counter()
                 category, conf = classify_text(art.raw_text)
                 classify_ms += (time.perf_counter() - t0) * 1000
+                logger.debug("Classified '%s' as %s (%.2f)", art.title, category, conf)
                 art.category = category
                 art.confidence_score = conf
 

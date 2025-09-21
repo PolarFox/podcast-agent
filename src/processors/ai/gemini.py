@@ -6,6 +6,7 @@ from typing import Tuple
 import requests
 
 from .base import AIClient
+from .parsing import parse_classification_response
 
 
 class GeminiClient(AIClient):
@@ -49,21 +50,20 @@ class GeminiClient(AIClient):
 
     def classify(self, text: str) -> Tuple[str, float]:
         prompt = (
-            "Classify the following text into exactly one of: Agile, DevOps, "
-            "Architecture/Infra, Leadership. Respond ONLY as JSON object with keys "
-            "category and confidence (0-1).\n\nTEXT:\n" + text
+            "You are a strict JSON-only classifier. "
+            "Classify the ARTICLE into exactly one primary category: Agile, DevOps, Architecture/Infra, Leadership.\n\n"
+            "Category guidelines:\n"
+            "- Agile: Scrum, Kanban, product discovery, story points, retrospectives, team rituals, agile metrics.\n"
+            "- DevOps: CI/CD, pipelines, reliability/SRE, observability, incident response, infrastructure-as-code in service of delivery.\n"
+            "- Architecture/Infra: system design, distributed systems, cloud services, networking, databases, infrastructure primitives.\n"
+            "- Leadership: org design, management, hiring, culture, budgets, strategy, stakeholder communication.\n\n"
+            "Rules: Choose one best fit. If multiple apply, pick the primary editorial lens.\n"
+            "Output MUST be a single JSON object with keys: category (string), confidence (number 0-1), reasoning (string, short).\n"
+            "Do not include markdown, code fences, or extra text.\n\n"
+            f"ARTICLE:\n{text}\n"
         )
         raw = self._generate(prompt)
-        import json, re
-
-        json_str = raw
-        match = re.search(r"\{[\s\S]*\}", raw)
-        if match:
-            json_str = match.group(0)
-        obj = json.loads(json_str)
-        category = str(obj.get("category", "Architecture/Infra"))
-        confidence = float(obj.get("confidence", 0.0))
-        return category, confidence
+        return parse_classification_response(raw)
 
     def summarize(self, text: str, *, max_words: int = 150) -> str:
         prompt = (

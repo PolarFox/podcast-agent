@@ -5,6 +5,7 @@ import logging
 from typing import Tuple
 
 from .ai import AIClient, create_ai_client
+from .ai.retry import classify_with_retry
 
 logger = logging.getLogger("ja.processors.classify")
 
@@ -23,7 +24,13 @@ def classify_text(
     if ai is None:
         ai = create_ai_client()
 
-    category, conf = ai.classify(text)
+    # Guard: extremely short texts are hard to classify reliably; still use AI but expect low confidence
+    content = text.strip()
+    if len(content.split()) < 8:
+        logger.debug("Very short content; classification may be unreliable")
+
+    # Use retry wrapper for resilience against transient backend errors
+    category, conf = classify_with_retry(ai, content)
     if category not in _CATEGORIES:
         logger.warning("Invalid category '%s' from AI; defaulting to 'Architecture/Infra'", category)
         return "Architecture/Infra", 0.0
