@@ -15,8 +15,9 @@ from .processors import (
 from .processors.impact import generate_impact_points
 from .output.issue_formatter import format_issue_title, format_issue_body, labels_for_article
 from .output.github_client import GitHubClient
+from .utils.logging import get_logger
 
-logger = logging.getLogger("ja.orchestrator")
+logger = get_logger("ja.orchestrator")
 
 
 class Orchestrator:
@@ -75,6 +76,9 @@ class Orchestrator:
         bullets_ms = 0.0
 
         processed_non_duplicate = 0
+        import os
+        fast_dry = bool(os.getenv("FAST_DRY_RUN")) and self.dry_run
+
         for src in sources:
             fetched = self._fetch_source(src)
             fetched_count += len(fetched)
@@ -97,20 +101,38 @@ class Orchestrator:
                 prior_titles.append(art.title)
 
                 # Classify
-                t0 = time.perf_counter()
-                category, conf = classify_text(art.raw_text)
-                classify_ms += (time.perf_counter() - t0) * 1000
-                logger.debug("Classified '%s' as %s (%.2f)", art.title, category, conf)
-                art.category = category
-                art.confidence_score = conf
+                if fast_dry:
+                    art.category = art.category or "Architecture/Infra"
+                    art.confidence_score = 0.0
+                else:
+                    t0 = time.perf_counter()
+                    try:
+                        category, conf = classify_text(art.raw_text)
+                    except Exception as exc:  # noqa: BLE001
+                        logger.warning("Classification failed: %s; using defaults", exc)
+                        category, conf = "Architecture/Infra", 0.0
+                    classify_ms += (time.perf_counter() - t0) * 1000
+                    logger.debug("Classified '%s' as %s (%.2f)", art.title, category, conf)
+                    art.category = category
+                    art.confidence_score = conf
 
                 # Summarize
-                t0 = time.perf_counter()
-                art.summary = summarize_text(art.raw_text)
-                summarize_ms += (time.perf_counter() - t0) * 1000
+                if fast_dry:
+                    # crude first-sentences heuristic for dry-run speed
+                    first_words = " ".join(art.raw_text.split()[:60])
+                    art.summary = first_words + ("..." if len(art.raw_text.split()) > 60 else "")
+                else:
+                    t0 = time.perf_counter()
+                    try:
+                        art.summary = summarize_text(art.raw_text)
+                    except Exception as exc:  # noqa: BLE001
+                        logger.warning("Summarization failed: %s; leaving summary pending", exc)
+                        art.summary = "(summary pending)"
+                    summarize_ms += (time.perf_counter() - t0) * 1000
 
                 # Impact points
                 t0 = time.perf_counter()
+                # impact generator has internal fallback; keep as-is for now
                 impact_points = generate_impact_points(art.raw_text)
                 bullets_ms += (time.perf_counter() - t0) * 1000
 
