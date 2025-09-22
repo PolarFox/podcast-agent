@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import time
 from typing import Iterable, List
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from .fetchers import fetch_rss_entries, fetch_http_entries
 from .models import Article, Source
@@ -68,6 +69,39 @@ class Orchestrator:
         except Exception as exc:  # noqa: BLE001
             logger.exception("Failed to fetch from %s: %s", source.name, exc)
         return articles
+
+    def fetch_all(self, sources: Iterable[Source]) -> List[Article]:
+        """Fetch articles from all sources concurrently.
+
+        Applies this instance's ``max_items_per_source`` to each source and
+        truncates the combined result to ``max_total_items`` if configured.
+        """
+        src_list = list(sources)
+        if not src_list:
+            return []
+
+        results: List[Article] = []
+        max_workers = min(16, len(src_list))
+        logger.debug("Starting concurrent fetch for %d sources (workers=%d)", len(src_list), max_workers)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_map = {executor.submit(self._fetch_source, s): s for s in src_list}
+            for fut in as_completed(future_map):
+                s = future_map[fut]
+                try:
+                    items = fut.result() or []
+                except Exception as exc:  # noqa: BLE001 - defensive
+                    logger.exception("Fetch failed for %s: %s", getattr(s, "name", s), exc)
+                    items = []
+
+                if self.max_items_per_source is not None and self.max_items_per_source >= 0:
+                    items = items[: self.max_items_per_source]
+                results.extend(items)
+
+        if self.max_total_items is not None and self.max_total_items >= 0:
+            results = results[: self.max_total_items]
+
+        logger.info("Concurrent fetch complete: total=%d from sources=%d", len(results), len(src_list))
+        return results
 
     def run(self, sources: Iterable[Source]) -> None:
         prior_titles: List[str] = []

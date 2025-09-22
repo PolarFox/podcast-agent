@@ -128,9 +128,7 @@ def main() -> int:
             max_items_per_source=args.max_items_per_source,
             max_total_items=args.max_total_items,
         )
-        prior_arts = []
-        for src in sources:
-            prior_arts.extend(orch._fetch_source(src))  # intentionally reuse fetch
+        prior_arts = orch.fetch_all(sources)
         items = prioritize_articles(prior_arts, horizon_weeks=args.horizon_weeks)
         path = write_monthly_analysis_file(items, horizon_weeks=args.horizon_weeks)
         logger.info("Wrote monthly analysis to %s", path)
@@ -143,9 +141,7 @@ def main() -> int:
             max_items_per_source=args.max_items_per_source,
             max_total_items=args.max_total_items,
         )
-        prior_arts = []
-        for src in sources:
-            prior_arts.extend(orch._fetch_source(src))
+        prior_arts = orch.fetch_all(sources)
         summary = build_monthly_summary(prior_arts, horizon_weeks=args.horizon_weeks)
         if args.commit_monthly_data and not args.dry_run:
             path_repo = write_monthly_data_to_repo(summary)
@@ -165,9 +161,7 @@ def main() -> int:
             max_items_per_source=args.max_items_per_source,
             max_total_items=args.max_total_items,
         )
-        candidates_src = []
-        for src in sources:
-            candidates_src.extend(orch._fetch_source(src))
+        candidates_src = orch.fetch_all(sources)
         from .analysis.monthly_gate import ensure_monthly_ready
         from .analysis.category_selector import select_with_redistribution
 
