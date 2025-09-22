@@ -2,1562 +2,692 @@
   "master": {
     "tasks": [
       {
-        "id": 1,
-        "title": "Setup Project Repository and Basic Structure",
-        "description": "Initialize the project repository with basic Python structure and configuration files",
-        "details": "Create project directory structure with src/, config/, k8s/, and docs/ folders. Initialize Python project with requirements.txt, setup.py, and basic module structure. Create .gitignore for Python projects. Set up basic logging configuration.",
-        "testStrategy": "Verify directory structure is created correctly, Python modules can be imported, and basic configuration loading works",
+        "id": 36,
+        "title": "Create sources.yaml configuration file",
+        "description": "Create the configuration file that defines RSS/HTTP sources and keywords for article collection",
+        "details": "Create sources.yaml file with structure:\n```yaml\nsources:\n  - name: \"InfoQ\"\n    url: \"https://www.infoq.com/rss\"\n    category: \"architecture\"\n    authority_score: 0.9\n  - name: \"Martin Fowler\"\n    url: \"https://martinfowler.com/feed.atom\"\n    category: \"architecture\"\n    authority_score: 1.0\nkeywords:\n  agile: [\"scrum\", \"kanban\", \"sprint\", \"retrospective\"]\n  devops: [\"ci/cd\", \"kubernetes\", \"docker\", \"automation\"]\n  architecture: [\"microservices\", \"api\", \"design patterns\"]\n  leadership: [\"team management\", \"coaching\", \"culture\"]\n```\nInclude high-authority sources for each category (Agile, DevOps, Architecture/Infra, Leadership).",
+        "testStrategy": "Validate YAML syntax and ensure all required fields are present. Test with sample RSS feeds to verify accessibility.",
         "priority": "high",
         "dependencies": [],
-        "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 2,
-        "title": "Create sources.yaml Configuration System",
-        "description": "Implement configuration system for RSS/HTTP sources with keywords and categorization",
-        "details": "Create sources.yaml schema with fields: name, url, type (rss/http), keywords, category_hints. Implement Python configuration loader using PyYAML. Include sample sources for Agile, DevOps, Architecture/Infra, and Leadership topics. Add validation for required fields and URL formats.",
-        "testStrategy": "Unit tests for config loader, validation of sample sources.yaml, test loading invalid configurations",
-        "priority": "high",
-        "dependencies": [
-          1
-        ],
-        "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 3,
-        "title": "Implement RSS and HTTP Content Fetcher",
-        "description": "Build content fetching module to retrieve news from RSS feeds and HTTP sources",
-        "details": "Use feedparser for RSS feeds and requests for HTTP content. Implement retry logic with exponential backoff. Add timeout handling (30s default). Extract title, description, link, published_date, and content. Handle different RSS formats and HTTP response types. Include User-Agent headers to avoid blocking.",
-        "testStrategy": "Unit tests with mock RSS feeds and HTTP responses, integration tests with real sources, error handling tests for timeouts and invalid feeds",
-        "priority": "high",
-        "dependencies": [
-          2
-        ],
-        "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 4,
-        "title": "Implement Content Normalization and Preprocessing",
-        "description": "Normalize fetched content into standardized format and implement AI-powered content processing with configurable backend support (local Ollama for development, external Gemini Flash Cloud API for production)",
-        "status": "done",
-        "dependencies": [
-          3
-        ],
-        "priority": "medium",
-        "details": "Create Article dataclass with fields: title, content, url, source, published_date, raw_text, category, summary, confidence_score. Clean HTML tags using BeautifulSoup. Normalize text encoding (UTF-8). Extract meaningful content from HTML articles. Handle different date formats and convert to ISO format. Remove excessive whitespace and normalize line endings. Implement configurable AI backend system controlled by PROCESSING_BACKEND environment variable: 'ollama' for local development using Ollama instance, 'gemini' for production using external Gemini Flash Cloud API with authentication via API key stored as Kubernetes secret. Use factory pattern or conditional logic to initialize appropriate client. Implement content classification into 4 categories (Agile, DevOps, Architecture/Infra, Leadership) and automatic summary generation. Include generalized error handling that works for both Ollama and external Gemini API, with specific handling for rate limiting, authentication errors, and network failures.",
-        "testStrategy": "Unit tests for HTML cleaning, date parsing, text normalization. Test with various HTML structures and encoding issues. Integration tests for both Ollama and Gemini backends with mock responses. Test backend selection logic with different PROCESSING_BACKEND values. Test error handling for both local Ollama unavailability and external API issues including rate limiting, authentication failures, and network timeouts. Validate classification accuracy and summary quality with sample data for both backends. Test graceful fallback scenarios when AI services are unavailable.",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Create Article Dataclass and Content Normalization",
-            "description": "Implement Article dataclass with all required fields and basic content normalization functions",
-            "dependencies": [],
-            "details": "Create Article dataclass with fields: title, content, url, source, published_date, raw_text, category, summary, confidence_score. Implement HTML tag cleaning using BeautifulSoup, UTF-8 text encoding normalization, meaningful content extraction from HTML, date format handling with ISO conversion, and whitespace/line ending normalization.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 2,
-            "title": "Implement Environment Configuration Validation",
-            "description": "Create environment variable validation system for AI backend configuration",
-            "dependencies": [],
-            "details": "Validate required environment variables: PROCESSING_BACKEND (ollama/gemini), OLLAMA_HOST, OLLAMA_MODEL for Ollama backend, GOOGLE_API_KEY, GEMINI_MODEL for Gemini backend. Implement configuration validation with clear error messages for missing or invalid values. Support Kubernetes secret integration for sensitive values.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 3,
-            "title": "Build AI Backend Factory System",
-            "description": "Implement factory pattern for configurable AI backend selection between Ollama and Gemini",
-            "dependencies": [
-              "4.2"
-            ],
-            "details": "Create abstract base class for AI backends and concrete implementations for Ollama and Gemini. Use factory pattern with PROCESSING_BACKEND environment variable to instantiate appropriate client. Implement unified interface for both backends supporting classification and summarization operations.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 4,
-            "title": "Implement Ollama Client Integration",
-            "description": "Create Ollama client for local development AI processing",
-            "dependencies": [
-              "4.3"
-            ],
-            "details": "Implement Ollama HTTP client using requests library. Configure connection to local Ollama instance using OLLAMA_HOST and OLLAMA_MODEL environment variables. Handle Ollama-specific request/response format and error conditions. Include connection validation and model availability checks.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 5,
-            "title": "Implement Gemini API Client Integration",
-            "description": "Create Gemini Flash Cloud API client for production AI processing",
-            "dependencies": [
-              "4.3"
-            ],
-            "details": "Implement Gemini API client using requests library with proper authentication via GOOGLE_API_KEY. Configure for Gemini Flash model using GEMINI_MODEL environment variable. Handle Gemini-specific request/response format, authentication headers, and API-specific error responses.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 6,
-            "title": "Create AI Prompt Templates and JSON Response Handling",
-            "description": "Implement structured prompt templates and JSON response parsing for both classification and summarization",
-            "dependencies": [
-              "4.4",
-              "4.5"
-            ],
-            "details": "Create prompt templates for content classification (Agile, DevOps, Architecture/Infra, Leadership) and summarization with clear JSON schema requirements. Implement robust JSON parsing and validation for AI responses. Handle malformed JSON responses with fallback strategies and structured error reporting.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 7,
-            "title": "Implement Comprehensive Error Handling and Retry Logic",
-            "description": "Build unified error handling system with retry logic, backoff strategies, and structured logging",
-            "dependencies": [
-              "4.6"
-            ],
-            "details": "Implement retry logic with exponential backoff and jitter for both Ollama and Gemini backends. Handle specific error types: rate limiting, authentication errors, network failures, and malformed responses. Add structured logging for all AI operations, errors, and retry attempts. Include circuit breaker pattern for persistent failures.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 8,
-            "title": "Create Comprehensive Test Suite",
-            "description": "Implement unit and integration tests for all content normalization and AI processing components",
-            "dependencies": [
-              "4.7"
-            ],
-            "details": "Create unit tests for Article dataclass, HTML cleaning, date parsing, text normalization, and JSON response handling. Implement integration tests for both Ollama and Gemini backends using mock responses. Test backend selection logic, error handling scenarios, retry mechanisms, and environment configuration validation. Include performance tests for content processing pipeline.",
-            "status": "done",
-            "testStrategy": ""
-          }
-        ]
-      },
-      {
-        "id": 5,
-        "title": "Build Deduplication System",
-        "description": "Implement hash-based and similarity-based duplicate detection to avoid processing same content multiple times",
-        "details": "Implement content hashing using SHA-256 of normalized title+content. Use sentence-transformers for semantic similarity (all-MiniLM-L6-v2 model). Set similarity threshold at 0.85 for duplicates. Store processed article hashes in local JSON file for persistence across runs. Implement fuzzy matching for titles using difflib for near-duplicates.",
-        "testStrategy": "Unit tests for hash generation, similarity calculation. Test with known duplicates and near-duplicates. Performance tests with large article sets",
-        "priority": "medium",
-        "dependencies": [
-          4
-        ],
-        "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Implement Content Hashing and Storage System",
-            "description": "Create SHA-256 hash-based duplicate detection with persistent storage for processed articles",
-            "dependencies": [],
-            "details": "Implement content normalization by cleaning whitespace, converting to lowercase, and removing special characters from title+content concatenation. Generate SHA-256 hashes of normalized content. Create JSON-based storage system to persist processed article hashes across application runs. Include functions to load existing hashes on startup, add new hashes, and save to file. Implement robust error handling for file I/O operations and malformed JSON. Use environment configuration for storage file path.",
-            "status": "done",
-            "testStrategy": "Unit tests for content normalization, hash generation consistency, and JSON storage operations. Test with duplicate content to verify hash matching. Test file persistence across application restarts."
-          },
-          {
-            "id": 2,
-            "title": "Build Fuzzy Title Matching System",
-            "description": "Implement fuzzy string matching for article titles to detect near-duplicate content",
-            "dependencies": [
-              "5.1"
-            ],
-            "details": "Use Python's difflib.SequenceMatcher for fuzzy title comparison. Implement title normalization (lowercase, strip whitespace, remove punctuation). Set similarity threshold at 0.85 for near-duplicate detection. Create efficient comparison logic that checks new articles against stored titles. Include configurable similarity threshold via environment variables. Add logging for fuzzy matches found. Store normalized titles alongside hashes for comparison purposes.",
-            "status": "done",
-            "testStrategy": "Unit tests with known similar and dissimilar titles. Test threshold boundary conditions. Performance tests with large title datasets to ensure reasonable response times."
-          },
-          {
-            "id": 3,
-            "title": "Integrate Deduplication with Article Processing Pipeline",
-            "description": "Connect deduplication system to main article processing workflow with comprehensive duplicate detection",
-            "dependencies": [
-              "5.1",
-              "5.2"
-            ],
-            "details": "Create main deduplication service that combines hash-based and fuzzy matching. Implement check_duplicate() function that returns duplicate status and match details. Integrate with article processing pipeline to skip duplicate articles early in the workflow. Add comprehensive logging for duplicate detection events including match type (hash/fuzzy) and similarity scores. Implement statistics tracking for duplicate detection rates. Create configuration options for enabling/disabling different deduplication methods. Handle edge cases like empty content or malformed articles gracefully.",
-            "status": "done",
-            "testStrategy": "Integration tests with complete article processing pipeline. Test with mixed datasets containing exact duplicates, near-duplicates, and unique articles. Verify statistics accuracy and logging completeness."
-          }
-        ]
-      },
-      {
-        "id": 6,
-        "title": "Implement Content Classification System",
-        "description": "Classify articles into 4 categories: Agile, DevOps, Architecture/Infra, Leadership using AI backend (Ollama or Gemini) with structured JSON responses",
-        "status": "done",
-        "dependencies": [
-          5
-        ],
-        "priority": "medium",
-        "details": "Implement AI-powered content classification using configurable backend (Ollama for development, Gemini for production). Create clear classification prompts with JSON schema validation. Parse structured responses with robust error handling. Support categories: Agile, DevOps, Architecture/Infra, Leadership. Return category and confidence score (0-1) in standardized format.",
-        "testStrategy": "Unit tests for prompt generation and JSON parsing, integration tests with both AI backends using mock responses. Test error handling for malformed responses and API failures. Validate classification accuracy with sample articles",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Design Classification Prompt Templates with Examples",
-            "description": "Create structured prompt templates for AI backends with clear instructions and examples for each category (Agile, DevOps, Architecture/Infra, Leadership)",
-            "dependencies": [],
-            "details": "Design comprehensive prompt templates that include category definitions, classification criteria, and 2-3 examples per category. Create separate templates for Ollama and Gemini if needed. Include clear instructions for JSON response format with category and confidence score. Test prompts with sample articles to ensure consistent classification behavior.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 2,
-            "title": "Implement JSON Schema and Response Parser",
-            "description": "Create JSON schema validation and robust parser for AI backend responses with error handling",
-            "dependencies": [
-              "6.1"
-            ],
-            "details": "Define JSON schema for classification responses with required fields: category (enum of 4 categories) and confidence (float 0-1). Implement parser with comprehensive error handling for malformed JSON, missing fields, and invalid values. Add fallback mechanisms for partial responses and logging for debugging failed parses.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 3,
-            "title": "Build AI Backend Integration with Retry Logic",
-            "description": "Implement configurable AI backend client with retry mechanism and exponential backoff with jitter",
-            "dependencies": [
-              "6.1",
-              "6.2"
-            ],
-            "details": "Create unified interface for both Ollama and Gemini backends controlled by environment variable. Implement retry logic with exponential backoff and jitter for API failures. Add timeout handling (30s default) and rate limiting respect. Include comprehensive logging for API calls, retries, and failures for debugging.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 4,
-            "title": "Implement Category Validation and Confidence Scoring",
-            "description": "Build validation system for classification results and confidence score normalization",
-            "dependencies": [
-              "6.2",
-              "6.3"
-            ],
-            "details": "Validate that returned categories match exactly one of the 4 defined categories (Agile, DevOps, Architecture/Infra, Leadership). Implement confidence score validation (0-1 range) and normalization if needed. Add logic to handle edge cases like multiple categories or invalid confidence values. Include fallback classification for validation failures.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 5,
-            "title": "Integrate Classification Pipeline with Metrics Collection",
-            "description": "Integrate classification system into main processing pipeline with performance metrics and monitoring",
-            "dependencies": [
-              "6.3",
-              "6.4"
-            ],
-            "details": "Integrate classification system into Article processing pipeline after content normalization. Collect metrics including classification latency, confidence score distribution, category distribution, and error rates. Add monitoring for API usage and costs. Implement batch processing optimization and caching for repeated classifications.",
-            "status": "done",
-            "testStrategy": ""
-          }
-        ]
-      },
-      {
-        "id": 7,
-        "title": "Build Content Summarization Module",
-        "description": "Generate TL;DR summaries and team impact bullets for each article",
-        "details": "Use transformers library with BART or T5 model for summarization. Generate 2-3 sentence TL;DR summary. Create 2-3 bullet points for 'Impact to teams' using template-based approach. Include key technical terms and actionable insights. Limit summary to 150 words, bullets to 50 words each. Handle Finnish and English content.",
-        "testStrategy": "Unit tests for summary generation, quality tests comparing summaries to original content. Test with various article lengths and languages",
-        "priority": "medium",
-        "dependencies": [
-          6
-        ],
-        "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Setup AI Backend Integration for Summarization",
-            "description": "Configure Ollama and Gemini backends for content summarization with proper prompt templates and error handling",
-            "dependencies": [],
-            "details": "Implement AI backend selection logic using PROCESSING_BACKEND environment variable. Create base summarization service class with methods for both Ollama and Gemini APIs. Implement retry logic with exponential backoff and jitter for API failures. Add timeout handling and rate limiting. Create prompt templates for TL;DR generation with clear instructions for 2-3 sentence summaries under 150 words. Include language preservation instructions for Finnish and English content.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 2,
-            "title": "Implement TL;DR Summary Generation",
-            "description": "Build core TL;DR summarization functionality using AI backends with proper output formatting and validation",
-            "dependencies": [
-              "7.1"
-            ],
-            "details": "Create TL;DR generation service that uses configured AI backend. Implement prompt engineering for concise 2-3 sentence summaries. Add output validation to ensure summaries stay within 150-word limit. Implement post-processing to clean and format AI responses. Add language detection and preservation logic. Include technical term extraction and retention. Implement safe truncation if AI output exceeds limits. Add confidence scoring for summary quality.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 3,
-            "title": "Build Team Impact Bullet Point Generator",
-            "description": "Create template-based system for generating actionable team impact bullet points using AI backends",
-            "dependencies": [
-              "7.1"
-            ],
-            "details": "Design prompt templates for generating 2-3 team impact bullet points. Create structured prompts that focus on actionable insights for different team types (development, operations, leadership). Implement bullet point formatting and validation (50 words max per bullet). Add template-based approach with predefined impact categories. Include technical term highlighting and actionable language enforcement. Implement output parsing to extract clean bullet points from AI responses.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 4,
-            "title": "Integrate Summarization Pipeline and Add Metrics",
-            "description": "Integrate summarization components into main processing pipeline with comprehensive metrics and monitoring",
-            "dependencies": [
-              "7.2",
-              "7.3"
-            ],
-            "details": "Create main SummarizationModule class that orchestrates TL;DR and impact bullet generation. Integrate with Article dataclass to populate summary fields. Add comprehensive metrics tracking: processing time, success/failure rates, summary lengths, confidence scores. Implement pipeline integration with error handling and fallback strategies. Add logging for debugging and monitoring. Create unit tests for all summarization components. Add integration tests with mock AI responses. Implement performance benchmarks and quality metrics.",
-            "status": "done",
-            "testStrategy": ""
-          }
-        ]
-      },
-      {
-        "id": 8,
-        "title": "Create GitHub Issue Template and Formatter",
-        "description": "Implement GitHub issue creation with proper formatting and labels",
-        "details": "Create issue template with sections: Summary, Impact to Teams, Original Source, Recommendation. Format title as '[CATEGORY] Article Title'. Generate appropriate labels: draft + category (agile|devops|architecture|leadership). Include markdown formatting for readability. Add recommendation for podcast episode assignment based on category.",
-        "testStrategy": "Unit tests for template formatting, markdown generation. Test with various article types and categories",
-        "priority": "medium",
-        "dependencies": [
-          7
-        ],
-        "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Create Issue Template Structure and Markdown Formatter",
-            "description": "Implement the core issue template with required sections and markdown formatting functionality",
-            "dependencies": [],
-            "details": "Create a template class that generates GitHub issue content with sections: Summary, Impact to Teams, Original Source, Recommendation. Implement markdown formatting functions for headers, bullet points, and code blocks. Include template variables for dynamic content insertion. Format title as '[CATEGORY] Article Title' pattern. Add proper spacing and readability formatting.",
-            "status": "done",
-            "testStrategy": "Unit tests for template rendering with various content types, markdown formatting validation, title formatting with different categories"
-          },
-          {
-            "id": 2,
-            "title": "Implement Dynamic Label Generation System",
-            "description": "Build label generation logic based on content category and draft status",
-            "dependencies": [
-              "8.1"
-            ],
-            "details": "Create label generator that produces 'draft' label plus category-specific labels (agile, devops, architecture, leadership). Implement mapping from classification results to GitHub label names. Include validation for label format and GitHub API compatibility. Handle edge cases for unknown or multiple categories.",
-            "status": "done",
-            "testStrategy": "Unit tests for label generation with different categories, validation of GitHub-compatible label formats, edge case testing for invalid categories"
-          },
-          {
-            "id": 3,
-            "title": "Add Category-Based Podcast Episode Recommendations",
-            "description": "Implement recommendation system for podcast episode assignments based on content category",
-            "dependencies": [
-              "8.1"
-            ],
-            "details": "Create recommendation engine that suggests podcast episode assignments based on article category. Define mapping between categories (agile, devops, architecture, leadership) and appropriate podcast formats or hosts. Include recommendation text in the issue template's Recommendation section. Add fallback recommendations for uncategorized content.",
-            "status": "done",
-            "testStrategy": "Unit tests for recommendation generation per category, validation of recommendation text formatting, testing with edge cases and unknown categories"
-          },
-          {
-            "id": 4,
-            "title": "Build Issue Content Assembly Pipeline",
-            "description": "Create the main formatter that assembles all components into final GitHub issue content",
-            "dependencies": [
-              "8.1",
-              "8.2",
-              "8.3"
-            ],
-            "details": "Implement main IssueFormatter class that combines template rendering, label generation, and recommendations into complete GitHub issue payload. Include methods for content validation and formatting consistency. Add support for different content types (RSS articles, web pages). Ensure proper encoding and special character handling for GitHub API compatibility.",
-            "status": "done",
-            "testStrategy": "Integration tests for complete issue assembly, validation of final output format, testing with various content sources and categories"
-          },
-          {
-            "id": 5,
-            "title": "Add Configuration and Customization Support",
-            "description": "Implement configuration system for template customization and formatting options",
-            "dependencies": [
-              "8.4"
-            ],
-            "details": "Create configuration system allowing customization of issue templates, label mappings, and recommendation rules. Support loading custom templates from files or configuration. Add options for different formatting styles and section ordering. Include validation for custom configurations and fallback to defaults. Support environment-specific customizations.",
-            "status": "done",
-            "testStrategy": "Unit tests for configuration loading and validation, testing custom templates and label mappings, integration tests with different configuration scenarios"
-          }
-        ]
-      },
-      {
-        "id": 9,
-        "title": "Implement GitHub API Integration",
-        "description": "Build GitHub API client to create draft issues in the repository",
-        "details": "Use PyGithub library for GitHub API interaction. Implement authentication using Personal Access Token from Kubernetes Secret. Create issues with proper title, body, and labels. Handle API rate limiting and errors gracefully. Add dry-run mode for testing. Log all API interactions for debugging.",
-        "testStrategy": "Unit tests with mock GitHub API, integration tests with test repository. Test error handling for API failures and rate limits",
-        "priority": "high",
-        "dependencies": [
-          8
-        ],
-        "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Setup PyGithub Client with Secret-based Authentication",
-            "description": "Initialize GitHub API client using PyGithub library with Personal Access Token authentication from Kubernetes Secret",
-            "dependencies": [],
-            "details": "Install PyGithub library and create GitHubClient class. Implement authentication using Personal Access Token loaded from Kubernetes Secret mounted as environment variable or file. Include connection validation and token scope verification. Handle authentication errors gracefully with informative error messages.",
-            "status": "done",
-            "testStrategy": "Unit tests with mock GitHub API authentication, test invalid token handling, verify connection establishment"
-          },
-          {
-            "id": 2,
-            "title": "Implement Issue Creation with Rate Limiting and Error Handling",
-            "description": "Build core functionality to create GitHub issues with proper rate limiting, retry logic, and comprehensive error handling",
-            "dependencies": [
-              "9.1"
-            ],
-            "details": "Implement create_issue method that accepts title, body, and labels parameters. Add exponential backoff retry logic for transient failures. Implement rate limiting detection and automatic waiting using GitHub API rate limit headers. Handle common API errors (403, 404, 422) with specific error messages. Include validation for issue content and repository access permissions.",
-            "status": "done",
-            "testStrategy": "Unit tests with mock GitHub API responses, test rate limiting scenarios, error handling for various HTTP status codes, integration tests with test repository"
-          },
-          {
-            "id": 3,
-            "title": "Add Dry-run Mode and Structured Logging",
-            "description": "Implement dry-run functionality for testing and comprehensive logging for all GitHub API interactions",
-            "dependencies": [
-              "9.2"
-            ],
-            "details": "Add dry_run parameter to issue creation methods that simulates API calls without actual execution. Implement structured logging using Python logging module to capture all API requests, responses, rate limit status, and errors. Include request/response timing, payload sizes, and API quota usage. Create log formatters for both development and production environments with appropriate log levels.",
-            "status": "done",
-            "testStrategy": "Test dry-run mode produces expected output without API calls, verify logging captures all required information, test log formatting and levels"
-          }
-        ]
-      },
-      {
-        "id": 10,
-        "title": "Create Main Agent Orchestration Script",
-        "description": "Build main script that orchestrates the entire pipeline from fetching to GitHub issue creation",
-        "details": "Create main.py that coordinates: config loading, content fetching, normalization, deduplication, classification, summarization, and GitHub issue creation. Implement proper error handling and logging at each step. Add progress tracking and statistics reporting. Include command-line arguments for dry-run and verbose modes. Handle partial failures gracefully.",
-        "testStrategy": "Integration tests for full pipeline, error injection tests, performance tests with multiple sources",
-        "priority": "high",
-        "dependencies": [
-          9
-        ],
-        "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Implement Pipeline Coordination and Integration",
-            "description": "Create the main orchestration logic that coordinates all pipeline components in sequence",
-            "dependencies": [],
-            "details": "Build main.py with pipeline orchestration class that imports and coordinates: config loading (Task 2), content fetching (Task 3), normalization (Task 4), deduplication (Task 5), classification (Task 6), summarization (Task 7), and GitHub issue creation (Tasks 8-9). Implement sequential execution with proper data flow between components. Create pipeline state management to track progress through each stage.",
-            "status": "done",
-            "testStrategy": "Integration tests for full pipeline execution, mock component tests to verify proper sequencing and data passing"
-          },
-          {
-            "id": 2,
-            "title": "Implement Error Handling and Centralized Logging",
-            "description": "Add comprehensive error handling and logging throughout the pipeline execution",
-            "dependencies": [
-              "10.1"
-            ],
-            "details": "Implement centralized logging using Python logging module with configurable levels. Add try-catch blocks around each pipeline stage with specific error handling strategies. Create custom exception classes for different failure types (ConfigError, FetchError, ProcessingError, GitHubError). Implement graceful degradation for partial failures - continue processing other sources when one fails. Add structured logging with timestamps, component names, and error details.",
-            "status": "done",
-            "testStrategy": "Error injection tests for each pipeline stage, verify logging output format and levels, test partial failure scenarios"
-          },
-          {
-            "id": 3,
-            "title": "Build Progress Tracking and Statistics Reporting",
-            "description": "Implement progress tracking and generate execution statistics and reports",
-            "dependencies": [
-              "10.1"
-            ],
-            "details": "Create progress tracking system that monitors: sources processed, articles fetched, duplicates found, classifications made, issues created. Implement statistics collection including processing times, success/failure rates, and category distributions. Generate summary report at end of execution with key metrics. Add progress indicators for long-running operations. Store execution history for trend analysis.",
-            "status": "done",
-            "testStrategy": "Verify progress tracking accuracy, test statistics calculation, validate report generation with various execution scenarios"
-          },
-          {
-            "id": 4,
-            "title": "Implement CLI and Configuration Management",
-            "description": "Create command-line interface with arguments for dry-run, verbose modes, and configuration options",
-            "dependencies": [
-              "10.2",
-              "10.3"
-            ],
-            "details": "Use argparse to create CLI with options: --dry-run (simulate without creating issues), --verbose (detailed logging), --config (custom config file path), --sources (custom sources file), --log-level (debug/info/warning/error). Implement configuration validation and loading with environment variable support. Add help text and usage examples. Create configuration override system allowing CLI args to override config file settings.",
-            "status": "done",
-            "testStrategy": "Test all CLI arguments and combinations, verify dry-run mode prevents actual issue creation, test configuration loading and validation with various inputs"
-          },
-          {
-            "id": 5,
-            "title": "Add Graceful Partial Failure Handling",
-            "description": "Implement robust handling of partial failures to ensure pipeline continues processing despite individual source failures",
-            "dependencies": [
-              "10.2"
-            ],
-            "details": "Implement failure isolation so that errors in processing one source don't stop processing of other sources. Create failure recovery mechanisms with configurable retry logic for transient errors. Add failure reporting that tracks which sources failed and why. Implement circuit breaker pattern for repeated failures. Ensure final execution report includes both successes and failures with detailed error information.",
-            "status": "done",
-            "testStrategy": "Test with intentionally failing sources, verify other sources continue processing, test retry logic with transient failures, validate failure reporting accuracy"
-          }
-        ]
-      },
-      {
-        "id": 11,
-        "title": "Create Kubernetes CronJob via Terraform",
-        "description": "Define CronJob using Terraform (kubernetes provider or Helm) with schedule, image, env/secret mounts; ensure it uses ServiceAccount and Secret created by Terraform IaC setup.",
-        "status": "done",
-        "dependencies": [
-          10,
-          13
-        ],
-        "priority": "high",
-        "details": "Create Terraform configuration for CronJob with schedule '0 6 * * *' (06:00 UTC daily). Use kubernetes provider or Helm chart to define the CronJob resource. Configure container with Python image and required dependencies. Reference ServiceAccount and Secret resources created by the Terraform IaC setup. Mount ConfigMap for sources.yaml and Secret for GitHub token using Terraform data sources or resource references. Set resource limits (CPU: 500m, Memory: 1Gi). Configure restart policy and failure handling. Add environment variables for configuration through Terraform variables.",
-        "testStrategy": "Test Terraform plan and apply for CronJob creation, verify scheduling works correctly on cluster, test secret and configmap mounting through Terraform-managed resources, validate ServiceAccount integration",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Create Terraform CronJob resource with schedule and container specification",
-            "description": "Define the core CronJob resource using Terraform kubernetes provider with daily schedule and Python container configuration",
-            "dependencies": [],
-            "details": "Create kubernetes_cron_job_v1 resource in Terraform with schedule '0 6 * * *' for 06:00 UTC daily execution. Configure job template with Python container image, command to run main.py script, and basic pod specification. Set concurrency policy to Forbid to prevent overlapping jobs. Configure job history limits for successful and failed jobs.",
-            "status": "done",
-            "testStrategy": "Validate Terraform plan output, verify CronJob resource creation in cluster, test schedule syntax"
-          },
-          {
-            "id": 2,
-            "title": "Configure ServiceAccount and Secret mounting integration",
-            "description": "Reference and mount the ServiceAccount and Secret resources created by Terraform IaC setup",
-            "dependencies": [
-              "11.1"
-            ],
-            "details": "Use Terraform data sources or resource references to link ServiceAccount and Secret from Task 13. Configure pod template to use the ServiceAccount for GitHub API access. Mount Secret containing GitHub token as environment variable or volume. Ensure proper RBAC permissions are inherited from ServiceAccount configuration.",
-            "status": "done",
-            "testStrategy": "Verify ServiceAccount assignment in pod spec, test Secret mounting and accessibility, validate GitHub API authentication"
-          },
-          {
-            "id": 3,
-            "title": "Mount ConfigMap for sources.yaml configuration",
-            "description": "Configure ConfigMap mounting for sources.yaml file created in Task 2",
-            "dependencies": [
-              "11.2"
-            ],
-            "details": "Create or reference ConfigMap containing sources.yaml configuration. Mount ConfigMap as volume in CronJob pod template at appropriate path (/app/config/sources.yaml). Configure volume mounts and ensure the Python application can read the configuration file. Handle ConfigMap updates and pod restarts.",
-            "status": "done",
-            "testStrategy": "Verify ConfigMap creation and mounting, test file accessibility from container, validate configuration loading"
-          },
-          {
-            "id": 4,
-            "title": "Set resource limits and environment variables",
-            "description": "Configure container resource constraints and environment variables through Terraform variables",
-            "dependencies": [
-              "11.3"
-            ],
-            "details": "Set resource requests and limits (CPU: 500m, Memory: 1Gi) in container specification. Define Terraform variables for configurable environment variables like log level, dry-run mode, and GitHub repository settings. Pass environment variables to container including GitHub token reference from Secret. Configure timezone and other runtime settings.",
-            "status": "done",
-            "testStrategy": "Verify resource limits are applied, test environment variable injection, validate container startup with proper configuration"
-          },
-          {
-            "id": 5,
-            "title": "Configure restart policy and failure handling",
-            "description": "Implement proper failure handling, restart policies, and monitoring for the CronJob",
-            "dependencies": [
-              "11.4"
-            ],
-            "details": "Set restart policy to OnFailure for job pods. Configure backoff limit for failed job retries. Set active deadline seconds to prevent long-running jobs. Add labels and annotations for monitoring and alerting. Configure success and failure job history retention. Implement proper logging configuration for troubleshooting failed executions.",
-            "status": "done",
-            "testStrategy": "Test failure scenarios and restart behavior, verify job history retention, validate monitoring labels and logging output"
-          }
-        ]
-      },
-      {
-        "id": 12,
-        "title": "Create Documentation and Deployment Guide",
-        "description": "Write comprehensive README and deployment documentation",
-        "details": "Create README.md with: project overview, installation instructions, configuration guide, deployment steps. Document GitHub token setup and permissions required. Include troubleshooting section and example configurations. Create deployment checklist and monitoring recommendations. Add architecture diagram showing data flow.",
-        "testStrategy": "Follow deployment guide on clean environment, verify all steps work correctly, test with different configurations",
-        "priority": "medium",
-        "dependencies": [
-          11
-        ],
-        "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Create Comprehensive README with Installation and Configuration",
-            "description": "Write detailed README.md covering project overview, installation instructions, and configuration guides for all system components",
-            "dependencies": [],
-            "details": "Create README.md with project overview explaining the automated content curation system. Include step-by-step installation instructions for Python dependencies, Docker setup, and local development environment. Document configuration of sources.yaml with examples for RSS/HTTP sources, keywords, and categorization. Add AI backend configuration sections for Ollama and Gemini setup including API keys and endpoints. Include environment variable documentation and example .env file. Document Kubernetes secrets and environment variable requirements.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 2,
-            "title": "Create Deployment Documentation with GitHub Integration",
-            "description": "Document deployment processes, GitHub token setup, permissions, and Terraform integration steps",
-            "dependencies": [
-              "12.1"
-            ],
-            "details": "Create deployment guide covering GitHub token creation and required permissions (repo access, issue creation). Document Terraform integration steps for Kubernetes deployment including provider configuration and state management. Include deployment checklist with pre-deployment verification steps. Add monitoring recommendations for CronJob execution and system health. Document Kubernetes secrets creation for GitHub tokens and AI API keys. Include example Terraform configurations and kubectl commands for manual deployment verification.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 3,
-            "title": "Create Troubleshooting Guide and Architecture Documentation",
-            "description": "Develop comprehensive troubleshooting guide and create architecture diagrams showing system data flow",
-            "dependencies": [
-              "12.1",
-              "12.2"
-            ],
-            "details": "Create troubleshooting section covering common issues: AI API errors and rate limits, GitHub authentication failures, Kubernetes deployment problems, and configuration validation errors. Include diagnostic commands and log analysis guidance. Create architecture diagram showing data flow from RSS/HTTP sources through content processing pipeline to GitHub issue creation. Document component interactions between configuration loader, content fetcher, AI classification/summarization, and GitHub integration. Add references to monitoring and debugging approaches for each system component.",
-            "status": "done",
-            "testStrategy": ""
-          }
-        ]
-      },
-      {
-        "id": 13,
-        "title": "Setup Terraform project and providers",
-        "description": "Initialize Terraform for Kubernetes: configure backend, kubernetes/helm providers, variables and .gitignore; define base resources (Namespace if needed, ServiceAccount, Secret for GitHub PAT) to support the CronJob.",
-        "details": "",
-        "testStrategy": "",
-        "status": "done",
-        "dependencies": [
-          10
-        ],
-        "priority": "high",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Initialize Terraform project structure and backend configuration",
-            "description": "Set up the basic Terraform project structure with proper backend configuration for state management",
-            "dependencies": [],
-            "details": "Create terraform/ directory with main.tf, variables.tf, outputs.tf, and versions.tf files. Configure Terraform backend (local or remote like S3/GCS) in versions.tf. Set minimum Terraform version requirement (>= 1.0). Initialize project with 'terraform init' and validate configuration structure.",
-            "status": "done",
-            "testStrategy": "Verify terraform init succeeds, terraform validate passes, and backend configuration is properly set"
-          },
-          {
-            "id": 2,
-            "title": "Configure Kubernetes and Helm providers",
-            "description": "Set up Kubernetes and Helm providers with proper authentication and configuration",
-            "dependencies": [
-              "13.1"
-            ],
-            "details": "Configure kubernetes provider in versions.tf with cluster authentication (kubeconfig or in-cluster). Add helm provider for potential chart deployments. Set provider versions and configure authentication methods. Test provider connectivity to target Kubernetes cluster.",
-            "status": "done",
-            "testStrategy": "Test terraform plan succeeds with provider configuration, verify cluster connectivity and authentication works"
-          },
-          {
-            "id": 3,
-            "title": "Define Terraform variables and create .gitignore",
-            "description": "Create comprehensive variable definitions and proper .gitignore for Terraform project",
-            "dependencies": [
-              "13.1"
-            ],
-            "details": "Define variables in variables.tf for namespace name, GitHub token, service account name, and other configurable values. Set appropriate defaults and descriptions. Create .gitignore to exclude .terraform/, *.tfstate, *.tfstate.backup, .terraform.lock.hcl, and sensitive files. Include terraform.tfvars in .gitignore for security.",
-            "status": "done",
-            "testStrategy": "Verify variables are properly defined with types and defaults, ensure sensitive files are excluded from git"
-          },
-          {
-            "id": 4,
-            "title": "Create Kubernetes Namespace resource",
-            "description": "Define Terraform resource for Kubernetes namespace to isolate CronJob resources",
-            "dependencies": [
-              "13.2"
-            ],
-            "details": "Create kubernetes_namespace resource in main.tf with configurable name from variables. Add proper labels and annotations for resource management. Configure namespace with appropriate metadata and ensure it's created before other resources.",
-            "status": "done",
-            "testStrategy": "Test namespace creation with terraform plan/apply, verify namespace exists in cluster with correct labels"
-          },
-          {
-            "id": 5,
-            "title": "Create ServiceAccount and Secret resources for GitHub PAT",
-            "description": "Define ServiceAccount and Secret resources to support CronJob authentication and GitHub API access",
-            "dependencies": [
-              "13.4"
-            ],
-            "details": "Create kubernetes_service_account resource with proper RBAC permissions for CronJob operations. Define kubernetes_secret resource for GitHub Personal Access Token with base64 encoding. Configure Secret mounting and reference in ServiceAccount. Set up proper labels and annotations for resource linking.",
-            "status": "done",
-            "testStrategy": "Verify ServiceAccount and Secret creation, test Secret data encoding, validate RBAC permissions and resource references"
-          }
-        ]
-      },
-      {
-        "id": 14,
-        "title": "Enhance Terraform K8s: imagePullSecrets and ConfigMaps",
-        "description": "Extend Terraform Kubernetes deployment to reference externally managed Secrets and ConfigMaps for private image pulls and environment configuration, including sources.yaml",
-        "status": "done",
-        "dependencies": [
-          11,
-          13
-        ],
-        "priority": "high",
-        "details": "- Reference existing Kubernetes Secret of type kubernetes.io/dockerconfigjson for imagePullSecrets to pull images from private registries (e.g., GitHub Container Registry). Reference secret in CronJob podSpec.\n- Reference existing ConfigMaps for application env (PYTHON envs) and for config/sources.yaml content; mount/env-inject into the CronJob.\n- Parameterize via Terraform variables for resource names only - no credentials or config content in code or state.\n- Document external resource creation and validation steps for operators.\n- IMPORTANT: Secrets and ConfigMaps are created and maintained OUTSIDE this repo. Terraform will only reference them by name; operators must provision them separately. Add validation step to fail fast if names are unset.",
-        "testStrategy": "- terraform plan/apply against a test cluster with pre-created Secrets/ConfigMaps; verify CronJob references external resources correctly. Validate pod can pull private image and app can read envs and sources.yaml from external resources.",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Reference external dockerconfigjson Secret for imagePullSecrets",
-            "description": "Configure CronJob to reference externally managed registry auth secret",
-            "status": "done",
-            "dependencies": [],
-            "details": "- Reference existing kubernetes_secret with type kubernetes.io/dockerconfigjson via data source or name parameter. Add to podSpec.imagePullSecrets.\n- Support parameterized secret name via Terraform variable (e.g., image_pull_secret_name).\n- No credential creation in Terraform - only reference external resource.\n- Secret is maintained OUTSIDE this repo - operators must create it separately.",
-            "testStrategy": ""
-          },
-          {
-            "id": 2,
-            "title": "Reference external ConfigMap for application envs",
-            "description": "Configure CronJob to use externally managed ConfigMap for Python app env variables",
-            "status": "done",
-            "dependencies": [],
-            "details": "- Reference existing kubernetes_config_map via data source or name parameter for app configuration (e.g., LOG_LEVEL, PROCESSING_BACKEND). Map to container env via valueFrom.configMapKeyRef.\n- Parameterize ConfigMap name in variables.tf (e.g., app_env_configmap_name).\n- No config content creation in Terraform - only reference external resource.\n- ConfigMap is maintained OUTSIDE this repo - operators must create it separately.",
-            "testStrategy": ""
-          },
-          {
-            "id": 3,
-            "title": "Reference external ConfigMap for sources.yaml",
-            "description": "Configure CronJob to mount externally managed `config/sources.yaml` ConfigMap",
-            "status": "done",
-            "dependencies": [],
-            "details": "- Reference existing kubernetes_config_map with key `sources.yaml` via data source or name parameter.\n- Mount into container at `/app/config/sources.yaml` via volumeMounts.\n- Parameterize ConfigMap name (e.g., sources_configmap_name).\n- No sources.yaml content creation in Terraform - only reference external resource.\n- ConfigMap is maintained OUTSIDE this repo - operators must create it separately.\n<info added on 2025-09-21T11:43:17.881Z>\nReference external ConfigMap by name using sources_configmap_name parameter. Mount the sources.yaml key specifically at /app/config/sources.yaml path. Ensure Terraform only references the external resource without creating or managing the ConfigMap content itself.\n</info added on 2025-09-21T11:43:17.881Z>",
-            "testStrategy": ""
-          },
-          {
-            "id": 4,
-            "title": "Wire external Secret and ConfigMap references in CronJob spec",
-            "description": "Update CronJob to reference external imagePullSecrets, envFrom/configMapKeyRef, and volumes/volumeMounts",
-            "status": "done",
-            "dependencies": [],
-            "details": "- Update CronJob template to include: imagePullSecrets (by name), env (valueFrom external configMap), envFrom (optional), volume + volumeMount for external `sources.yaml` ConfigMap.\n- Confirm SA/Secret from Task 13 still mounts GitHub PAT and AI keys.\n- All references use parameterized names, no inline resource creation.\n- All external resources are maintained OUTSIDE this repo.",
-            "testStrategy": ""
-          },
-          {
-            "id": 5,
-            "title": "Parameterize external resource names and document creation",
-            "description": "Add variables for external resource names and document external resource creation steps",
-            "status": "done",
-            "dependencies": [],
-            "details": "- variables: image_pull_secret_name, app_env_configmap_name, sources_configmap_name (all string type, no sensitive content).\n- Create documentation for operators on how to create required external Secrets/ConfigMaps before applying Terraform.\n- Include validation steps to verify external resources exist and have correct structure.\n- Document that all external resources are maintained OUTSIDE this repo.",
-            "testStrategy": ""
-          },
-          {
-            "id": 6,
-            "title": "Add validation for external resource names",
-            "description": "Implement Terraform validation to fail fast if external resource names are unset",
-            "status": "done",
-            "dependencies": [],
-            "details": "- Add validation blocks to Terraform variables to ensure image_pull_secret_name, app_env_configmap_name, and sources_configmap_name are not empty or null.\n- Use validation rules to check that variable values are non-empty strings.\n- Provide clear error messages when validation fails to guide operators on required external resources.\n- Consider adding data source checks to verify external resources exist before applying CronJob configuration.",
-            "testStrategy": ""
-          }
-        ]
-      },
-      {
-        "id": 15,
-        "title": "Add topic prioritization and situational analysis",
-        "description": "On each run, rank candidate issues by likely relevance for the upcoming month and persist a situational analysis Markdown in the repo to guide editorial planning across the next 4 weeks.",
-        "status": "done",
-        "dependencies": [
-          6,
-          7,
-          8,
-          9,
-          10,
-          5,
-          4
-        ],
-        "priority": "high",
-        "details": "- Compute an \"interestingness\" score per article/issue candidate optimized for monthly editorial planning (signals: recency, source authority, novelty vs recent topics, engagement proxies if available, category balance across 4-week horizon)\n- Sort issues by score and annotate output (labels, title prefix, or body section)\n- Generate `docs/analysis/situational-YYYY-MM.md` with ranked list, rationale, and recommendations for the upcoming month's episode selection\n- Commit the analysis file to the repo with a clear commit message (configurable, dry-run supported)\n- Add configurable horizon weeks parameter (default 4) for planning timeframe\n- Keep the pipeline helpful for editorial relevance without external services",
-        "testStrategy": "- Unit tests for scoring function and deterministic ranking with monthly horizon\n- Golden-file tests for analysis Markdown content with monthly format\n- Dry-run test ensures no commit; normal run creates or updates analysis file and commits\n- Integration test verifies ranked ordering flows into issue creation order (or annotations)\n- Test configurable horizon weeks parameter",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Design interestingness scoring model for monthly planning",
-            "description": "Define scoring signals and weights optimized for 4-week editorial horizon (recency, source authority, novelty, category balance).",
-            "status": "done",
-            "dependencies": [],
-            "details": "- Specify formula and weight ranges for monthly relevance; include config knobs via env or config\n- Add configurable horizon weeks parameter (default 4)\n- Ensure deterministic for same inputs; document tie-breakers\n- Plan for optional signals (engagement) without blocking MVP\n- Optimize scoring for editorial planning across multiple weeks rather than immediate relevance",
-            "testStrategy": ""
-          },
-          {
-            "id": 2,
-            "title": "Implement scoring and ranking for monthly horizon",
-            "description": "Compute scores for candidates optimized for upcoming month and return stable, sorted ordering.",
-            "status": "done",
-            "dependencies": [],
-            "details": "- Pure function + unit tests; handle missing fields gracefully\n- Expose top-N parameter (default 10); attach scores to results\n- Consider category balance across 4-week planning window\n- Include horizon weeks as configurable parameter",
-            "testStrategy": ""
-          },
-          {
-            "id": 3,
-            "title": "Generate monthly situational analysis Markdown",
-            "description": "Create `docs/analysis/situational-YYYY-MM.md` with ranked list and monthly editorial recommendations.",
-            "status": "done",
-            "dependencies": [],
-            "details": "- Include month/year, top-N table, per-item reasoning, category coverage for 4-week horizon\n- Provide recommendations for upcoming month's episode selection and category distribution\n- Idempotent update for same month (not daily)\n- Include planning insights for editorial team across multiple weeks",
-            "testStrategy": ""
-          },
-          {
-            "id": 4,
-            "title": "Integrate monthly ranking into issue creation/annotations",
-            "description": "Use monthly ranking to influence issue creation order and/or add rank annotations with monthly context.",
-            "status": "done",
-            "dependencies": [],
-            "details": "- Option A: create issues in ranked order based on monthly relevance\n- Option B: add rank label/body section with score, rationale, and monthly planning context\n- Ensure annotations reflect monthly editorial planning rather than immediate relevance",
-            "testStrategy": ""
-          },
-          {
-            "id": 5,
-            "title": "Commit monthly analysis file (configurable)",
-            "description": "Write and commit monthly analysis file with descriptive message; support dry-run/no-commit.",
-            "status": "done",
-            "dependencies": [],
-            "details": "- Commit message: `analysis: situational YYYY-MM (monthly planning)`\n- CLI flags: --analysis-only, --no-commit, --horizon-weeks\n- Avoid committing on failures; clear logging\n- Handle monthly file updates (idempotent per month)",
-            "testStrategy": ""
-          },
-          {
-            "id": 6,
-            "title": "Documentation and operator guide for monthly planning",
-            "description": "Document monthly scoring model, analysis file location, CLI flags, and editorial workflow for 4-week planning.",
-            "status": "done",
-            "dependencies": [],
-            "details": "- Update README/PRD sections; show example monthly analysis file\n- Explain how to use monthly analysis for upcoming 4-week episode planning\n- Document horizon weeks configuration and its impact on scoring\n- Include guidance on category balance across monthly planning window",
-            "testStrategy": ""
-          }
-        ]
-      },
-      {
-        "id": 16,
-        "title": "Setup Project Structure and Configuration",
-        "description": "Initialize the project repository structure with proper Python packaging, configuration files, and development environment setup",
-        "details": "Create project structure with: src/uutisagentti/ for Python modules, terraform/ for infrastructure code, docs/ for documentation, tests/ for unit tests. Setup pyproject.toml with dependencies (requests, pyyaml, google-generativeai, ollama-python, github-api). Create .gitignore, requirements.txt, and development setup scripts. Initialize sources.yaml template with RSS feed configurations.",
-        "testStrategy": "Verify project structure is correct, dependencies install properly, and configuration files are valid YAML/TOML",
-        "priority": "high",
-        "dependencies": [],
-        "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Create Directory Structure and Python Packaging Files",
-            "description": "Set up the complete project directory structure with proper Python packaging configuration",
-            "dependencies": [],
-            "details": "Create directories: src/uutisagentti/, terraform/, docs/, tests/. Initialize Python package with __init__.py files. Create pyproject.toml with project metadata, build system configuration, and tool configurations for black, isort, and pytest. Set up proper package structure following Python packaging standards.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 2,
-            "title": "Setup Dependency Management Configuration",
-            "description": "Configure project dependencies in pyproject.toml and create requirements.txt for compatibility",
-            "dependencies": [
-              "16.1"
-            ],
-            "details": "Add dependencies to pyproject.toml: requests, pyyaml, google-generativeai, ollama-python, github-api. Include development dependencies: pytest, black, isort, mypy. Generate requirements.txt from pyproject.toml for backward compatibility. Configure dependency groups for development, testing, and production environments.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 3,
-            "title": "Create Development Environment Configuration Files",
-            "description": "Set up development tooling configuration and environment files",
-            "dependencies": [
-              "16.1"
-            ],
-            "details": "Create comprehensive .gitignore for Python projects (including __pycache__, .env, .venv, IDE files, OS files). Create development setup scripts (setup.sh for Unix, setup.bat for Windows) to initialize virtual environment and install dependencies. Add pre-commit configuration and development workflow documentation.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 4,
-            "title": "Initialize Sources Configuration Template",
-            "description": "Create sources.yaml template with example RSS feed configurations",
-            "dependencies": [
-              "16.2"
-            ],
-            "details": "Create sources.yaml template in config/ directory with example RSS feed configurations (using placeholder URLs like example.com/rss). Include structure for feed metadata: name, url, category, language, update_frequency. Add validation schema comments and documentation for configuration format. Ensure template demonstrates all supported configuration options without real URLs.",
-            "status": "done",
-            "testStrategy": ""
-          }
-        ]
-      },
-      {
-        "id": 17,
-        "title": "Implement RSS Feed Fetcher",
-        "description": "Create RSS/HTTP feed fetching functionality that reads from sources.yaml configuration",
-        "details": "Implement src/uutisagentti/fetcher.py with RSS parsing using feedparser library. Support multiple feed formats (RSS, Atom). Handle HTTP errors, timeouts, and malformed feeds gracefully. Parse feed items extracting: title, description, link, published_date, source. Load sources from sources.yaml with feed URLs and keywords. Add retry logic and user-agent headers.",
-        "testStrategy": "Unit tests with mock RSS feeds, integration tests with real feeds, error handling tests for network failures and malformed XML",
-        "priority": "high",
-        "dependencies": [
-          16
-        ],
-        "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Implement basic RSS/Atom parsing with feedparser library",
-            "description": "Create core RSS/Atom feed parsing functionality using feedparser library to handle multiple feed formats",
-            "dependencies": [],
-            "details": "Set up feedparser library integration in src/uutisagentti/fetcher.py. Implement basic feed parsing for both RSS and Atom formats. Create functions to extract essential feed metadata and iterate through feed entries. Handle different feed structures and namespaces. Add basic validation for feed format detection.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 2,
-            "title": "Add HTTP error handling and retry logic with proper timeouts",
-            "description": "Implement robust HTTP request handling with retry mechanisms, timeout controls, and error recovery",
-            "dependencies": [
-              "17.1"
-            ],
-            "details": "Add requests library integration with proper timeout settings. Implement exponential backoff retry logic for transient failures. Handle HTTP status codes (404, 500, etc.) and network timeouts gracefully. Add user-agent headers to requests. Create configurable retry parameters (max attempts, backoff multiplier). Log errors appropriately for debugging.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 3,
-            "title": "Create configuration loader for sources.yaml integration",
-            "description": "Implement YAML configuration loading system to read feed sources and their associated metadata",
-            "dependencies": [],
-            "details": "Create YAML configuration loader to read sources.yaml file containing feed URLs, source names, and associated keywords. Implement configuration validation to ensure required fields are present. Add support for source-specific settings like custom timeouts or retry counts. Create data structures to hold source configuration in memory.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 4,
-            "title": "Implement content extraction and normalization from feed items",
-            "description": "Extract and normalize article data from feed items into standardized internal format",
-            "dependencies": [
-              "17.1",
-              "17.2",
-              "17.3"
-            ],
-            "details": "Implement content extraction from feed items to extract title, description, link, published_date, and source information. Handle missing or malformed data gracefully with fallback values. Normalize date formats to consistent internal representation. Clean and sanitize text content. Map extracted data to internal Article model fields. Handle duplicate detection based on URLs or content hashes.",
-            "status": "done",
-            "testStrategy": ""
-          }
-        ]
-      },
-      {
-        "id": 18,
-        "title": "Implement Content Normalization and Deduplication",
-        "description": "Create content normalization and duplicate detection system using hashing and similarity matching",
-        "details": "Implement src/uutisagentti/deduplicator.py with content hashing (SHA-256 of normalized title+description). Add similarity detection using TF-IDF cosine similarity with threshold (e.g., 0.8). Normalize text by removing HTML tags, converting to lowercase, removing extra whitespace. Store processed items with hashes for comparison. Use scikit-learn for similarity calculations.",
-        "testStrategy": "Test with duplicate articles, near-duplicate content, and completely different articles. Verify hash consistency and similarity threshold accuracy",
-        "priority": "high",
-        "dependencies": [
-          17
-        ],
-        "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Implement Text Normalization Functions",
-            "description": "Create text normalization utilities for HTML cleaning, whitespace handling, and case conversion",
-            "dependencies": [],
-            "details": "Implement text normalization functions in src/uutisagentti/deduplicator.py: HTML tag removal using BeautifulSoup, convert to lowercase, normalize whitespace (remove extra spaces, tabs, newlines), handle special characters and encoding. Create normalize_content() function that takes title and description and returns cleaned text suitable for comparison.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 2,
-            "title": "Create Content Hashing System",
-            "description": "Implement SHA-256 hashing system for exact duplicate detection",
-            "dependencies": [
-              "18.1"
-            ],
-            "details": "Create content hashing system using SHA-256 for exact duplicate detection. Hash normalized title+description concatenation. Implement generate_content_hash() function and hash storage mechanism. Create hash comparison logic to identify exact duplicates efficiently. Store hashes with metadata for quick lookup.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 3,
-            "title": "Implement Similarity Detection",
-            "description": "Create similarity detection using fuzzy matching and token shingling without ML libraries",
-            "dependencies": [
-              "18.1"
-            ],
-            "details": "Implement similarity detection using stdlib only: fuzzy title matching with difflib.SequenceMatcher, token shingling with Jaccard similarity for content comparison. Create configurable similarity thresholds (default 0.8). Implement calculate_similarity() function that returns similarity scores between articles.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 4,
-            "title": "Create Deduplication Pipeline",
-            "description": "Integrate normalization, hashing, and similarity detection into complete deduplication pipeline",
-            "dependencies": [
-              "18.2",
-              "18.3"
-            ],
-            "details": "Create complete deduplication pipeline that combines exact hash matching and similarity detection. Implement Deduplicator class with methods: add_article(), find_duplicates(), get_unique_articles(). Include configurable thresholds, storage for processed items, and integration points for the main processing pipeline. Add logging and performance metrics.",
-            "status": "done",
-            "testStrategy": ""
-          }
-        ]
-      },
-      {
-        "id": 19,
-        "title": "Implement AI Backend Abstraction Layer",
-        "description": "Create abstraction layer supporting both Ollama (development) and Gemini Flash (production) AI backends",
-        "details": "Implement src/uutisagentti/ai_backend.py with abstract base class AIBackend and concrete implementations: OllamaBackend (using ollama-python) and GeminiBackend (using google-generativeai). Support environment-based backend selection. Implement retry logic, error handling, and rate limiting. Add prompt template system for consistent AI interactions across backends.",
-        "testStrategy": "Mock both backends for unit tests, integration tests with actual Ollama and Gemini instances, test backend switching and error scenarios",
-        "priority": "high",
-        "dependencies": [
-          16
-        ],
-        "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Design Abstract Base Class Interface",
-            "description": "Create abstract base class AIBackend defining common interface for AI operations including generate_text, validate_response, and get_backend_info methods",
-            "dependencies": [],
-            "details": "Design src/uutisagentti/ai_backend.py with abstract base class AIBackend using ABC. Define interface methods: generate_text(prompt, max_tokens, temperature), validate_response(response), get_backend_info(). Include type hints and comprehensive docstrings. Define common response format and error handling interface.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 2,
-            "title": "Implement Ollama Backend Client",
-            "description": "Create OllamaBackend implementation using direct HTTP requests to /api/generate endpoint",
-            "dependencies": [
-              "19.1"
-            ],
-            "details": "Implement OllamaBackend class inheriting from AIBackend. Use requests library to call Ollama's /api/generate endpoint. Handle streaming and non-streaming responses. Parse JSON responses and map to common format. Include model configuration (default: llama3.2). Add connection validation and health checks.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 3,
-            "title": "Implement Gemini Backend Client",
-            "description": "Create GeminiBackend implementation using Google AI Studio v1beta generateContent API",
-            "dependencies": [
-              "19.1"
-            ],
-            "details": "Implement GeminiBackend class inheriting from AIBackend. Use requests library to call Google AI Studio v1beta generateContent endpoint. Handle API key authentication via headers. Parse JSON responses and map to common format. Include model configuration (default: gemini-1.5-flash). Add quota and safety settings handling.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 4,
-            "title": "Add Backend Selection and Configuration",
-            "description": "Implement environment-based backend selection and configuration management system",
-            "dependencies": [
-              "19.2",
-              "19.3"
-            ],
-            "details": "Create backend factory function get_ai_backend() that selects backend based on AI_BACKEND environment variable (ollama/gemini). Add configuration loading from environment variables: OLLAMA_BASE_URL, GEMINI_API_KEY, model names, timeouts. Include validation for required configuration per backend. Add backend switching capability for testing.",
-            "status": "done",
-            "testStrategy": ""
-          },
-          {
-            "id": 5,
-            "title": "Implement Retry Logic and Error Handling",
-            "description": "Add comprehensive retry logic, exponential backoff, and structured logging for both backends",
-            "dependencies": [
-              "19.2",
-              "19.3"
-            ],
-            "details": "Implement retry decorator with exponential backoff for transient failures. Add specific error handling for: network timeouts, API rate limits, authentication errors, model unavailability. Include structured logging with request/response details, timing metrics, and error context. Add circuit breaker pattern for repeated failures. Configure retry attempts and backoff parameters per backend type.",
-            "status": "done",
-            "testStrategy": ""
-          }
-        ]
-      },
-      {
-        "id": 20,
-        "title": "Implement Content Classification System",
-        "description": "Create AI-powered content classification for the four categories: Agile, DevOps, Architecture/Infra, Leadership",
-        "status": "done",
-        "dependencies": [
-          19
-        ],
-        "priority": "medium",
-        "details": "Implement src/uutisagentti/classifier.py using AI backend (Ollama/Gemini) only to classify articles into categories. Create classification prompts with clear category definitions and examples. Return classification with confidence scores using JSON schema parsing. Handle edge cases where content fits multiple categories (select primary). Include retry mechanisms with exponential backoff and metrics collection. No keyword-based fallback - classification must use AI backend exclusively.",
-        "testStrategy": "Test with articles from each category, edge cases spanning multiple categories, and articles that don't fit any category clearly. Verify AI-only classification works reliably with retry mechanisms.",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Design Classification Prompts and Category Definitions",
-            "description": "Create structured prompts with clear definitions and examples for each category (Agile, DevOps, Architecture/Infra, Leadership) to ensure consistent AI classification",
-            "status": "done",
-            "dependencies": [],
-            "details": "Define comprehensive category definitions with specific characteristics and examples. Create classification prompts that include category descriptions, example articles for each category, and clear instructions for the AI model. Design JSON schema for classification responses including category, confidence score, and reasoning. Ensure prompts handle edge cases and guide the model to select primary category when content spans multiple areas.",
-            "testStrategy": ""
-          },
-          {
-            "id": 2,
-            "title": "Implement AI-Powered Classification with JSON Schema Parsing",
-            "description": "Build the core classification engine using Ollama/Gemini backends with structured JSON response parsing and validation",
-            "status": "done",
-            "dependencies": [
-              1
-            ],
-            "details": "Implement classifier.py with AI backend abstraction for Ollama/Gemini. Parse JSON responses from AI models using defined schema and extract classification results. Implement robust JSON validation and error handling for malformed responses. Add confidence score validation and thresholds. Include comprehensive error handling for API communication issues.",
-            "testStrategy": ""
-          },
-          {
-            "id": 3,
-            "title": "Add Retry Mechanisms and Exponential Backoff",
-            "description": "Implement retry logic with exponential backoff for AI API failures and transient errors",
-            "status": "done",
-            "dependencies": [
-              2
-            ],
-            "details": "Implement retry logic with exponential backoff for API failures and timeouts. Configure maximum retry attempts and backoff intervals. Handle different types of failures (network errors, API rate limits, service unavailable). Add circuit breaker pattern for persistent failures. Ensure graceful degradation when all retries are exhausted.",
-            "testStrategy": ""
-          },
-          {
-            "id": 4,
-            "title": "Implement Metrics Collection and Edge Case Handling",
-            "description": "Add comprehensive metrics collection and handle edge cases for AI-only classification system",
-            "status": "done",
-            "dependencies": [
-              3
-            ],
-            "details": "Include metrics collection for classification performance tracking (response times, success rates, confidence distributions). Handle edge cases: articles spanning multiple categories (primary selection logic), articles not fitting any category clearly, very short or very long content. Implement logging and monitoring for classification decisions. Add configuration options for confidence thresholds. Create comprehensive error handling for all failure scenarios without fallback to keyword-based classification.",
-            "testStrategy": ""
-          }
-        ]
-      },
-      {
-        "id": 21,
-        "title": "Implement Content Summarization",
-        "description": "Create AI-powered summarization generating TL;DR and team impact bullets",
-        "details": "Implement src/uutisagentti/summarizer.py to generate: concise TL;DR summary (1-2 sentences), 2-3 bullet points explaining 'what this means for teams'. Use structured prompts to ensure consistent output format. Handle long articles by chunking if needed. Add validation to ensure summaries meet length requirements.",
-        "testStrategy": "Test with various article lengths and complexity, verify output format consistency, check summary quality and relevance",
-        "priority": "medium",
-        "dependencies": [
-          19
-        ],
-        "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 22,
-        "title": "Implement GitHub Issue Creation",
-        "description": "Create GitHub API integration for creating draft issues with proper formatting and labels",
-        "details": "Implement src/uutisagentti/github_client.py using PyGithub library. Create issues with format: Title '[CATEGORY] Article Title', Labels 'draft' + category, Body with summary, team impact bullets, original links, and episode recommendation. Handle GitHub API rate limits, authentication with PAT token, and error responses. Support dry-run mode for testing.",
-        "testStrategy": "Mock GitHub API for unit tests, integration tests with test repository, verify issue format and content accuracy",
-        "priority": "high",
-        "dependencies": [
-          20,
-          21
-        ],
-        "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 23,
-        "title": "Implement Scoring and Prioritization System",
-        "description": "Create content scoring system based on freshness, source authority, novelty, and category balance",
-        "details": "Implement src/uutisagentti/scorer.py with scoring algorithm considering: freshness (time decay over 4 weeks), source authority (configurable weights), novelty vs previous months, category balance. Store historical data for novelty comparison. Make scoring parameters configurable. Sort articles by score for prioritization.",
-        "testStrategy": "Test scoring with articles of different ages, sources, and categories. Verify score consistency and ranking accuracy",
-        "priority": "medium",
-        "dependencies": [
-          20
-        ],
-        "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 24,
-        "title": "Implement Monthly Analysis Generator",
-        "description": "Create monthly situational analysis generator producing markdown reports with recommendations",
-        "details": "Implement src/uutisagentti/analyzer.py to generate docs/analysis/situational-YYYY-MM.md files. Include: monthly overview, top-N articles with reasoning, category balance analysis, weekly recommendations (deterministic distribution). Make planning horizon configurable (default 4 weeks). Support both file output and repository commits.",
-        "testStrategy": "Test analysis generation with various article sets, verify markdown format, check weekly distribution logic",
-        "priority": "medium",
-        "dependencies": [
-          23
-        ],
-        "status": "done",
-        "subtasks": []
-      },
-      {
-        "id": 25,
-        "title": "Create Main Application Orchestrator",
-        "description": "Implement main application logic orchestrating all components in the correct sequence",
-        "details": "Implement src/uutisagentti/main.py as entry point orchestrating: fetch → normalize → dedupe → classify → summarize → score → create_issues → generate_analysis. Add comprehensive logging, error handling, and progress reporting. Support configuration via environment variables and command-line arguments. Include dry-run mode for testing.",
-        "testStrategy": "End-to-end integration tests, error injection tests, dry-run verification, performance testing with large article sets",
-        "priority": "high",
-        "dependencies": [
-          18,
-          22,
-          24
-        ],
-        "status": "pending",
-        "subtasks": []
-      },
-      {
-        "id": 26,
-        "title": "Create Terraform Infrastructure Configuration",
-        "description": "Implement Terraform configuration for Kubernetes CronJob deployment with external resource references",
-        "details": "Create terraform/main.tf with: kubernetes provider configuration, CronJob resource (schedule: '0 6 * * *'), ServiceAccount, variables for external references (image_pull_secret_name, app_env_configmap_name, sources_configmap_name). Reference external Secrets and ConfigMaps by name only. Include resource limits, restart policies, and proper RBAC. Use kubernetes and helm providers as specified.",
-        "testStrategy": "Terraform plan/validate tests, verify external resource references, test deployment to development cluster",
-        "priority": "high",
-        "dependencies": [
-          25
-        ],
-        "status": "pending",
-        "subtasks": []
-      },
-      {
-        "id": 27,
-        "title": "Create Container Image and Dockerfile",
-        "description": "Create optimized Docker container for the application with proper Python environment",
-        "details": "Create Dockerfile with: Python 3.11+ base image, multi-stage build for optimization, install dependencies from requirements.txt, copy application code, set proper user permissions (non-root), configure entrypoint. Add .dockerignore for build optimization. Consider distroless or alpine base for security.",
-        "testStrategy": "Build and run container locally, test with both AI backends, verify security scanning, test resource usage",
-        "priority": "medium",
-        "dependencies": [
-          25
-        ],
-        "status": "pending",
-        "subtasks": []
-      },
-      {
-        "id": 28,
-        "title": "Create Configuration Templates and Documentation",
-        "description": "Create sources.yaml template, GitHub issue template, and comprehensive documentation",
-        "details": "Create: sources.yaml with example RSS feeds and keywords for each category, .github/ISSUE_TEMPLATE/ for consistent issue format, README.md with deployment instructions, configuration guide, GitHub token setup. Document environment variables, Terraform variables, and operational procedures. Include troubleshooting guide.",
-        "testStrategy": "Validate YAML syntax, test issue template rendering, verify documentation completeness and accuracy",
-        "priority": "medium",
-        "dependencies": [
-          26,
-          27
-        ],
-        "status": "pending",
-        "subtasks": []
-      },
-      {
-        "id": 29,
-        "title": "Implement Comprehensive Testing Suite",
-        "description": "Create comprehensive test suite covering unit tests, integration tests, and end-to-end scenarios",
-        "details": "Create tests/ directory with: unit tests for each module, integration tests for AI backends and GitHub API, end-to-end tests with mock data, performance tests for large datasets. Use pytest framework, mock external dependencies, include test data fixtures. Add CI/CD pipeline configuration for automated testing.",
-        "testStrategy": "Achieve >90% code coverage, test all error scenarios, verify mock accuracy against real services",
-        "priority": "medium",
-        "dependencies": [
-          28
-        ],
-        "status": "pending",
-        "subtasks": []
-      },
-      {
-        "id": 30,
-        "title": "Final Integration and Deployment Validation",
-        "description": "Perform final integration testing and validate complete deployment pipeline",
-        "details": "Execute complete end-to-end testing: deploy to development K8s cluster, run full pipeline with real RSS feeds, verify GitHub issue creation, validate monthly analysis generation, test both AI backends, verify Terraform deployment. Create deployment checklist and operational runbook. Validate all external dependencies and configurations.",
-        "testStrategy": "Full system integration test, deployment verification, rollback testing, monitoring and alerting validation",
-        "priority": "high",
-        "dependencies": [
-          29
-        ],
-        "status": "pending",
-        "subtasks": []
-      },
-      {
-        "id": 31,
-        "title": "Implement Configurable Logging System",
-        "description": "Create a flexible logging system that logs to files by default but switches to stdout in Kubernetes environments, with configurable behavior via environment variables.",
-        "details": "Implement src/uutisagentti/logger.py with Python's logging module to create a configurable logging system. Support multiple output modes: file logging (default), stdout logging (for Kubernetes), and hybrid mode. Use environment variables for configuration: LOG_OUTPUT (file|stdout|both), LOG_LEVEL (DEBUG|INFO|WARNING|ERROR), LOG_FILE_PATH (default: logs/uutisagentti.log), LOG_FORMAT (structured JSON or plain text). Detect Kubernetes environment automatically via K8S_CLUSTER or KUBERNETES_SERVICE_HOST environment variables. Implement log rotation for file output using RotatingFileHandler with configurable size limits. Add structured logging with contextual information (timestamp, level, component, message). Include correlation IDs for tracing requests across components. Ensure thread-safety for concurrent logging operations. Create logger factory function that other modules can import and use consistently.",
-        "testStrategy": "Unit tests for logger configuration with different environment variable combinations. Test file logging with rotation limits and directory creation. Test stdout logging format and output capture. Test Kubernetes environment detection logic. Integration tests verifying logging works across all application components (fetcher, classifier, summarizer, etc.). Test log level filtering and format consistency. Performance tests for high-volume logging scenarios. Test error handling when log directories are not writable or disk space is full.",
-        "status": "done",
-        "dependencies": [
-          25
-        ],
-        "priority": "high",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Implement Logging Configuration Setup",
-            "description": "Create the core logging configuration system that reads environment variables and sets up the base logging infrastructure with configurable parameters.",
-            "dependencies": [],
-            "details": "Create src/uutisagentti/logger.py with configuration class that reads environment variables: LOG_OUTPUT (file|stdout|both), LOG_LEVEL (DEBUG|INFO|WARNING|ERROR), LOG_FILE_PATH (default: logs/uutisagentti.log), LOG_FORMAT (structured JSON or plain text). Implement configuration validation and default value handling. Create structured logging formatters for both JSON and plain text formats. Include correlation ID generation for request tracing. Ensure thread-safety with proper locking mechanisms.\n<info added on 2025-09-21T13:22:32.757Z>\nInitial implementation completed in src/utils/logging.py with environment variable configuration (LOG_LEVEL, LOG_OUTPUT, LOG_FILE_PATH, LOG_FORMAT), Kubernetes environment detection via is_kubernetes_env function, configurable handlers for stdout/file/both outputs, support for text and JSON formats, RotatingFileHandler for file logging, and get_logger function for easy logger retrieval. Ready for application-wide integration.\n</info added on 2025-09-21T13:22:32.757Z>",
-            "status": "done",
-            "testStrategy": "Unit tests for configuration parsing with various environment variable combinations, validation of default values, and formatter output verification"
-          },
-          {
-            "id": 2,
-            "title": "Implement Kubernetes Environment Detection",
-            "description": "Create automatic detection mechanism for Kubernetes environments to enable context-aware logging behavior.",
-            "dependencies": [
-              "31.1"
-            ],
-            "details": "Implement environment detection function that checks for K8S_CLUSTER or KUBERNETES_SERVICE_HOST environment variables. Create fallback detection by checking for /var/run/secrets/kubernetes.io/serviceaccount directory. Add configuration override capability to force specific environments for testing. Return boolean indicating Kubernetes environment status and integrate with logging configuration to automatically switch to stdout mode when detected.",
-            "status": "done",
-            "testStrategy": "Unit tests with mocked environment variables and filesystem checks, test override functionality and integration with logging configuration"
-          },
-          {
-            "id": 3,
-            "title": "Implement File Logging System",
-            "description": "Create file-based logging system with rotation capabilities for local development and non-Kubernetes environments.",
-            "dependencies": [
-              "31.1"
-            ],
-            "details": "Implement file logging using RotatingFileHandler with configurable size limits (default 10MB, 5 backup files). Create automatic directory creation for log file paths. Add file permissions handling and error recovery for file access issues. Implement log rotation with timestamp-based backup naming. Include file locking for concurrent access safety. Support both JSON and plain text formats based on configuration.",
-            "status": "done",
-            "testStrategy": "Test file creation, rotation limits, directory creation, concurrent access, and different format outputs"
-          },
-          {
-            "id": 4,
-            "title": "Implement Console Logging System",
-            "description": "Create stdout/console logging system optimized for Kubernetes environments and container orchestration.",
-            "dependencies": [
-              "31.1"
-            ],
-            "details": "Implement console logging using StreamHandler targeting stdout. Optimize output format for container log aggregation systems. Support structured JSON logging for better parsing by log collectors. Include proper encoding handling for special characters. Add buffering configuration for performance in high-throughput scenarios. Ensure compatibility with container runtime log drivers.",
-            "status": "done",
-            "testStrategy": "Test stdout output capture, JSON format validation, encoding handling, and performance under load"
-          },
-          {
-            "id": 5,
-            "title": "Integrate Logging System Throughout Application",
-            "description": "Replace existing logging mechanisms throughout the application and create consistent logger factory for all modules.",
-            "dependencies": [
-              "31.2",
-              "31.3",
-              "31.4"
-            ],
-            "details": "Create logger factory function get_logger(component_name) that returns configured logger instances. Replace all print statements and basic logging calls across existing modules (classifier.py, summarizer.py, scorer.py, github_client.py, analyzer.py). Add contextual logging with component names and correlation IDs. Implement proper exception logging with stack traces. Create logging middleware for request/response tracking. Add performance logging for key operations with timing information.\n<info added on 2025-09-21T13:25:13.539Z>\nSuccessfully integrated the new logging system across 8 application modules by replacing legacy `logging.getLogger` calls with the standardized `get_logger` function. Updated modules include: main.py, orchestrator.py, processors (summarize.py, classify.py, ai/retry.py), output (github_client.py), and fetchers (rss.py, http.py). This establishes consistent logging patterns and component identification throughout the entire application codebase.\n</info added on 2025-09-21T13:25:13.539Z>",
-            "status": "done",
-            "testStrategy": "Integration tests verifying logging works across all application components, test correlation ID propagation, verify no print statements remain, and check log output consistency"
-          }
-        ]
-      },
-      {
-        "id": 32,
-        "title": "Implement Automated GitHub Issue Creation Pipeline",
-        "description": "Create automated system that identifies high-priority articles from summarization results and creates GitHub issues with proper formatting, linking multiple sources together.",
         "status": "in-progress",
-        "dependencies": [
-          8,
-          25,
-          "33"
-        ],
-        "priority": "medium",
-        "details": "Implement GitHub issue creation pipeline that: 1) Analyzes summarized articles to identify timely and interesting content based on scoring thresholds and relevance criteria, 2) Groups related articles by topic/category to create comprehensive issues linking multiple sources, 3) Creates GitHub issues using the established template format with sections for Summary, Impact to Teams, Original Sources (multiple), and Recommendations, 4) Applies appropriate labels (draft + category) and assigns to relevant team members, 5) Implements rate limiting and error handling for GitHub API calls, 6) Maintains issue creation history to avoid duplicates, 7) Generates summary reports of created issues. Include configuration for priority thresholds, grouping criteria, and GitHub repository settings. Handle authentication via GitHub token and implement proper error recovery for API failures.",
-        "testStrategy": "Test with mock summarized articles of varying priority scores, verify issue grouping logic with related articles, validate GitHub API integration with test repository, test rate limiting and error handling scenarios, verify issue template formatting and label application, test duplicate prevention mechanisms, validate summary report generation",
         "subtasks": [
           {
             "id": 1,
-            "title": "Implement Priority Analyzer Module",
-            "description": "Create a priority analyzer that evaluates summarized articles based on scoring thresholds and relevance criteria to identify high-priority content for issue creation.",
+            "title": "Define YAML schema and structure for sources configuration",
+            "description": "Design the complete YAML schema structure for sources.yaml including all required fields, data types, and validation rules for RSS/HTTP sources and keyword definitions",
             "dependencies": [],
-            "details": "Implement src/analysis/priority_analyzer.py that integrates with existing scorer.py. Add methods to filter articles above configurable priority thresholds, evaluate timeliness based on publication date and trending topics, and assess relevance using category balance and novelty scores. Include configuration for minimum score thresholds, freshness windows, and category-specific weights. The analyzer should return ranked lists of high-priority articles with justification scores.",
-            "status": "pending",
-            "testStrategy": "Test with mock article data at various priority levels, verify threshold filtering works correctly, validate ranking consistency with different scoring parameters"
+            "details": "Create the schema definition with sources array containing name, url, category, authority_score fields, and keywords object with category-specific keyword arrays. Define validation rules: authority_score must be 0.0-1.0, URLs must be valid HTTP/HTTPS, categories must be from predefined list (agile, devops, architecture, leadership). Document field requirements and optional parameters.",
+            "status": "in-progress",
+            "testStrategy": "Create sample YAML files with valid and invalid data to test schema validation rules"
           },
           {
             "id": 2,
-            "title": "Implement Article Grouping Engine",
-            "description": "Create a grouping system that clusters related articles by topic and category to enable comprehensive GitHub issues linking multiple sources.",
+            "title": "Research and compile high-authority RSS sources for Agile category",
+            "description": "Identify and validate RSS/Atom feeds from authoritative sources in the Agile methodology domain, including their URLs, reliability, and content quality",
             "dependencies": [
-              "32.1"
+              "36.1"
             ],
-            "details": "Implement src/analysis/article_grouper.py that analyzes high-priority articles from priority analyzer. Use semantic similarity of titles/summaries, category matching, and keyword overlap to group related articles. Implement clustering algorithms (e.g., hierarchical clustering) with configurable similarity thresholds. Support both automatic grouping and manual override rules. Return grouped article sets with similarity scores and suggested issue titles combining multiple sources.",
+            "details": "Research sources like Scrum.org, Agile Alliance, Mountain Goat Software, and other recognized Agile thought leaders. Verify RSS feed URLs are accessible and regularly updated. Assign appropriate authority scores based on source credibility and influence in the Agile community. Include at least 3-5 high-quality sources with scores 0.8-1.0.",
             "status": "pending",
-            "testStrategy": "Test grouping with articles on similar topics, verify clustering accuracy with different similarity thresholds, test edge cases with single articles and large clusters"
+            "testStrategy": "Test each RSS URL for accessibility and parse sample feeds to verify content quality and update frequency"
           },
           {
             "id": 3,
-            "title": "Enhance GitHub Issue Template System",
-            "description": "Extend the existing GitHub issue creation to support multi-source templates with enhanced formatting for grouped articles.",
+            "title": "Research and compile high-authority RSS sources for DevOps category",
+            "description": "Identify and validate RSS/Atom feeds from authoritative sources in the DevOps domain, focusing on CI/CD, containerization, and automation topics",
             "dependencies": [
-              "32.2"
+              "36.1"
             ],
-            "details": "Enhance src/output/github_client.py to support multi-article issue templates. Extend the existing issue format to handle grouped articles with sections for: Combined Summary (synthesizing multiple sources), Collective Impact to Teams (aggregated insights), Multiple Original Sources (with individual summaries), and Consolidated Recommendations. Add template variables for article count, primary category, and source diversity. Maintain backward compatibility with single-article issues.",
+            "details": "Research sources like Docker Blog, Kubernetes Blog, GitLab Blog, HashiCorp Blog, and other recognized DevOps platforms. Verify RSS feed URLs and content relevance to DevOps practices. Assign authority scores based on technical accuracy and industry influence. Include sources covering CI/CD, containerization, infrastructure as code, and monitoring.",
             "status": "pending",
-            "testStrategy": "Test template rendering with single and multiple articles, verify formatting consistency, validate all template sections are properly populated"
+            "testStrategy": "Validate RSS feeds and analyze recent articles to ensure content aligns with DevOps best practices"
           },
           {
             "id": 4,
-            "title": "Implement GitHub API Rate Limiting and Error Handling",
-            "description": "Add comprehensive rate limiting, retry logic, and error recovery mechanisms to the GitHub client for reliable API interactions.",
+            "title": "Research and compile high-authority RSS sources for Architecture and Leadership categories",
+            "description": "Identify and validate RSS/Atom feeds for software architecture and technical leadership domains, including system design and team management sources",
             "dependencies": [
-              "32.3"
+              "36.1"
             ],
-            "details": "Enhance src/output/github_client.py with rate limiting using exponential backoff, request queuing, and GitHub API rate limit headers monitoring. Implement retry logic for transient failures (network timeouts, 5xx errors) with configurable max attempts. Add error recovery for authentication failures, repository access issues, and API quota exhaustion. Include logging for all API interactions and failure scenarios with detailed error context.",
+            "details": "For Architecture: Research sources like Martin Fowler, InfoQ Architecture, High Scalability, and architecture-focused engineering blogs. For Leadership: Include sources like Rands in Repose, First Round Review, and technical leadership blogs. Verify feed accessibility and assign authority scores. Ensure coverage of microservices, system design, team management, and engineering culture topics.",
             "status": "pending",
-            "testStrategy": "Test rate limiting with high-frequency requests, simulate API failures and verify retry behavior, test authentication error handling and quota exhaustion scenarios"
+            "testStrategy": "Test feed accessibility and review recent content to ensure alignment with architecture and leadership best practices"
           },
           {
             "id": 5,
-            "title": "Implement Duplicate Prevention Tracker",
-            "description": "Create a system to track created issues and prevent duplicate issue creation for the same content or article groups.",
+            "title": "Create final sources.yaml file with comprehensive keyword definitions",
+            "description": "Assemble the complete sources.yaml configuration file with all researched sources and comprehensive keyword mappings for each category",
             "dependencies": [
-              "32.2"
+              "36.2",
+              "36.3",
+              "36.4"
             ],
-            "details": "Implement src/analysis/duplicate_tracker.py that maintains a persistent record of created issues with article fingerprints (URL hashes, title similarity, content checksums). Store issue creation history with timestamps, article IDs, and GitHub issue numbers. Implement similarity detection for grouped articles to prevent near-duplicate issues. Support configurable duplicate detection sensitivity and time windows for considering content as duplicate. Include cleanup mechanisms for old tracking data.",
+            "details": "Combine all researched sources into the final YAML structure. Create comprehensive keyword arrays for each category: agile keywords (scrum, kanban, sprint, retrospective, user stories, velocity), devops keywords (ci/cd, kubernetes, docker, automation, infrastructure, monitoring), architecture keywords (microservices, api, design patterns, scalability, distributed systems), leadership keywords (team management, coaching, culture, mentoring, communication). Validate YAML syntax and ensure proper formatting.",
             "status": "pending",
-            "testStrategy": "Test duplicate detection with identical and similar articles, verify tracking persistence across application restarts, test cleanup of old tracking data"
-          },
-          {
-            "id": 6,
-            "title": "Implement Issue Labeling and Assignment System",
-            "description": "Create an automated system for applying appropriate labels and assigning GitHub issues to relevant team members based on content analysis.",
-            "dependencies": [
-              "32.3"
-            ],
-            "details": "Implement src/analysis/issue_labeler.py that automatically applies labels based on article categories, priority levels, and content themes. Extend beyond basic 'draft' + category labels to include priority indicators (high/medium/low), content type labels (breaking-news, tutorial, opinion), and team-specific labels. Implement assignment logic based on category expertise mapping and team member availability. Support configurable label taxonomies and assignment rules with fallback to default assignees.",
-            "status": "pending",
-            "testStrategy": "Test label application with various article types and categories, verify assignment logic with different team configurations, test fallback scenarios"
-          },
-          {
-            "id": 7,
-            "title": "Implement Pipeline Configuration Management",
-            "description": "Create a comprehensive configuration system for all pipeline components with validation and environment-specific settings.",
-            "dependencies": [],
-            "details": "Implement src/config/pipeline_config.py that centralizes configuration for priority thresholds, grouping criteria, GitHub repository settings, rate limiting parameters, and duplicate detection settings. Support environment-specific configurations (development, staging, production) with validation schemas. Include configuration for team member assignments, label taxonomies, and issue template customizations. Provide configuration validation and helpful error messages for invalid settings.",
-            "status": "pending",
-            "testStrategy": "Test configuration loading with valid and invalid settings, verify environment-specific overrides work correctly, test configuration validation error handling"
-          },
-          {
-            "id": 8,
-            "title": "Implement Pipeline Orchestrator",
-            "description": "Create the main orchestration component that coordinates all pipeline stages from article analysis to GitHub issue creation.",
-            "dependencies": [
-              "32.1",
-              "32.2",
-              "32.4",
-              "32.5",
-              "32.6",
-              "32.7"
-            ],
-            "details": "Implement src/pipeline/issue_pipeline.py that orchestrates the complete workflow: load summarized articles, run priority analysis, group related articles, check for duplicates, create GitHub issues with proper formatting and labels, and handle all error scenarios. Include pipeline state management, progress tracking, and rollback capabilities for failed operations. Support both full pipeline runs and partial execution for testing. Implement pipeline metrics collection and performance monitoring.",
-            "status": "pending",
-            "testStrategy": "Test complete pipeline execution with various article sets, verify error handling and rollback scenarios, test partial pipeline execution and state recovery"
-          },
-          {
-            "id": 9,
-            "title": "Implement Issue Creation Reporting System",
-            "description": "Create a reporting system that generates summaries of created issues, pipeline performance, and content analysis insights.",
-            "dependencies": [
-              "32.8"
-            ],
-            "details": "Implement src/output/pipeline_reporter.py that generates comprehensive reports after pipeline execution. Include statistics on: articles processed, issues created, grouping effectiveness, duplicate prevention hits, API usage, and error rates. Generate both structured data (JSON/CSV) and human-readable reports (markdown). Support historical reporting and trend analysis. Include performance metrics like processing time, API response times, and success rates.",
-            "status": "pending",
-            "testStrategy": "Test report generation with various pipeline execution results, verify report accuracy and completeness, test historical data aggregation"
-          },
-          {
-            "id": 10,
-            "title": "Implement Pipeline Authentication and Security",
-            "description": "Enhance authentication handling and implement security best practices for GitHub token management and API access.",
-            "dependencies": [
-              "32.4"
-            ],
-            "details": "Enhance src/output/github_client.py with secure token management using environment variables, token validation, and scope verification. Implement token rotation support and expiration handling. Add security logging for authentication events and API access patterns. Include rate limiting bypass detection and abuse prevention. Support multiple authentication methods (PAT, GitHub App) with automatic fallback mechanisms.",
-            "status": "pending",
-            "testStrategy": "Test authentication with valid and invalid tokens, verify token rotation and expiration handling, test security logging and abuse prevention"
-          },
-          {
-            "id": 11,
-            "title": "Implement Pipeline Monitoring and Alerting",
-            "description": "Create monitoring capabilities for pipeline health, performance metrics, and failure alerting to ensure reliable operation.",
-            "dependencies": [
-              "32.8",
-              "32.9"
-            ],
-            "details": "Implement src/monitoring/pipeline_monitor.py that tracks pipeline execution health, API performance, error rates, and success metrics. Include alerting mechanisms for pipeline failures, API quota exhaustion, and performance degradation. Support multiple notification channels (email, Slack, webhook). Implement health checks for all pipeline components and dependency services. Include dashboard-ready metrics export and historical performance tracking.",
-            "status": "pending",
-            "testStrategy": "Test monitoring with successful and failed pipeline runs, verify alerting triggers correctly, test health check accuracy and performance metrics collection"
-          },
-          {
-            "id": 12,
-            "title": "Implement Pipeline Integration and End-to-End Testing",
-            "description": "Create comprehensive integration tests and end-to-end validation for the complete GitHub issue creation pipeline.",
-            "dependencies": [
-              "32.8",
-              "32.9",
-              "32.10",
-              "32.11"
-            ],
-            "details": "Implement tests/integration/test_issue_pipeline.py with end-to-end pipeline testing using mock GitHub API and test data. Create test scenarios for: successful multi-article issue creation, duplicate prevention, error recovery, rate limiting, and configuration validation. Include performance benchmarks and load testing capabilities. Set up continuous integration testing with various article datasets and GitHub API response scenarios. Provide test data generators for realistic pipeline testing.",
-            "status": "pending",
-            "testStrategy": "Run complete pipeline tests with realistic article datasets, verify all error scenarios are handled correctly, test performance under load and validate integration with existing codebase"
-          },
-          {
-            "id": 13,
-            "title": "Enforce monthly data prerequisite",
-            "description": "Before creating grouped issues, validate that monthly data JSON exists for the current month in the env-specified repo. If missing, abort with clear instructions or trigger generation.",
-            "details": "",
-            "status": "pending",
-            "dependencies": [
-              33
-            ],
-            "parentTaskId": 32
+            "testStrategy": "Validate YAML syntax using yaml.safe_load(), test file accessibility, and verify all RSS URLs are reachable with sample HTTP requests"
           }
         ]
       },
       {
-        "id": 33,
-        "title": "Implement Monthly Data Summary File Generation",
-        "description": "Create a high priority system to generate monthly data files containing article summaries, dates, and metadata to identify recurring themes for potential issue creation. Data directories will be committed to the same repository where GitHub issues are created.",
-        "status": "in-progress",
-        "dependencies": [
-          25,
-          10
-        ],
+        "id": 37,
+        "title": "Implement RSS/HTTP article fetching module",
+        "description": "Create Python module to fetch articles from sources defined in sources.yaml",
+        "details": "Create fetch_articles.py module:\n```python\nimport feedparser\nimport requests\nimport yaml\nfrom datetime import datetime\nfrom dataclasses import dataclass\n\n@dataclass\nclass Article:\n    title: str\n    content: str\n    url: str\n    published: datetime\n    source: str\n    category: str\n\ndef load_sources(sources_file: str) -> dict:\n    with open(sources_file, 'r') as f:\n        return yaml.safe_load(f)\n\ndef fetch_rss_articles(source_config: dict) -> List[Article]:\n    feed = feedparser.parse(source_config['url'])\n    articles = []\n    for entry in feed.entries:\n        article = Article(\n            title=entry.title,\n            content=entry.summary,\n            url=entry.link,\n            published=datetime(*entry.published_parsed[:6]),\n            source=source_config['name'],\n            category=source_config['category']\n        )\n        articles.append(article)\n    return articles\n```\nHandle different RSS formats and HTTP errors gracefully.",
+        "testStrategy": "Unit tests for each source type, mock RSS feeds for testing, verify article parsing accuracy and error handling for unreachable sources.",
         "priority": "high",
-        "details": "Implement a monthly data aggregation module that creates structured files (JSON/CSV) containing: article summaries with timestamps, source information, categories, keywords, and classification scores. Create data/monthly/ directory structure with files named YYYY-MM-summary.json in the same repository where GitHub issues are created. Include fields: article_id, title, summary, publish_date, source, category, keywords, classification_confidence, github_issue_created. Add theme analysis functionality to identify recurring topics, trending keywords, and category distributions. Implement data retention policy (keep 12 months). Create utilities for querying historical data and generating trend reports. Include functionality to flag potential themes that appear frequently but haven't been converted to GitHub issues yet. Ensure all data files are committed to the repository for version control and collaboration. This system will leverage the completed classification (task 20), summarization (task 21), scoring (task 23), GitHub integration (task 22), and analysis (task 24) systems.",
-        "testStrategy": "Unit tests for data file generation and structure validation, integration tests with completed article processing pipeline components (classifier, summarizer, scorer, github_client, analyzer), test monthly file creation with mock data spanning multiple months, verify theme identification accuracy with known recurring topics, test data retention and cleanup functionality, validate JSON schema and CSV format consistency, test repository integration and commit functionality for data files",
+        "dependencies": [
+          36
+        ],
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
-            "title": "Create Monthly Data Directory Structure and Repository Integration",
-            "description": "Set up the data/monthly/ directory structure in the same repository where GitHub issues are created, implement basic file management utilities for monthly summary files with proper naming conventions, data retention policies, and repository commit functionality.",
-            "status": "pending",
+            "title": "Implement core Article dataclass and source configuration loading",
+            "description": "Create the foundational Article dataclass and implement the load_sources function to read and parse the sources.yaml configuration file",
             "dependencies": [],
-            "details": "Create data/monthly/ directory structure in the target repository (same repo as GitHub issues). Implement file naming convention YYYY-MM-summary.json. Create utility functions for file path generation, directory creation, and data retention policy (keep 12 months of data). Include cleanup functionality to remove files older than 12 months. Add file existence checks and error handling for file operations. Implement repository integration to ensure data files are committed to version control with appropriate commit messages.",
-            "testStrategy": "Test directory creation in repository context, file naming conventions, retention policy cleanup with mock old files, repository commit functionality, and error handling for file system and git operations."
+            "details": "Create fetch_articles.py with the Article dataclass containing title, content, url, published, source, and category fields. Implement load_sources function to read YAML configuration with proper error handling for file not found and invalid YAML format. Add validation for required fields in source configuration.",
+            "status": "pending",
+            "testStrategy": "Unit tests for Article dataclass instantiation, YAML loading with valid/invalid files, and source configuration validation"
           },
           {
             "id": 2,
-            "title": "Design Monthly Summary Data Schema and Validation",
-            "description": "Define the JSON schema structure for monthly summary files including all required fields and implement validation functions to ensure data integrity, building on completed classification and summarization systems.",
-            "status": "pending",
+            "title": "Implement RSS feed parsing with error handling",
+            "description": "Create the fetch_rss_articles function to parse RSS feeds using feedparser with comprehensive error handling for different RSS formats and network issues",
             "dependencies": [
-              1
+              "37.1"
             ],
-            "details": "Define JSON schema with fields: article_id, title, summary, publish_date, source, category, keywords, classification_confidence, github_issue_created. Create Pydantic models or JSON schema validation for data structure that aligns with outputs from completed classifier.py (task 20) and summarizer.py (task 21). Implement validation functions to ensure all required fields are present and properly formatted. Add type checking for dates, confidence scores, and boolean flags. Ensure schema compatibility with existing scoring system (task 23) outputs.",
-            "testStrategy": "Test schema validation with valid and invalid data structures, missing fields, incorrect data types, and edge cases for each field type. Verify compatibility with completed system outputs."
+            "details": "Implement fetch_rss_articles function using feedparser library. Handle various RSS/Atom formats by checking for different field names (published_parsed, updated_parsed, etc.). Add timeout configuration, retry logic for network failures, and graceful handling of malformed feeds. Include content extraction from both summary and content fields with fallback mechanisms.",
+            "status": "pending",
+            "testStrategy": "Mock RSS feeds with different formats (RSS 2.0, Atom), test network timeout scenarios, and verify parsing of various date formats"
           },
           {
             "id": 3,
-            "title": "Implement Monthly Data Aggregation Module",
-            "description": "Create the core aggregation module that collects article data from completed classification, summarization, scoring, and GitHub systems and transforms it into the monthly summary format.",
-            "status": "pending",
+            "title": "Implement HTTP article fetching for non-RSS sources",
+            "description": "Add support for fetching articles directly from HTTP endpoints that don't provide RSS feeds, with content extraction and parsing",
             "dependencies": [
-              2
+              "37.1"
             ],
-            "details": "Implement src/uutisagentti/monthly_aggregator.py that interfaces with completed systems: classifier.py (task 20), summarizer.py (task 21), scorer.py (task 23), github_client.py (task 22), and analyzer.py (task 24). Extract required data fields from processed articles including summaries, classifications, scores, and GitHub issue creation status. Transform data into monthly summary schema format. Handle data collection for specific month ranges and aggregate articles by month. Include error handling for missing or malformed article data. Integrate with existing scoring and classification confidence data from completed systems.",
-            "testStrategy": "Test data aggregation with mock article data from completed systems, verify correct field mapping from existing classifier and summarizer outputs, test month-based filtering, and validate output format matches schema."
+            "details": "Extend the module with fetch_http_articles function for direct HTTP content fetching. Use requests library with proper headers, user-agent strings, and session management. Implement basic HTML parsing to extract article content using BeautifulSoup. Add support for different content types and encoding detection. Include rate limiting and respectful crawling practices.",
+            "status": "pending",
+            "testStrategy": "Test with various HTTP endpoints, different content encodings, and HTML structures. Mock HTTP responses for testing error conditions"
           },
           {
             "id": 4,
-            "title": "Implement Theme Analysis and Pattern Detection",
-            "description": "Create functionality to analyze monthly data for recurring themes, trending keywords, and category distributions to identify potential GitHub issue candidates, leveraging completed classification and analysis systems.",
-            "status": "pending",
+            "title": "Implement unified article fetching orchestrator",
+            "description": "Create a main orchestrator function that coordinates fetching from all configured sources and handles different source types (RSS vs HTTP)",
             "dependencies": [
-              3
+              "37.2",
+              "37.3"
             ],
-            "details": "Implement theme analysis functions in src/uutisagentti/theme_analyzer.py. Analyze recurring topics by keyword frequency and semantic similarity, leveraging existing category classifications from completed task 20 and analysis patterns from completed task 24. Identify trending keywords across time periods. Calculate category distribution statistics using existing classification data. Implement pattern detection for themes that appear frequently but haven't been converted to GitHub issues (github_issue_created=false). Create scoring mechanism for theme importance based on frequency, recency, category balance, and integration with completed scorer.py results.",
-            "testStrategy": "Test theme detection with known recurring topics, verify keyword trend analysis accuracy using existing classification data, test category distribution calculations, and validate issue candidate identification logic."
+            "details": "Implement fetch_all_articles function that iterates through all sources from configuration, determines source type (RSS or HTTP), and calls appropriate fetching function. Add concurrent fetching using ThreadPoolExecutor for improved performance. Implement source-level error handling that doesn't stop processing of other sources. Include logging for successful and failed fetch operations.",
+            "status": "pending",
+            "testStrategy": "Integration tests with mixed source types, test concurrent fetching performance, and verify error isolation between sources"
           },
           {
             "id": 5,
-            "title": "Create Historical Data Query and Trend Reporting Utilities",
-            "description": "Implement utilities for querying historical monthly data and generating trend reports across multiple months for analysis and decision-making, with repository-aware data access and integration with completed analysis system.",
-            "status": "pending",
+            "title": "Add comprehensive error handling and logging",
+            "description": "Implement robust error handling, logging, and monitoring for the entire article fetching pipeline",
             "dependencies": [
-              4
+              "37.4"
             ],
-            "details": "Implement src/uutisagentti/historical_query.py with functions to query data across multiple months from the repository's data/monthly/ directory. Create trend report generation for keyword evolution, category shifts, and theme persistence, building on patterns established in completed analyzer.py (task 24). Implement data aggregation functions for multi-month analysis. Add utilities for comparing current month data with historical averages. Include export functionality for trend reports in JSON and markdown formats compatible with existing analysis output format. Ensure compatibility with repository-stored data files and version history.",
-            "testStrategy": "Test historical queries with mock multi-month data in repository context, verify trend calculation accuracy, test report generation formats, validate cross-month comparison logic, and test repository data access patterns."
+            "details": "Add comprehensive logging using Python's logging module with different log levels for debugging, info, warnings, and errors. Implement custom exception classes for different error types (NetworkError, ParseError, ConfigError). Add retry mechanisms with exponential backoff for transient failures. Include metrics collection for successful/failed fetches per source. Add configuration options for timeout values, retry counts, and concurrent fetch limits.",
+            "status": "pending",
+            "testStrategy": "Test error scenarios including network failures, malformed feeds, invalid configurations, and verify proper logging output and retry behavior"
+          }
+        ]
+      },
+      {
+        "id": 38,
+        "title": "Implement article normalization and cleaning",
+        "description": "Create module to normalize and clean article content for consistent processing",
+        "details": "Create normalize.py module:\n```python\nimport re\nfrom bs4 import BeautifulSoup\nfrom typing import List\n\ndef normalize_article(article: Article) -> Article:\n    # Clean HTML tags\n    soup = BeautifulSoup(article.content, 'html.parser')\n    clean_content = soup.get_text()\n    \n    # Remove extra whitespace\n    clean_content = re.sub(r'\\s+', ' ', clean_content).strip()\n    \n    # Normalize title\n    clean_title = article.title.strip()\n    \n    # Create normalized article\n    return Article(\n        title=clean_title,\n        content=clean_content,\n        url=article.url,\n        published=article.published,\n        source=article.source,\n        category=article.category\n    )\n\ndef batch_normalize(articles: List[Article]) -> List[Article]:\n    return [normalize_article(article) for article in articles]\n```\nHandle various HTML formats and encoding issues.",
+        "testStrategy": "Test with articles containing different HTML structures, special characters, and encoding. Verify content preservation while removing formatting.",
+        "priority": "medium",
+        "dependencies": [
+          37
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create basic HTML cleaning and text extraction functionality",
+            "description": "Implement core HTML parsing and cleaning functionality using BeautifulSoup to extract clean text content from various HTML formats",
+            "dependencies": [],
+            "details": "Create normalize.py with HTML cleaning functions: parse HTML using BeautifulSoup with 'html.parser', extract text content using get_text(), handle malformed HTML gracefully, preserve paragraph breaks where appropriate, and remove script/style tags completely. Include error handling for invalid HTML structures.",
+            "status": "pending",
+            "testStrategy": "Test with various HTML formats including nested tags, malformed HTML, empty content, and articles with embedded scripts/styles. Verify text extraction accuracy and error handling."
           },
           {
-            "id": 6,
-            "title": "Integrate Monthly Summary Generation with Completed Pipeline Components",
-            "description": "Integrate the monthly summary system with all completed article processing pipeline components and create scheduled generation functionality with proper error handling, logging, and repository commit workflow.",
-            "status": "pending",
+            "id": 2,
+            "title": "Implement text normalization and whitespace cleaning",
+            "description": "Create comprehensive text cleaning functions to normalize whitespace, handle special characters, and standardize text formatting",
             "dependencies": [
-              5
+              "38.1"
             ],
-            "details": "Create main integration module src/uutisagentti/monthly_summary.py that orchestrates the entire monthly summary generation process using all completed pipeline components: classifier.py (task 20), summarizer.py (task 21), scorer.py (task 23), github_client.py (task 22), and analyzer.py (task 24). Implement scheduled generation functionality that can be triggered monthly. Add comprehensive logging for all operations. Include configuration management for file paths, retention policies, analysis parameters, and repository settings. Create CLI interface for manual generation and historical analysis. Implement repository commit workflow to ensure data files are properly versioned alongside issue creation and analysis reports.",
-            "testStrategy": "Integration tests with full completed pipeline using mock data spanning multiple months, test scheduled generation simulation, verify error handling and recovery, validate CLI interface functionality, and test repository commit workflow integration with existing systems."
+            "details": "Implement regex-based text cleaning: remove extra whitespace using re.sub(r'\\s+', ' ', text), strip leading/trailing whitespace, normalize Unicode characters, handle special characters and encoding issues, preserve meaningful punctuation, and clean up common HTML entities that BeautifulSoup might miss.",
+            "status": "pending",
+            "testStrategy": "Test with articles containing multiple spaces, tabs, newlines, Unicode characters, and HTML entities. Verify proper whitespace normalization while preserving readability."
+          },
+          {
+            "id": 3,
+            "title": "Create Article object normalization function",
+            "description": "Implement the main normalize_article function that processes individual Article objects and returns cleaned versions",
+            "dependencies": [
+              "38.1",
+              "38.2"
+            ],
+            "details": "Create normalize_article function that takes an Article object, applies HTML cleaning to content, normalizes title by stripping whitespace, preserves metadata fields (url, published, source, category), handles None/empty values gracefully, and returns a new Article instance with cleaned data. Ensure immutability by creating new objects rather than modifying existing ones.",
+            "status": "pending",
+            "testStrategy": "Test with Article objects containing various content types, empty fields, None values, and different metadata combinations. Verify that original objects remain unchanged and new objects contain properly cleaned data."
+          },
+          {
+            "id": 4,
+            "title": "Implement batch processing functionality",
+            "description": "Create batch_normalize function to efficiently process multiple articles and handle processing errors gracefully",
+            "dependencies": [
+              "38.3"
+            ],
+            "details": "Implement batch_normalize function that processes lists of Article objects, includes error handling for individual article failures, logs processing statistics, optionally supports parallel processing for large batches, and returns both successful and failed processing results. Include progress tracking for large batches.",
+            "status": "pending",
+            "testStrategy": "Test with various batch sizes including empty lists, single articles, and large collections. Verify error handling when individual articles fail processing and ensure batch processing doesn't stop on single failures."
+          },
+          {
+            "id": 5,
+            "title": "Add encoding detection and special character handling",
+            "description": "Implement robust encoding detection and handling for various character encodings and international content",
+            "dependencies": [
+              "38.2"
+            ],
+            "details": "Add encoding detection using chardet library, handle UTF-8, Latin-1, and other common encodings, normalize Unicode characters to consistent forms, handle emoji and special symbols appropriately, detect and convert HTML entities, and provide fallback encoding strategies. Include configuration options for encoding preferences.",
+            "status": "pending",
+            "testStrategy": "Test with articles in different languages and encodings, content with emojis and special characters, and malformed encoding scenarios. Verify proper character preservation and encoding conversion accuracy."
+          }
+        ]
+      },
+      {
+        "id": 39,
+        "title": "Implement duplicate detection and removal",
+        "description": "Create system to identify and remove duplicate articles using hash and similarity comparison",
+        "details": "Create dedupe.py module:\n```python\nimport hashlib\nfrom difflib import SequenceMatcher\nfrom typing import List, Set\n\ndef calculate_content_hash(article: Article) -> str:\n    content = f\"{article.title}{article.content}\".lower()\n    return hashlib.md5(content.encode()).hexdigest()\n\ndef calculate_similarity(article1: Article, article2: Article) -> float:\n    text1 = f\"{article1.title} {article1.content}\".lower()\n    text2 = f\"{article2.title} {article2.content}\".lower()\n    return SequenceMatcher(None, text1, text2).ratio()\n\ndef remove_duplicates(articles: List[Article], similarity_threshold: float = 0.85) -> List[Article]:\n    unique_articles = []\n    seen_hashes = set()\n    \n    for article in articles:\n        content_hash = calculate_content_hash(article)\n        \n        # Check exact duplicates\n        if content_hash in seen_hashes:\n            continue\n            \n        # Check similarity with existing articles\n        is_duplicate = False\n        for existing in unique_articles:\n            if calculate_similarity(article, existing) > similarity_threshold:\n                is_duplicate = True\n                break\n                \n        if not is_duplicate:\n            unique_articles.append(article)\n            seen_hashes.add(content_hash)\n            \n    return unique_articles\n```",
+        "testStrategy": "Test with known duplicate articles, near-duplicate content, and verify similarity threshold effectiveness. Benchmark performance with large article sets.",
+        "priority": "medium",
+        "dependencies": [
+          38
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Article data model and base structure",
+            "description": "Define the Article class/dataclass that will be used throughout the duplicate detection system, ensuring it has the necessary attributes for content hashing and similarity comparison",
+            "dependencies": [],
+            "details": "Create Article dataclass in models.py with attributes: title (str), content (str), url (str), published_date (datetime), source (str). Include __hash__ and __eq__ methods for proper comparison. Add validation for required fields and ensure content is properly encoded for hash calculations.",
+            "status": "pending",
+            "testStrategy": "Test Article creation with various content types, verify hash consistency, and test equality comparisons"
+          },
+          {
+            "id": 2,
+            "title": "Implement content hash calculation function",
+            "description": "Create the calculate_content_hash function that generates MD5 hashes from article title and content for exact duplicate detection",
+            "dependencies": [
+              "39.1"
+            ],
+            "details": "Implement calculate_content_hash function in dedupe.py. Normalize text by converting to lowercase, removing extra whitespace, and handling special characters. Use MD5 hashing on UTF-8 encoded content. Include error handling for encoding issues and empty content scenarios.",
+            "status": "pending",
+            "testStrategy": "Test with identical articles producing same hash, different articles producing different hashes, and edge cases like empty content or special characters"
+          },
+          {
+            "id": 3,
+            "title": "Implement similarity calculation using SequenceMatcher",
+            "description": "Create the calculate_similarity function that compares two articles using difflib.SequenceMatcher to detect near-duplicate content",
+            "dependencies": [
+              "39.1"
+            ],
+            "details": "Implement calculate_similarity function using SequenceMatcher.ratio() on combined title and content. Normalize text consistently with hash function. Add optional parameters for different similarity algorithms (title-only, content-only, weighted). Handle edge cases like empty articles or very short content.",
+            "status": "pending",
+            "testStrategy": "Test similarity scores with known similar/dissimilar article pairs, verify threshold effectiveness, and test performance with long articles"
+          },
+          {
+            "id": 4,
+            "title": "Create main duplicate removal algorithm",
+            "description": "Implement the remove_duplicates function that combines hash-based exact matching with similarity-based near-duplicate detection",
+            "dependencies": [
+              "39.2",
+              "39.3"
+            ],
+            "details": "Implement remove_duplicates function with configurable similarity threshold. Use set for O(1) hash lookups, then similarity comparison for remaining articles. Optimize by checking similarity only against recent unique articles (sliding window approach). Add logging for duplicate detection statistics and performance metrics.",
+            "status": "pending",
+            "testStrategy": "Test with datasets containing exact duplicates, near-duplicates, and unique articles. Verify performance with large article sets and different threshold values"
+          },
+          {
+            "id": 5,
+            "title": "Add configuration and optimization features",
+            "description": "Enhance the duplicate detection system with configurable parameters, performance optimizations, and comprehensive error handling",
+            "dependencies": [
+              "39.4"
+            ],
+            "details": "Add DedupeConfig class for threshold settings, hash algorithms, and performance tuning. Implement batch processing for large datasets, memory-efficient processing with generators, and optional caching of similarity calculations. Add comprehensive logging, error handling, and metrics collection (duplicates found, processing time, memory usage).",
+            "status": "pending",
+            "testStrategy": "Test configuration flexibility, memory usage with large datasets, error recovery scenarios, and performance benchmarks with different optimization settings"
+          }
+        ]
+      },
+      {
+        "id": 40,
+        "title": "Implement AI-powered article classification and summarization",
+        "description": "Create module to classify articles into categories and generate summaries using Ollama (dev) or Gemini Flash (prod)",
+        "details": "Create ai_processor.py module:\n```python\nimport os\nimport requests\nfrom typing import Dict, Tuple\nfrom dataclasses import dataclass\n\n@dataclass\nclass ProcessedArticle:\n    original: Article\n    category: str\n    summary: str\n    team_impact: str\n    priority_score: float\n\nclass AIProcessor:\n    def __init__(self):\n        self.backend = os.getenv('AI_BACKEND', 'ollama')  # ollama or gemini\n        \n    def classify_and_summarize(self, article: Article) -> ProcessedArticle:\n        if self.backend == 'ollama':\n            return self._process_with_ollama(article)\n        else:\n            return self._process_with_gemini(article)\n    \n    def _process_with_ollama(self, article: Article) -> ProcessedArticle:\n        # Local Ollama API call\n        prompt = self._create_prompt(article)\n        response = requests.post('http://localhost:11434/api/generate', \n                               json={'model': 'llama2', 'prompt': prompt})\n        return self._parse_ai_response(article, response.json())\n    \n    def _process_with_gemini(self, article: Article) -> ProcessedArticle:\n        # Gemini Flash API call\n        api_key = os.getenv('GEMINI_API_KEY')\n        prompt = self._create_prompt(article)\n        # Implement Gemini API integration\n        pass\n    \n    def _create_prompt(self, article: Article) -> str:\n        return f\"\"\"Classify this article into one category (Agile, DevOps, Architecture, Leadership) and provide:\n1. Category\n2. TL;DR summary (2-3 sentences)\n3. Impact to development teams (bullet points)\n4. Priority score (0-1)\n\nArticle: {article.title}\n{article.content[:1000]}...\"\"\"\n```",
+        "testStrategy": "Test both Ollama and Gemini backends with sample articles. Verify classification accuracy and summary quality. Test API error handling and fallback mechanisms.",
+        "priority": "high",
+        "dependencies": [
+          39
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create ProcessedArticle dataclass and AIProcessor base structure",
+            "description": "Implement the core data structure and base AIProcessor class with initialization and backend selection logic",
+            "dependencies": [],
+            "details": "Create ai_processor.py with ProcessedArticle dataclass containing original, category, summary, team_impact, and priority_score fields. Implement AIProcessor.__init__ method with backend selection based on AI_BACKEND environment variable. Add classify_and_summarize method that routes to appropriate backend processor.",
+            "status": "pending",
+            "testStrategy": "Unit tests for dataclass instantiation, backend selection logic, and method routing based on environment variables"
+          },
+          {
+            "id": 2,
+            "title": "Implement prompt creation and response parsing utilities",
+            "description": "Create shared utility methods for generating AI prompts and parsing structured responses from AI models",
+            "dependencies": [
+              "40.1"
+            ],
+            "details": "Implement _create_prompt method that formats article content into structured prompt requesting category classification, summary, team impact, and priority score. Create _parse_ai_response method to extract structured data from AI responses and construct ProcessedArticle objects. Handle various response formats and implement error handling for malformed responses.",
+            "status": "pending",
+            "testStrategy": "Test prompt generation with various article lengths and content types. Test response parsing with mock AI responses in different formats"
+          },
+          {
+            "id": 3,
+            "title": "Implement Ollama backend integration",
+            "description": "Create the _process_with_ollama method to handle local Ollama API communication for development environment",
+            "dependencies": [
+              "40.2"
+            ],
+            "details": "Implement _process_with_ollama method using requests library to communicate with Ollama API at localhost:11434. Configure for llama2 model, handle API request/response cycle, implement timeout and retry logic. Add error handling for connection failures and invalid responses. Parse Ollama-specific response format.",
+            "status": "pending",
+            "testStrategy": "Integration tests with running Ollama instance. Mock tests for API failures and timeout scenarios. Verify response parsing accuracy"
+          },
+          {
+            "id": 4,
+            "title": "Implement Gemini Flash backend integration",
+            "description": "Create the _process_with_gemini method to handle Google Gemini Flash API communication for production environment",
+            "dependencies": [
+              "40.2"
+            ],
+            "details": "Implement _process_with_gemini method using Google Gemini Flash API. Handle API key authentication from GEMINI_API_KEY environment variable. Implement proper request formatting for Gemini API, handle rate limiting and quota management. Add comprehensive error handling for authentication failures, API limits, and network issues.",
+            "status": "pending",
+            "testStrategy": "Integration tests with Gemini API using test credentials. Mock tests for authentication failures and rate limiting. Verify response format compatibility"
+          },
+          {
+            "id": 5,
+            "title": "Add error handling, fallback mechanisms, and configuration validation",
+            "description": "Implement comprehensive error handling, backend fallback logic, and environment configuration validation",
+            "dependencies": [
+              "40.3",
+              "40.4"
+            ],
+            "details": "Add try-catch blocks around all API calls with specific exception handling for network errors, authentication failures, and malformed responses. Implement fallback mechanism to switch between backends if primary fails. Add configuration validation to check required environment variables and API connectivity on initialization. Implement logging for debugging and monitoring.",
+            "status": "pending",
+            "testStrategy": "Test all error scenarios including network failures, invalid API keys, and malformed responses. Verify fallback mechanisms work correctly. Test configuration validation with missing environment variables"
+          }
+        ]
+      },
+      {
+        "id": 41,
+        "title": "Implement monthly data archive storage",
+        "description": "Create persistent storage system for monthly article collections",
+        "details": "Create archive.py module:\n```python\nimport json\nimport os\nfrom datetime import datetime\nfrom pathlib import Path\nfrom typing import List\n\nclass MonthlyArchive:\n    def __init__(self, base_path: str = '/data/archive'):\n        self.base_path = Path(base_path)\n        self.base_path.mkdir(parents=True, exist_ok=True)\n    \n    def get_current_archive_path(self) -> Path:\n        current_month = datetime.now().strftime('%Y-%m')\n        return self.base_path / f'articles-{current_month}.json'\n    \n    def store_articles(self, articles: List[ProcessedArticle]):\n        archive_path = self.get_current_archive_path()\n        \n        # Load existing articles if file exists\n        existing_articles = []\n        if archive_path.exists():\n            with open(archive_path, 'r') as f:\n                existing_articles = json.load(f)\n        \n        # Convert articles to dict format\n        new_articles = [self._article_to_dict(article) for article in articles]\n        \n        # Merge and save\n        all_articles = existing_articles + new_articles\n        with open(archive_path, 'w') as f:\n            json.dump(all_articles, f, indent=2, default=str)\n    \n    def load_monthly_articles(self, year_month: str = None) -> List[dict]:\n        if not year_month:\n            year_month = datetime.now().strftime('%Y-%m')\n        \n        archive_path = self.base_path / f'articles-{year_month}.json'\n        if not archive_path.exists():\n            return []\n        \n        with open(archive_path, 'r') as f:\n            return json.load(f)\n```",
+        "testStrategy": "Test file creation, article serialization/deserialization, and monthly archive rotation. Verify data persistence across application restarts.",
+        "priority": "medium",
+        "dependencies": [
+          40
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create base MonthlyArchive class with directory structure",
+            "description": "Implement the core MonthlyArchive class with initialization, directory creation, and path management functionality",
+            "dependencies": [],
+            "details": "Create archive.py module with MonthlyArchive class. Implement __init__ method to set up base_path using pathlib.Path, create directories with parents=True and exist_ok=True. Add get_current_archive_path method that generates monthly archive file paths using datetime.now().strftime('%Y-%m') format. Include proper error handling for directory creation failures.",
+            "status": "pending",
+            "testStrategy": "Test directory creation with various base paths, verify path generation for different months, test permission handling for directory creation"
+          },
+          {
+            "id": 2,
+            "title": "Implement article serialization helper methods",
+            "description": "Create methods to convert ProcessedArticle objects to dictionary format for JSON storage and handle data type serialization",
+            "dependencies": [
+              "41.1"
+            ],
+            "details": "Add _article_to_dict method that converts ProcessedArticle objects to dictionary format suitable for JSON serialization. Handle datetime objects, nested data structures, and ensure all data types are JSON-serializable. Include proper handling of None values and edge cases. Add validation to ensure required fields are present before serialization.",
+            "status": "pending",
+            "testStrategy": "Test serialization with various ProcessedArticle objects, verify datetime handling, test with None values and edge cases"
+          },
+          {
+            "id": 3,
+            "title": "Implement store_articles method with merge functionality",
+            "description": "Create the store_articles method that loads existing archives, merges new articles, and saves to monthly JSON files",
+            "dependencies": [
+              "41.2"
+            ],
+            "details": "Implement store_articles method that accepts List[ProcessedArticle]. Load existing articles from monthly archive file if it exists, handle file not found gracefully. Convert new articles using _article_to_dict, merge with existing articles, and save to JSON file with proper formatting (indent=2, default=str for datetime serialization). Include atomic write operations to prevent data corruption.",
+            "status": "pending",
+            "testStrategy": "Test with empty archives, existing archives, verify merge functionality, test atomic write operations and error recovery"
+          },
+          {
+            "id": 4,
+            "title": "Implement load_monthly_articles method with date handling",
+            "description": "Create method to load articles from specific monthly archives with flexible date parameter handling",
+            "dependencies": [
+              "41.1"
+            ],
+            "details": "Implement load_monthly_articles method that accepts optional year_month parameter (format: 'YYYY-MM'). Default to current month if no parameter provided. Handle file existence checking, return empty list if archive doesn't exist. Include proper JSON loading with error handling for corrupted files. Add validation for year_month format.",
+            "status": "pending",
+            "testStrategy": "Test loading from existing and non-existing archives, verify date parameter handling, test with corrupted JSON files"
+          },
+          {
+            "id": 5,
+            "title": "Add archive management and utility methods",
+            "description": "Implement additional utility methods for archive management including listing available archives and cleanup operations",
+            "dependencies": [
+              "41.3",
+              "41.4"
+            ],
+            "details": "Add list_available_archives method that returns list of available monthly archives. Implement get_archive_stats method that returns statistics about archive sizes and article counts. Add cleanup_old_archives method with configurable retention period. Include proper error handling and logging for all operations. Add method to validate archive file integrity.",
+            "status": "pending",
+            "testStrategy": "Test archive listing functionality, verify statistics calculation, test cleanup operations with different retention periods, validate error handling"
+          }
+        ]
+      },
+      {
+        "id": 42,
+        "title": "Implement monthly prioritization and grouping system",
+        "description": "Create system to prioritize, score, and group articles for monthly issue generation",
+        "details": "Create prioritizer.py module:\n```python\nfrom datetime import datetime, timedelta\nfrom typing import List, Dict\nfrom collections import defaultdict\nimport math\n\nclass ArticlePrioritizer:\n    def __init__(self, planning_horizon_weeks: int = 4):\n        self.planning_horizon = planning_horizon_weeks\n    \n    def calculate_priority_score(self, article: dict) -> float:\n        # Freshness decay (4 week horizon)\n        published = datetime.fromisoformat(article['published'])\n        age_days = (datetime.now() - published).days\n        freshness_score = math.exp(-age_days / 28)  # 4 week decay\n        \n        # Source authority (from sources.yaml)\n        authority_score = article.get('authority_score', 0.5)\n        \n        # AI-generated priority\n        ai_priority = article.get('priority_score', 0.5)\n        \n        # Category balance (prefer underrepresented categories)\n        category_balance = self._calculate_category_balance(article['category'])\n        \n        return (freshness_score * 0.3 + \n                authority_score * 0.3 + \n                ai_priority * 0.3 + \n                category_balance * 0.1)\n    \n    def group_related_articles(self, articles: List[dict]) -> List[List[dict]]:\n        # Group by similarity and topic\n        groups = []\n        ungrouped = articles.copy()\n        \n        while ungrouped:\n            seed_article = max(ungrouped, key=lambda x: x['priority_score'])\n            group = [seed_article]\n            ungrouped.remove(seed_article)\n            \n            # Find related articles\n            related = []\n            for article in ungrouped:\n                if self._are_related(seed_article, article):\n                    related.append(article)\n            \n            for article in related:\n                group.append(article)\n                ungrouped.remove(article)\n            \n            groups.append(group)\n        \n        return groups\n    \n    def _are_related(self, article1: dict, article2: dict) -> bool:\n        # Simple keyword overlap check\n        keywords1 = set(article1.get('keywords', []))\n        keywords2 = set(article2.get('keywords', []))\n        overlap = len(keywords1.intersection(keywords2))\n        return overlap >= 2 or article1['category'] == article2['category']\n```",
+        "testStrategy": "Test scoring algorithm with various article types and ages. Verify grouping logic produces coherent topic clusters. Test category balance calculations.",
+        "priority": "medium",
+        "dependencies": [
+          41
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement core priority scoring algorithm",
+            "description": "Create the calculate_priority_score method that combines freshness decay, source authority, AI priority, and category balance into a single score",
+            "dependencies": [],
+            "details": "Implement the scoring algorithm with configurable weights: freshness_score (30%), authority_score (30%), ai_priority (30%), and category_balance (10%). Use exponential decay for freshness with 4-week horizon. Include validation for score ranges 0-1 and handle missing article fields gracefully.",
+            "status": "pending",
+            "testStrategy": "Test with articles of different ages, authority scores, and categories. Verify score ranges and weight distribution. Test edge cases with missing fields."
+          },
+          {
+            "id": 2,
+            "title": "Implement category balance calculation",
+            "description": "Create the _calculate_category_balance method to prefer underrepresented categories in the current month's selection",
+            "dependencies": [
+              "42.1"
+            ],
+            "details": "Track category distribution in current selection and calculate balance scores to favor underrepresented categories. Maintain category counters and implement scoring that promotes diversity. Include configurable target distribution ratios for different categories.",
+            "status": "pending",
+            "testStrategy": "Test category distribution tracking with various article sets. Verify balance scoring promotes diversity and handles new categories appropriately."
+          },
+          {
+            "id": 3,
+            "title": "Implement article similarity detection",
+            "description": "Create the _are_related method to identify related articles based on keyword overlap and category matching",
+            "dependencies": [
+              "42.1"
+            ],
+            "details": "Implement keyword intersection logic requiring minimum 2 keyword overlap or same category match. Add configurable similarity thresholds and support for semantic similarity if keywords are insufficient. Handle cases where articles lack keywords gracefully.",
+            "status": "pending",
+            "testStrategy": "Test with articles having various keyword overlaps and categories. Verify grouping accuracy and threshold effectiveness with sample article pairs."
+          },
+          {
+            "id": 4,
+            "title": "Implement article grouping algorithm",
+            "description": "Create the group_related_articles method that clusters articles into coherent topic groups using similarity detection",
+            "dependencies": [
+              "42.3"
+            ],
+            "details": "Implement seed-based clustering starting with highest priority articles. Use similarity detection to find related articles and form groups. Ensure all articles are assigned to exactly one group and handle edge cases with isolated articles. Optimize for performance with large article sets.",
+            "status": "pending",
+            "testStrategy": "Test grouping with various article collections. Verify all articles are grouped, no duplicates exist across groups, and groups maintain topical coherence."
+          },
+          {
+            "id": 5,
+            "title": "Integrate and test complete prioritization system",
+            "description": "Combine all components into the complete ArticlePrioritizer class and implement comprehensive testing",
+            "dependencies": [
+              "42.1",
+              "42.2",
+              "42.3",
+              "42.4"
+            ],
+            "details": "Integrate all methods into the ArticlePrioritizer class with proper initialization and configuration. Add error handling, logging, and performance monitoring. Implement batch processing capabilities for large article collections and add configuration options for tuning algorithm parameters.",
+            "status": "pending",
+            "testStrategy": "End-to-end testing with realistic article datasets. Performance testing with large collections. Verify complete workflow from raw articles to prioritized groups produces expected results."
+          }
+        ]
+      },
+      {
+        "id": 43,
+        "title": "Implement GitHub Issues creation module",
+        "description": "Create module to generate and create GitHub Issues from processed article groups",
+        "details": "Create github_issues.py module:\n```python\nimport os\nimport requests\nfrom typing import List, Dict\nfrom datetime import datetime\n\nclass GitHubIssueCreator:\n    def __init__(self):\n        self.token = os.getenv('GITHUB_TOKEN')\n        self.repo_owner = os.getenv('GITHUB_REPO_OWNER')\n        self.repo_name = os.getenv('GITHUB_REPO_NAME')\n        self.base_url = f'https://api.github.com/repos/{self.repo_owner}/{self.repo_name}'\n    \n    def create_issue_from_group(self, article_group: List[dict]) -> dict:\n        # Generate issue content\n        title = self._generate_title(article_group)\n        body = self._generate_body(article_group)\n        labels = self._generate_labels(article_group)\n        \n        # Create issue via GitHub API\n        issue_data = {\n            'title': title,\n            'body': body,\n            'labels': labels\n        }\n        \n        response = requests.post(\n            f'{self.base_url}/issues',\n            headers={\n                'Authorization': f'token {self.token}',\n                'Accept': 'application/vnd.github.v3+json'\n            },\n            json=issue_data\n        )\n        \n        return response.json()\n    \n    def _generate_title(self, article_group: List[dict]) -> str:\n        primary_article = max(article_group, key=lambda x: x['priority_score'])\n        category_prefix = primary_article['category'].upper()[:4]\n        return f'[{category_prefix}] {primary_article[\"title\"][:50]}...'\n    \n    def _generate_body(self, article_group: List[dict]) -> str:\n        body_parts = []\n        \n        # Summary section\n        body_parts.append('## Summary')\n        for article in article_group:\n            body_parts.append(f'### {article[\"title\"]}')\n            body_parts.append(f'**Source:** {article[\"source\"]}')\n            body_parts.append(f'**TL;DR:** {article[\"summary\"]}')\n            body_parts.append(f'**Impact to teams:**')\n            body_parts.append(article['team_impact'])\n            body_parts.append(f'**Link:** {article[\"url\"]}')\n            body_parts.append('')\n        \n        # Recommendation\n        primary_category = article_group[0]['category']\n        recommendation_map = {\n            'Architecture': 'Architecture & Infra',\n            'DevOps': 'DevOps & Tools',\n            'Agile': 'Agile & Process',\n            'Leadership': 'Leadership & Culture'\n        }\n        \n        body_parts.append('## Recommendation')\n        body_parts.append(f'Sopii keskiviikon {recommendation_map.get(primary_category, \"General\")} -jaksoon')\n        \n        return '\\n'.join(body_parts)\n    \n    def _generate_labels(self, article_group: List[dict]) -> List[str]:\n        labels = ['draft']\n        categories = set(article['category'].lower() for article in article_group)\n        labels.extend(categories)\n        return labels\n```",
+        "testStrategy": "Test GitHub API integration with mock data. Verify issue formatting and label assignment. Test authentication and error handling for API failures.",
+        "priority": "high",
+        "dependencies": [
+          42
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement GitHubIssueCreator class initialization and configuration",
+            "description": "Create the basic GitHubIssueCreator class with proper initialization, environment variable handling, and GitHub API configuration setup",
+            "dependencies": [],
+            "details": "Implement the __init__ method to load GitHub token, repository owner, and repository name from environment variables. Set up the base URL for GitHub API calls. Add validation to ensure all required environment variables are present and raise appropriate errors if missing. Include proper error handling for invalid repository configurations.",
+            "status": "pending",
+            "testStrategy": "Test with valid and invalid environment variables. Verify proper error messages for missing configurations. Mock environment variables to test different scenarios."
+          },
+          {
+            "id": 2,
+            "title": "Implement issue title generation logic",
+            "description": "Create the _generate_title method to generate meaningful GitHub issue titles from article groups",
+            "dependencies": [
+              "43.1"
+            ],
+            "details": "Implement logic to identify the primary article with the highest priority score from the article group. Extract category prefix (first 4 characters, uppercase) and combine with truncated article title (50 characters max). Handle edge cases like empty titles, missing categories, or articles without priority scores. Ensure title format follows the pattern '[CATEGORY] Title...'",
+            "status": "pending",
+            "testStrategy": "Test with article groups containing different priority scores, categories, and title lengths. Verify proper truncation and category prefix formatting. Test edge cases with missing or invalid data."
+          },
+          {
+            "id": 3,
+            "title": "Implement issue body generation with structured content",
+            "description": "Create the _generate_body method to format article group information into a structured GitHub issue body",
+            "dependencies": [
+              "43.1"
+            ],
+            "details": "Generate structured markdown content with Summary section containing article details (title, source, TL;DR, team impact, link) and Recommendation section with Finnish text mapping categories to meeting segments. Implement proper markdown formatting, handle multiple articles in a group, and ensure all article fields are properly displayed. Include error handling for missing article fields.",
+            "status": "pending",
+            "testStrategy": "Test with single and multiple article groups. Verify markdown formatting, Finnish recommendation text, and proper handling of missing article fields. Test with different category types."
+          },
+          {
+            "id": 4,
+            "title": "Implement label generation and GitHub API integration",
+            "description": "Create the _generate_labels method and implement GitHub API communication for issue creation",
+            "dependencies": [
+              "43.1"
+            ],
+            "details": "Implement label generation logic that adds 'draft' label and category-based labels from article groups. Set up GitHub API POST request with proper authentication headers, request formatting, and response handling. Include comprehensive error handling for API failures, authentication issues, and network problems. Implement proper JSON serialization for issue data.",
+            "status": "pending",
+            "testStrategy": "Test label generation with various article categories. Mock GitHub API responses for success and error scenarios. Test authentication with valid and invalid tokens. Verify proper request formatting and error handling."
+          },
+          {
+            "id": 5,
+            "title": "Implement main issue creation workflow and error handling",
+            "description": "Complete the create_issue_from_group method by integrating all components with comprehensive error handling and logging",
+            "dependencies": [
+              "43.2",
+              "43.3",
+              "43.4"
+            ],
+            "details": "Integrate title, body, and label generation methods into the main workflow. Add comprehensive error handling for API failures, network issues, and invalid article data. Implement proper logging for debugging and monitoring. Add response validation to ensure successful issue creation. Include retry logic for transient API failures and proper error reporting.",
+            "status": "pending",
+            "testStrategy": "Test end-to-end issue creation with valid article groups. Test error scenarios including API failures, network issues, and invalid data. Verify proper error messages and logging. Test with different article group sizes and structures."
+          }
+        ]
+      },
+      {
+        "id": 44,
+        "title": "Create Terraform configuration for Kubernetes deployment",
+        "description": "Create Terraform configuration for CronJob deployment on K8s baremetal cluster",
+        "details": "Create terraform/main.tf:\n```hcl\nvariable \"namespace\" {\n  description = \"Kubernetes namespace\"\n  type        = string\n  default     = \"podcast-agent\"\n}\n\nvariable \"image_pull_secret_name\" {\n  description = \"Name of existing imagePullSecret\"\n  type        = string\n}\n\nvariable \"app_env_configmap_name\" {\n  description = \"Name of existing ConfigMap with app environment\"\n  type        = string\n}\n\nvariable \"sources_configmap_name\" {\n  description = \"Name of existing ConfigMap with sources.yaml\"\n  type        = string\n}\n\nvariable \"github_secret_name\" {\n  description = \"Name of existing Secret with GitHub token\"\n  type        = string\n}\n\nresource \"kubernetes_namespace\" \"podcast_agent\" {\n  metadata {\n    name = var.namespace\n  }\n}\n\nresource \"kubernetes_service_account\" \"podcast_agent\" {\n  metadata {\n    name      = \"podcast-agent\"\n    namespace = var.namespace\n  }\n  \n  image_pull_secrets {\n    name = var.image_pull_secret_name\n  }\n}\n\nresource \"kubernetes_cron_job_v1\" \"article_collector\" {\n  metadata {\n    name      = \"article-collector\"\n    namespace = var.namespace\n  }\n  \n  spec {\n    schedule = \"0 6 * * *\"  # Daily at 06:00 UTC\n    \n    job_template {\n      metadata {}\n      \n      spec {\n        template {\n          metadata {}\n          \n          spec {\n            service_account_name = kubernetes_service_account.podcast_agent.metadata[0].name\n            restart_policy       = \"OnFailure\"\n            \n            container {\n              name  = \"podcast-agent\"\n              image = \"podcast-agent:latest\"\n              \n              env_from {\n                config_map_ref {\n                  name = var.app_env_configmap_name\n                }\n              }\n              \n              env_from {\n                secret_ref {\n                  name = var.github_secret_name\n                }\n              }\n              \n              volume_mount {\n                name       = \"sources-config\"\n                mount_path = \"/app/sources.yaml\"\n                sub_path   = \"sources.yaml\"\n              }\n              \n              volume_mount {\n                name       = \"data-archive\"\n                mount_path = \"/data/archive\"\n              }\n            }\n            \n            volume {\n              name = \"sources-config\"\n              config_map {\n                name = var.sources_configmap_name\n              }\n            }\n            \n            volume {\n              name = \"data-archive\"\n              persistent_volume_claim {\n                claim_name = kubernetes_persistent_volume_claim.archive_storage.metadata[0].name\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n```",
+        "testStrategy": "Validate Terraform syntax and plan execution. Test variable references and resource dependencies. Verify CronJob scheduling and container configuration.",
+        "priority": "high",
+        "dependencies": [
+          43
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Terraform provider configuration and variables file",
+            "description": "Set up the basic Terraform configuration with provider requirements and define all necessary input variables for the Kubernetes deployment",
+            "dependencies": [],
+            "details": "Create terraform/providers.tf with Kubernetes provider configuration and version constraints. Create terraform/variables.tf with all required variables including namespace, image_pull_secret_name, app_env_configmap_name, sources_configmap_name, and github_secret_name. Include proper descriptions, types, and default values where appropriate.",
+            "status": "pending",
+            "testStrategy": "Validate Terraform syntax with 'terraform validate' and verify provider initialization with 'terraform init'"
+          },
+          {
+            "id": 2,
+            "title": "Create persistent volume claim resource for data storage",
+            "description": "Define the PersistentVolumeClaim resource that will be used by the CronJob for storing archived data",
+            "dependencies": [
+              "44.1"
+            ],
+            "details": "Add kubernetes_persistent_volume_claim resource named 'archive_storage' to main.tf. Configure appropriate storage class for bare metal cluster, set storage size (e.g., 10Gi), and access modes. Ensure the PVC is created in the correct namespace and has proper labels for identification.",
+            "status": "pending",
+            "testStrategy": "Verify PVC creation with 'terraform plan' and ensure storage class compatibility with bare metal cluster setup"
+          },
+          {
+            "id": 3,
+            "title": "Implement namespace and service account resources",
+            "description": "Create the Kubernetes namespace and service account resources with proper image pull secrets configuration",
+            "dependencies": [
+              "44.1"
+            ],
+            "details": "Implement kubernetes_namespace resource for the podcast-agent namespace. Create kubernetes_service_account resource with reference to the image pull secret variable. Ensure proper metadata configuration and namespace association for the service account.",
+            "status": "pending",
+            "testStrategy": "Test namespace creation and service account configuration with proper image pull secret references"
+          },
+          {
+            "id": 4,
+            "title": "Configure CronJob container specification and volumes",
+            "description": "Define the complete container specification for the CronJob including environment variables, volume mounts, and resource requirements",
+            "dependencies": [
+              "44.2",
+              "44.3"
+            ],
+            "details": "Complete the kubernetes_cron_job_v1 resource with container specification including image reference, environment variable configuration from ConfigMaps and Secrets, volume mounts for sources config and data archive. Configure restart policy, service account reference, and proper volume definitions including ConfigMap and PVC volumes.",
+            "status": "pending",
+            "testStrategy": "Validate container configuration and volume mount paths. Test environment variable injection from ConfigMaps and Secrets"
+          },
+          {
+            "id": 5,
+            "title": "Add outputs and finalize Terraform configuration",
+            "description": "Create outputs.tf file with useful output values and perform final validation of the complete Terraform configuration",
+            "dependencies": [
+              "44.4"
+            ],
+            "details": "Create terraform/outputs.tf with outputs for namespace name, service account name, CronJob name, and PVC name. Add any additional metadata outputs that might be useful for external references. Perform comprehensive validation of all resource dependencies and references within the Terraform configuration.",
+            "status": "pending",
+            "testStrategy": "Execute 'terraform validate' and 'terraform plan' to ensure all resources are properly configured and dependencies are correctly established. Verify output values are accessible and meaningful"
+          }
+        ]
+      },
+      {
+        "id": 45,
+        "title": "Create main application orchestrator and monthly analysis generator",
+        "description": "Create main application that orchestrates daily collection and monthly issue generation, including situational analysis",
+        "details": "Create main.py orchestrator:\n```python\nimport os\nimport sys\nfrom datetime import datetime\nfrom pathlib import Path\n\nfrom fetch_articles import load_sources, fetch_rss_articles\nfrom normalize import batch_normalize\nfrom dedupe import remove_duplicates\nfrom ai_processor import AIProcessor\nfrom archive import MonthlyArchive\nfrom prioritizer import ArticlePrioritizer\nfrom github_issues import GitHubIssueCreator\n\nclass PodcastAgent:\n    def __init__(self):\n        self.ai_processor = AIProcessor()\n        self.archive = MonthlyArchive()\n        self.prioritizer = ArticlePrioritizer()\n        self.github = GitHubIssueCreator()\n    \n    def run_daily_collection(self):\n        \"\"\"Daily article collection and processing\"\"\"\n        print(f\"Starting daily collection at {datetime.now()}\")\n        \n        # Load sources and fetch articles\n        sources = load_sources('sources.yaml')\n        all_articles = []\n        \n        for source in sources['sources']:\n            articles = fetch_rss_articles(source)\n            all_articles.extend(articles)\n        \n        # Process articles\n        normalized = batch_normalize(all_articles)\n        deduplicated = remove_duplicates(normalized)\n        \n        # AI processing\n        processed_articles = []\n        for article in deduplicated:\n            processed = self.ai_processor.classify_and_summarize(article)\n            processed_articles.append(processed)\n        \n        # Store in monthly archive\n        self.archive.store_articles(processed_articles)\n        \n        print(f\"Processed {len(processed_articles)} articles\")\n    \n    def run_monthly_issue_generation(self, dry_run: bool = False):\n        \"\"\"Monthly issue generation and analysis\"\"\"\n        print(f\"Starting monthly issue generation at {datetime.now()}\")\n        \n        # Load monthly articles\n        articles = self.archive.load_monthly_articles()\n        \n        # Prioritize and group\n        for article in articles:\n            article['priority_score'] = self.prioritizer.calculate_priority_score(article)\n        \n        high_priority = [a for a in articles if a['priority_score'] > 0.7]\n        groups = self.prioritizer.group_related_articles(high_priority)\n        \n        # Remove duplicate groups\n        unique_groups = self._remove_duplicate_groups(groups)\n        \n        # Generate situational analysis\n        self._generate_situational_analysis(articles, unique_groups)\n        \n        # Create GitHub issues\n        if not dry_run:\n            for group in unique_groups:\n                issue = self.github.create_issue_from_group(group)\n                print(f\"Created issue: {issue['html_url']}\")\n        else:\n            print(f\"Dry run: Would create {len(unique_groups)} issues\")\n    \n    def _generate_situational_analysis(self, all_articles: list, selected_groups: list):\n        \"\"\"Generate monthly situational analysis\"\"\"\n        current_month = datetime.now().strftime('%Y-%m')\n        analysis_path = Path(f'docs/analysis/situational-{current_month}.md')\n        analysis_path.parent.mkdir(parents=True, exist_ok=True)\n        \n        # Generate analysis content\n        analysis_content = self._create_analysis_content(all_articles, selected_groups)\n        \n        with open(analysis_path, 'w') as f:\n            f.write(analysis_content)\n        \n        print(f\"Generated situational analysis: {analysis_path}\")\n\nif __name__ == '__main__':\n    agent = PodcastAgent()\n    \n    mode = os.getenv('RUN_MODE', 'daily')\n    if mode == 'daily':\n        agent.run_daily_collection()\n    elif mode == 'monthly':\n        dry_run = os.getenv('DRY_RUN', 'false').lower() == 'true'\n        agent.run_monthly_issue_generation(dry_run=dry_run)\n```",
+        "testStrategy": "Test both daily and monthly modes with sample data. Verify error handling and logging. Test dry-run functionality and analysis generation.",
+        "priority": "medium",
+        "dependencies": [
+          44
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create PodcastAgent class initialization and configuration",
+            "description": "Implement the main PodcastAgent class with proper initialization of all required components including AI processor, archive, prioritizer, and GitHub issue creator",
+            "dependencies": [],
+            "details": "Create the PodcastAgent class constructor that initializes AIProcessor, MonthlyArchive, ArticlePrioritizer, and GitHubIssueCreator instances. Add error handling for component initialization failures and configuration validation. Include logging setup for the orchestrator.",
+            "status": "pending",
+            "testStrategy": "Unit test class initialization with mocked dependencies. Verify all components are properly instantiated and configuration is loaded correctly."
+          },
+          {
+            "id": 2,
+            "title": "Implement daily article collection workflow",
+            "description": "Create the run_daily_collection method that orchestrates the complete daily workflow from fetching articles to storing processed results",
+            "dependencies": [
+              "45.1"
+            ],
+            "details": "Implement the daily collection workflow that loads sources from sources.yaml, fetches articles from all RSS feeds, normalizes and deduplicates them, processes through AI classification and summarization, and stores results in monthly archive. Include progress logging and error handling for each step.",
+            "status": "pending",
+            "testStrategy": "Integration test with sample RSS feeds and mock AI processing. Verify article flow through all processing stages and proper storage in archive."
+          },
+          {
+            "id": 3,
+            "title": "Implement monthly issue generation workflow",
+            "description": "Create the run_monthly_issue_generation method that loads monthly articles, prioritizes them, groups related content, and creates GitHub issues",
+            "dependencies": [
+              "45.1"
+            ],
+            "details": "Implement monthly workflow that loads articles from archive, calculates priority scores, filters high-priority articles, groups related content, removes duplicate groups, and creates GitHub issues. Include dry-run functionality and comprehensive logging of the selection process.",
+            "status": "pending",
+            "testStrategy": "Test with sample monthly data including priority calculation, grouping logic, and GitHub issue creation. Verify dry-run mode works correctly without creating actual issues."
+          },
+          {
+            "id": 4,
+            "title": "Implement situational analysis generation",
+            "description": "Create the _generate_situational_analysis method and supporting _create_analysis_content method to generate monthly markdown reports",
+            "dependencies": [
+              "45.3"
+            ],
+            "details": "Implement analysis generation that creates comprehensive monthly situational reports in markdown format. Include statistics on article volumes, trending topics, priority distributions, and selected issue groups. Generate structured analysis with sections for overview, key trends, selected topics, and recommendations.",
+            "status": "pending",
+            "testStrategy": "Test analysis generation with various monthly datasets. Verify markdown formatting, content accuracy, and file creation in correct directory structure."
+          },
+          {
+            "id": 5,
+            "title": "Implement main execution logic and environment handling",
+            "description": "Create the main execution block that handles different run modes (daily/monthly) based on environment variables and command-line arguments",
+            "dependencies": [
+              "45.2",
+              "45.3",
+              "45.4"
+            ],
+            "details": "Implement the main execution logic that reads RUN_MODE environment variable to determine whether to run daily collection or monthly issue generation. Handle DRY_RUN environment variable for testing. Add proper error handling, logging configuration, and graceful shutdown. Include command-line argument parsing for manual execution.",
+            "status": "pending",
+            "testStrategy": "Test both daily and monthly execution modes with different environment variable combinations. Verify error handling for invalid configurations and proper logging output."
           }
         ]
       }
     ],
     "metadata": {
       "created": "2025-09-21T08:00:58.083Z",
-      "updated": "2025-09-21T15:04:27.444Z",
+      "updated": "2025-09-22T05:27:59.712Z",
       "description": "Tasks for master context"
     }
   }
