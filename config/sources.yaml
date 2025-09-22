@@ -63,3 +63,28 @@ sources:
   url: https://www.mountaingoatsoftware.com/blog/rss
   keywords: [ "agile", "user stories", "planning", "estimation", "scrum" ]
   category_hints: [ "Agile" ]
+
+# DevOps – high-authority sources
+- name: Kubernetes Blog
+  type: rss
+  url: https://kubernetes.io/feed.xml
+  keywords: [ "kubernetes", "containers", "cncf", "cluster", "k8s" ]
+  category_hints: [ "DevOps", "Architecture/Infra" ]
+
+- name: Docker Blog
+  type: rss
+  url: https://www.docker.com/blog/feed/
+  keywords: [ "docker", "containers", "build", "compose", "supply chain" ]
+  category_hints: [ "DevOps" ]
+
+- name: GitLab Blog
+  type: rss
+  url: https://about.gitlab.com/blog/feed.xml
+  keywords: [ "gitlab", "cicd", "devsecops", "pipelines", "ai" ]
+  category_hints: [ "DevOps" ]
+
+- name: HashiCorp Blog
+  type: rss
+  url: https://www.hashicorp.com/blog/feed.xml
+  keywords: [ "terraform", "vault", "consul", "nomad", "iac" ]
+  category_hints: [ "DevOps", "Architecture/Infra" ]
