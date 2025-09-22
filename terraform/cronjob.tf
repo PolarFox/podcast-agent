@@ -122,12 +122,23 @@ resource "kubernetes_cron_job_v1" "agent" {
                 mount_path = "/app/config"
                 read_only  = true
               }
+              volume_mount {
+                name       = "archive"
+                mount_path = "/app/data"
+                read_only  = false
+              }
             }
 
             volume {
               name = "config"
               config_map {
                 name = var.sources_configmap_name
+              }
+            }
+            volume {
+              name = "archive"
+              persistent_volume_claim {
+                claim_name = kubernetes_persistent_volume_claim.archive.metadata[0].name
               }
             }
           }
