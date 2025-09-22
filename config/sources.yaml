@@ -44,3 +44,22 @@ sources:
   url: https://blog.pragmaticengineer.com/rss/
   keywords: [ "engineering", "leadership", "big tech", "career" ]
   category_hints: [ "Leadership", "Architecture/Infra" ]
+
+# Agile – high-authority sources
+- name: Agile Alliance
+  type: rss
+  url: https://www.agilealliance.org/feed/
+  keywords: [ "agile", "scrum", "kanban", "lean", "retrospective", "coaching" ]
+  category_hints: [ "Agile", "Leadership" ]
+
+- name: Scrum.org Blog
+  type: rss
+  url: https://www.scrum.org/resources/blog/feed
+  keywords: [ "scrum", "product owner", "sprint", "retrospective", "scrum master" ]
+  category_hints: [ "Agile" ]
+
+- name: Mountain Goat Software
+  type: rss
+  url: https://www.mountaingoatsoftware.com/blog/rss
+  keywords: [ "agile", "user stories", "planning", "estimation", "scrum" ]
+  category_hints: [ "Agile" ]

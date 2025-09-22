@@ -28,7 +28,7 @@
               "36.1"
             ],
             "details": "Research sources like Scrum.org, Agile Alliance, Mountain Goat Software, and other recognized Agile thought leaders. Verify RSS feed URLs are accessible and regularly updated. Assign appropriate authority scores based on source credibility and influence in the Agile community. Include at least 3-5 high-quality sources with scores 0.8-1.0.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Test each RSS URL for accessibility and parse sample feeds to verify content quality and update frequency"
           },
           {
@@ -687,7 +687,7 @@
     ],
     "metadata": {
       "created": "2025-09-21T08:00:58.083Z",
-      "updated": "2025-09-22T05:36:30.675Z",
+      "updated": "2025-09-22T05:38:37.069Z",
       "description": "Tasks for master context"
     }
   }
