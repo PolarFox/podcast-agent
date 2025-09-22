@@ -45,7 +45,20 @@ def classify_text(
         pass
 
     # Use retry wrapper for resilience against transient backend errors
-    category, conf = classify_with_retry(ai, content)
+    try:
+        category, conf = classify_with_retry(ai, content)
+    except Exception as primary_exc:  # noqa: BLE001
+        # Optional backend fallback
+        fallback_selected = os.getenv("AI_FALLBACK_BACKEND")
+        if fallback_selected:
+            try:
+                alt = create_ai_client(backend=fallback_selected)
+                category, conf = classify_with_retry(alt, content)
+            except Exception:
+                logger.warning("Fallback classification also failed: %s", fallback_selected)
+                raise primary_exc
+        else:
+            raise
     if category not in _CATEGORIES:
         logger.warning("Invalid category '%s' from AI; defaulting to 'Architecture/Infra'", category)
         return "Architecture/Infra", 0.0
