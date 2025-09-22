@@ -50,7 +50,7 @@
               "36.1"
             ],
             "details": "For Architecture: Research sources like Martin Fowler, InfoQ Architecture, High Scalability, and architecture-focused engineering blogs. For Leadership: Include sources like Rands in Repose, First Round Review, and technical leadership blogs. Verify feed accessibility and assign authority scores. Ensure coverage of microservices, system design, team management, and engineering culture topics.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Test feed accessibility and review recent content to ensure alignment with architecture and leadership best practices"
           },
           {
@@ -63,7 +63,7 @@
               "36.4"
             ],
             "details": "Combine all researched sources into the final YAML structure. Create comprehensive keyword arrays for each category: agile keywords (scrum, kanban, sprint, retrospective, user stories, velocity), devops keywords (ci/cd, kubernetes, docker, automation, infrastructure, monitoring), architecture keywords (microservices, api, design patterns, scalability, distributed systems), leadership keywords (team management, coaching, culture, mentoring, communication). Validate YAML syntax and ensure proper formatting.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Validate YAML syntax using yaml.safe_load(), test file accessibility, and verify all RSS URLs are reachable with sample HTTP requests"
           }
         ]
@@ -687,7 +687,7 @@
     ],
     "metadata": {
       "created": "2025-09-21T08:00:58.083Z",
-      "updated": "2025-09-22T05:42:11.048Z",
+      "updated": "2025-09-22T05:42:43.270Z",
       "description": "Tasks for master context"
     }
   }

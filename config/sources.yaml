@@ -27,6 +27,14 @@ sources:
   keywords: [ "leadership", "management", "agile", "productivity" ]
   category_hints: [ "Leadership" ]
 
+# Optional: category-level keyword hints used in downstream analysis
+# These do not affect fetching; they can support classification heuristics.
+category_keywords:
+  Agile: [ "scrum", "kanban", "sprint", "retrospective", "story", "velocity", "planning" ]
+  DevOps: [ "ci/cd", "kubernetes", "docker", "terraform", "observability", "sre", "automation" ]
+  Architecture/Infra: [ "microservices", "api", "event-driven", "monolith", "scalability", "distributed systems" ]
+  Leadership: [ "team", "management", "culture", "coaching", "mentoring", "communication" ]
+
 - name: DZone DevOps
   type: rss
   url: https://feeds.dzone.com/devops-and-cicd
