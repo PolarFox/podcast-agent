@@ -14,6 +14,7 @@ from .monthly_data import (
     write_monthly_data_to_repo,
 )
 from .monthly_gate import MonthlyGateStatus, is_monthly_ready, ensure_monthly_ready
+from .monthly_archive import MonthlyArchive
 
 __all__ = [
     "PrioritizedItem",
@@ -28,4 +29,5 @@ __all__ = [
     "MonthlyGateStatus",
     "is_monthly_ready",
     "ensure_monthly_ready",
+    "MonthlyArchive",
 ]
