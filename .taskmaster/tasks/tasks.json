@@ -39,7 +39,7 @@
               "36.1"
             ],
             "details": "Research sources like Docker Blog, Kubernetes Blog, GitLab Blog, HashiCorp Blog, and other recognized DevOps platforms. Verify RSS feed URLs and content relevance to DevOps practices. Assign authority scores based on technical accuracy and industry influence. Include sources covering CI/CD, containerization, infrastructure as code, and monitoring.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Validate RSS feeds and analyze recent articles to ensure content aligns with DevOps best practices"
           },
           {
@@ -50,7 +50,7 @@
               "36.1"
             ],
             "details": "For Architecture: Research sources like Martin Fowler, InfoQ Architecture, High Scalability, and architecture-focused engineering blogs. For Leadership: Include sources like Rands in Repose, First Round Review, and technical leadership blogs. Verify feed accessibility and assign authority scores. Ensure coverage of microservices, system design, team management, and engineering culture topics.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Test feed accessibility and review recent content to ensure alignment with architecture and leadership best practices"
           },
           {
@@ -687,7 +687,7 @@
     ],
     "metadata": {
       "created": "2025-09-21T08:00:58.083Z",
-      "updated": "2025-09-22T05:41:43.988Z",
+      "updated": "2025-09-22T05:42:11.048Z",
       "description": "Tasks for master context"
     }
   }

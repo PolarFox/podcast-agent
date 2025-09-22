@@ -71,6 +71,38 @@ sources:
   keywords: [ "kubernetes", "containers", "cncf", "cluster", "k8s" ]
   category_hints: [ "DevOps", "Architecture/Infra" ]
 
+# Architecture/Infra – high-authority sources
+- name: InfoQ Architecture & Design
+  type: rss
+  url: https://feed.infoq.com/architecture-design
+  keywords: [ "architecture", "microservices", "performance", "observability", "cloud" ]
+  category_hints: [ "Architecture/Infra" ]
+
+- name: Martin Fowler
+  type: rss
+  url: https://martinfowler.com/feed.atom
+  keywords: [ "architecture", "patterns", "evolutionary architecture", "team topologies" ]
+  category_hints: [ "Architecture/Infra", "Leadership" ]
+
+- name: High Scalability
+  type: rss
+  url: http://feeds.feedburner.com/HighScalability
+  keywords: [ "scalability", "performance", "architecture", "distributed systems" ]
+  category_hints: [ "Architecture/Infra" ]
+
+# Leadership – high-authority sources
+- name: Rands in Repose
+  type: rss
+  url: https://randsinrepose.com/feed/
+  keywords: [ "leadership", "management", "teams", "career" ]
+  category_hints: [ "Leadership" ]
+
+- name: First Round Review (Engineering Leadership)
+  type: rss
+  url: https://review.firstround.com/feed
+  keywords: [ "leadership", "management", "culture", "product" ]
+  category_hints: [ "Leadership" ]
+
 - name: Docker Blog
   type: rss
   url: https://www.docker.com/blog/feed/
