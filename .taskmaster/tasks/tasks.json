@@ -120,7 +120,7 @@
               "37.3"
             ],
             "details": "Implement fetch_all_articles function that iterates through all sources from configuration, determines source type (RSS or HTTP), and calls appropriate fetching function. Add concurrent fetching using ThreadPoolExecutor for improved performance. Implement source-level error handling that doesn't stop processing of other sources. Include logging for successful and failed fetch operations.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Integration tests with mixed source types, test concurrent fetching performance, and verify error isolation between sources"
           },
           {
@@ -131,7 +131,7 @@
               "37.4"
             ],
             "details": "Add comprehensive logging using Python's logging module with different log levels for debugging, info, warnings, and errors. Implement custom exception classes for different error types (NetworkError, ParseError, ConfigError). Add retry mechanisms with exponential backoff for transient failures. Include metrics collection for successful/failed fetches per source. Add configuration options for timeout values, retry counts, and concurrent fetch limits.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test error scenarios including network failures, malformed feeds, invalid configurations, and verify proper logging output and retry behavior"
           }
         ]
@@ -146,7 +146,7 @@
         "dependencies": [
           37
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
@@ -154,7 +154,7 @@
             "description": "Implement core HTML parsing and cleaning functionality using BeautifulSoup to extract clean text content from various HTML formats",
             "dependencies": [],
             "details": "Create normalize.py with HTML cleaning functions: parse HTML using BeautifulSoup with 'html.parser', extract text content using get_text(), handle malformed HTML gracefully, preserve paragraph breaks where appropriate, and remove script/style tags completely. Include error handling for invalid HTML structures.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with various HTML formats including nested tags, malformed HTML, empty content, and articles with embedded scripts/styles. Verify text extraction accuracy and error handling."
           },
           {
@@ -165,7 +165,7 @@
               "38.1"
             ],
             "details": "Implement regex-based text cleaning: remove extra whitespace using re.sub(r'\\s+', ' ', text), strip leading/trailing whitespace, normalize Unicode characters, handle special characters and encoding issues, preserve meaningful punctuation, and clean up common HTML entities that BeautifulSoup might miss.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with articles containing multiple spaces, tabs, newlines, Unicode characters, and HTML entities. Verify proper whitespace normalization while preserving readability."
           },
           {
@@ -177,7 +177,7 @@
               "38.2"
             ],
             "details": "Create normalize_article function that takes an Article object, applies HTML cleaning to content, normalizes title by stripping whitespace, preserves metadata fields (url, published, source, category), handles None/empty values gracefully, and returns a new Article instance with cleaned data. Ensure immutability by creating new objects rather than modifying existing ones.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with Article objects containing various content types, empty fields, None values, and different metadata combinations. Verify that original objects remain unchanged and new objects contain properly cleaned data."
           },
           {
@@ -188,7 +188,7 @@
               "38.3"
             ],
             "details": "Implement batch_normalize function that processes lists of Article objects, includes error handling for individual article failures, logs processing statistics, optionally supports parallel processing for large batches, and returns both successful and failed processing results. Include progress tracking for large batches.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with various batch sizes including empty lists, single articles, and large collections. Verify error handling when individual articles fail processing and ensure batch processing doesn't stop on single failures."
           },
           {
@@ -199,7 +199,7 @@
               "38.2"
             ],
             "details": "Add encoding detection using chardet library, handle UTF-8, Latin-1, and other common encodings, normalize Unicode characters to consistent forms, handle emoji and special symbols appropriately, detect and convert HTML entities, and provide fallback encoding strategies. Include configuration options for encoding preferences.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with articles in different languages and encodings, content with emojis and special characters, and malformed encoding scenarios. Verify proper character preservation and encoding conversion accuracy."
           }
         ]
@@ -214,7 +214,7 @@
         "dependencies": [
           38
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
@@ -222,7 +222,7 @@
             "description": "Define the Article class/dataclass that will be used throughout the duplicate detection system, ensuring it has the necessary attributes for content hashing and similarity comparison",
             "dependencies": [],
             "details": "Create Article dataclass in models.py with attributes: title (str), content (str), url (str), published_date (datetime), source (str). Include __hash__ and __eq__ methods for proper comparison. Add validation for required fields and ensure content is properly encoded for hash calculations.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test Article creation with various content types, verify hash consistency, and test equality comparisons"
           },
           {
@@ -233,7 +233,7 @@
               "39.1"
             ],
             "details": "Implement calculate_content_hash function in dedupe.py. Normalize text by converting to lowercase, removing extra whitespace, and handling special characters. Use MD5 hashing on UTF-8 encoded content. Include error handling for encoding issues and empty content scenarios.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with identical articles producing same hash, different articles producing different hashes, and edge cases like empty content or special characters"
           },
           {
@@ -244,7 +244,7 @@
               "39.1"
             ],
             "details": "Implement calculate_similarity function using SequenceMatcher.ratio() on combined title and content. Normalize text consistently with hash function. Add optional parameters for different similarity algorithms (title-only, content-only, weighted). Handle edge cases like empty articles or very short content.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test similarity scores with known similar/dissimilar article pairs, verify threshold effectiveness, and test performance with long articles"
           },
           {
@@ -256,7 +256,7 @@
               "39.3"
             ],
             "details": "Implement remove_duplicates function with configurable similarity threshold. Use set for O(1) hash lookups, then similarity comparison for remaining articles. Optimize by checking similarity only against recent unique articles (sliding window approach). Add logging for duplicate detection statistics and performance metrics.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with datasets containing exact duplicates, near-duplicates, and unique articles. Verify performance with large article sets and different threshold values"
           },
           {
@@ -267,7 +267,7 @@
               "39.4"
             ],
             "details": "Add DedupeConfig class for threshold settings, hash algorithms, and performance tuning. Implement batch processing for large datasets, memory-efficient processing with generators, and optional caching of similarity calculations. Add comprehensive logging, error handling, and metrics collection (duplicates found, processing time, memory usage).",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Test configuration flexibility, memory usage with large datasets, error recovery scenarios, and performance benchmarks with different optimization settings"
           }
         ]
@@ -687,7 +687,7 @@
     ],
     "metadata": {
       "created": "2025-09-21T08:00:58.083Z",
-      "updated": "2025-09-22T05:45:41.517Z",
+      "updated": "2025-09-22T08:24:22.980Z",
       "description": "Tasks for master context"
     }
   }
