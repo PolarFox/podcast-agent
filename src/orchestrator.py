@@ -119,15 +119,11 @@ class Orchestrator:
         import os
         fast_dry = bool(os.getenv("FAST_DRY_RUN")) and self.dry_run
 
-        for src in sources:
-            fetched = self._fetch_source(src)
-            fetched_count += len(fetched)
+        # Fetch concurrently up-front for better throughput
+        fetched_all = self.fetch_all(sources)
+        fetched_count += len(fetched_all)
 
-            # Limit items per source for quick/CI runs
-            if self.max_items_per_source is not None and self.max_items_per_source >= 0:
-                fetched = fetched[: self.max_items_per_source]
-
-            for art in fetched:
+        for art in fetched_all:
                 # Normalize
                 art.raw_text = clean_html_to_text(art.raw_text)
 
