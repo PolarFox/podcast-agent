@@ -10,6 +10,10 @@ from dataclasses import replace
 from ..utils.logging import get_logger
 
 from bs4 import BeautifulSoup
+try:
+    import chardet  # type: ignore
+except Exception:  # pragma: no cover - optional dependency
+    chardet = None  # type: ignore
 
 _whitespace_re = re.compile(r"\s+")
 _control_chars_re = re.compile(r"[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]")
@@ -37,6 +41,18 @@ def clean_html_to_text(raw_html: str | None) -> str:
     """
     if not raw_html:
         return ""
+
+    # Best-effort encoding normalization for bytes input when chardet is present
+    if isinstance(raw_html, (bytes, bytearray)):
+        if chardet is not None:
+            try:
+                enc = chardet.detect(raw_html).get("encoding")
+                if enc:
+                    raw_html = raw_html.decode(enc, errors="replace")  # type: ignore[assignment]
+            except Exception:
+                raw_html = raw_html.decode("utf-8", errors="replace")  # type: ignore[assignment]
+        else:
+            raw_html = raw_html.decode("utf-8", errors="replace")  # type: ignore[assignment]
 
     soup = BeautifulSoup(raw_html, "html.parser")
     text = soup.get_text("\n")
