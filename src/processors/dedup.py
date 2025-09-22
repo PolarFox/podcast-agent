@@ -3,10 +3,14 @@ from __future__ import annotations
 import difflib
 import hashlib
 import json
+import os
 from pathlib import Path
 from typing import Iterable, List, Optional, Tuple
 
 from ..models import Article
+from .normalize import normalize_plain_text
+from dataclasses import dataclass
+from collections import defaultdict
 
 # Optional heavy deps are imported lazily
 try:  # pragma: no cover - optional dependency
@@ -33,11 +37,20 @@ class Deduplicator:
         semantic_threshold: float = 0.85,
         max_embeddings: int = 1000,
     ) -> None:
-        self.store_path = Path(store_path)
-        self.title_threshold = title_threshold
-        self.enable_semantic = enable_semantic
-        self.semantic_threshold = semantic_threshold
-        self.max_embeddings = max_embeddings
+        # Allow environment overrides for operational tuning without code changes
+        env_store = os.getenv("DEDUP_STORE_PATH")
+        env_title_thr = os.getenv("DEDUP_TITLE_THRESHOLD")
+        env_enable_sem = os.getenv("DEDUP_ENABLE_SEMANTIC")
+        env_sem_thr = os.getenv("DEDUP_SEMANTIC_THRESHOLD")
+        env_max_emb = os.getenv("DEDUP_MAX_EMBEDDINGS")
+
+        self.store_path = Path(env_store or store_path)
+        self.title_threshold = float(env_title_thr) if env_title_thr else title_threshold
+        self.enable_semantic = (
+            (env_enable_sem.lower() in {"1", "true", "yes"}) if env_enable_sem else enable_semantic
+        )
+        self.semantic_threshold = float(env_sem_thr) if env_sem_thr else semantic_threshold
+        self.max_embeddings = int(env_max_emb) if env_max_emb else max_embeddings
 
         self._seen_hashes: set[str] = set()
         self._titles: List[str] = []
@@ -67,7 +80,11 @@ class Deduplicator:
     # ---------------- Normalization helpers -----------------
     @staticmethod
     def content_hash(title: str, text: str) -> str:
-        normalized = (title or "").strip().lower() + "\n\n" + (text or "").strip().lower()
+        # Normalize via lightweight text normalizer to improve robustness
+        # Keep legacy lowercasing behavior to avoid breaking existing caches
+        t_norm = normalize_plain_text(title or "")
+        x_norm = normalize_plain_text(text or "")
+        normalized = t_norm.lower() + "\n\n" + x_norm.lower()
         return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
 
     @staticmethod
@@ -145,3 +162,42 @@ class Deduplicator:
                 if len(self._embeddings) > self.max_embeddings:
                     self._embeddings = self._embeddings[-self.max_embeddings :]
         self._save()
+
+
+@dataclass(slots=True)
+class DedupStats:
+    total: int
+    kept: int
+    duplicates: int
+    reasons: dict[str, int]
+
+
+def remove_duplicates(
+    articles: Iterable[Article],
+    *,
+    dedup: Optional[Deduplicator] = None,
+    prior_titles: Iterable[str] = (),
+    return_stats: bool = False,
+):
+    """Remove duplicates from an iterable of articles using Deduplicator.
+
+    Returns a list of unique articles by default. If ``return_stats`` is True,
+    returns a tuple of (unique_articles, DedupStats).
+    """
+    d = dedup or Deduplicator()
+    unique: List[Article] = []
+    reasons = defaultdict(int)
+    prior_list = list(prior_titles)
+    total = 0
+    for art in articles:
+        total += 1
+        is_dup, reason = d.is_duplicate(art, prior_titles=prior_list)
+        if is_dup:
+            reasons[(reason or "unknown")] += 1
+            continue
+        d.mark_seen(art)
+        if art.title:
+            prior_list.append(art.title)
+        unique.append(art)
+    stats = DedupStats(total=total, kept=len(unique), duplicates=total - len(unique), reasons=dict(reasons))
+    return (unique, stats) if return_stats else unique
