@@ -418,7 +418,7 @@
         "dependencies": [
           41
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -426,7 +426,7 @@
             "description": "Create the calculate_priority_score method that combines freshness decay, source authority, AI priority, and category balance into a single score",
             "dependencies": [],
             "details": "Implement the scoring algorithm with configurable weights: freshness_score (30%), authority_score (30%), ai_priority (30%), and category_balance (10%). Use exponential decay for freshness with 4-week horizon. Include validation for score ranges 0-1 and handle missing article fields gracefully.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with articles of different ages, authority scores, and categories. Verify score ranges and weight distribution. Test edge cases with missing fields."
           },
           {
@@ -437,7 +437,7 @@
               "42.1"
             ],
             "details": "Track category distribution in current selection and calculate balance scores to favor underrepresented categories. Maintain category counters and implement scoring that promotes diversity. Include configurable target distribution ratios for different categories.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test category distribution tracking with various article sets. Verify balance scoring promotes diversity and handles new categories appropriately."
           },
           {
@@ -448,7 +448,7 @@
               "42.1"
             ],
             "details": "Implement keyword intersection logic requiring minimum 2 keyword overlap or same category match. Add configurable similarity thresholds and support for semantic similarity if keywords are insufficient. Handle cases where articles lack keywords gracefully.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with articles having various keyword overlaps and categories. Verify grouping accuracy and threshold effectiveness with sample article pairs."
           },
           {
@@ -459,7 +459,7 @@
               "42.3"
             ],
             "details": "Implement seed-based clustering starting with highest priority articles. Use similarity detection to find related articles and form groups. Ensure all articles are assigned to exactly one group and handle edge cases with isolated articles. Optimize for performance with large article sets.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test grouping with various article collections. Verify all articles are grouped, no duplicates exist across groups, and groups maintain topical coherence."
           },
           {
@@ -473,7 +473,7 @@
               "42.4"
             ],
             "details": "Integrate all methods into the ArticlePrioritizer class with proper initialization and configuration. Add error handling, logging, and performance monitoring. Implement batch processing capabilities for large article collections and add configuration options for tuning algorithm parameters.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "End-to-end testing with realistic article datasets. Performance testing with large collections. Verify complete workflow from raw articles to prioritized groups produces expected results."
           }
         ]
@@ -488,7 +488,7 @@
         "dependencies": [
           42
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -496,7 +496,7 @@
             "description": "Create the basic GitHubIssueCreator class with proper initialization, environment variable handling, and GitHub API configuration setup",
             "dependencies": [],
             "details": "Implement the __init__ method to load GitHub token, repository owner, and repository name from environment variables. Set up the base URL for GitHub API calls. Add validation to ensure all required environment variables are present and raise appropriate errors if missing. Include proper error handling for invalid repository configurations.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with valid and invalid environment variables. Verify proper error messages for missing configurations. Mock environment variables to test different scenarios."
           },
           {
@@ -507,7 +507,7 @@
               "43.1"
             ],
             "details": "Implement logic to identify the primary article with the highest priority score from the article group. Extract category prefix (first 4 characters, uppercase) and combine with truncated article title (50 characters max). Handle edge cases like empty titles, missing categories, or articles without priority scores. Ensure title format follows the pattern '[CATEGORY] Title...'",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with article groups containing different priority scores, categories, and title lengths. Verify proper truncation and category prefix formatting. Test edge cases with missing or invalid data."
           },
           {
@@ -518,7 +518,7 @@
               "43.1"
             ],
             "details": "Generate structured markdown content with Summary section containing article details (title, source, TL;DR, team impact, link) and Recommendation section with Finnish text mapping categories to meeting segments. Implement proper markdown formatting, handle multiple articles in a group, and ensure all article fields are properly displayed. Include error handling for missing article fields.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test with single and multiple article groups. Verify markdown formatting, Finnish recommendation text, and proper handling of missing article fields. Test with different category types."
           },
           {
@@ -529,7 +529,7 @@
               "43.1"
             ],
             "details": "Implement label generation logic that adds 'draft' label and category-based labels from article groups. Set up GitHub API POST request with proper authentication headers, request formatting, and response handling. Include comprehensive error handling for API failures, authentication issues, and network problems. Implement proper JSON serialization for issue data.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test label generation with various article categories. Mock GitHub API responses for success and error scenarios. Test authentication with valid and invalid tokens. Verify proper request formatting and error handling."
           },
           {
@@ -542,7 +542,7 @@
               "43.4"
             ],
             "details": "Integrate title, body, and label generation methods into the main workflow. Add comprehensive error handling for API failures, network issues, and invalid article data. Implement proper logging for debugging and monitoring. Add response validation to ensure successful issue creation. Include retry logic for transient API failures and proper error reporting.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test end-to-end issue creation with valid article groups. Test error scenarios including API failures, network issues, and invalid data. Verify proper error messages and logging. Test with different article group sizes and structures."
           }
         ]
@@ -557,7 +557,7 @@
         "dependencies": [
           43
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -565,7 +565,7 @@
             "description": "Set up the basic Terraform configuration with provider requirements and define all necessary input variables for the Kubernetes deployment",
             "dependencies": [],
             "details": "Create terraform/providers.tf with Kubernetes provider configuration and version constraints. Create terraform/variables.tf with all required variables including namespace, image_pull_secret_name, app_env_configmap_name, sources_configmap_name, and github_secret_name. Include proper descriptions, types, and default values where appropriate.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Validate Terraform syntax with 'terraform validate' and verify provider initialization with 'terraform init'"
           },
           {
@@ -576,7 +576,7 @@
               "44.1"
             ],
             "details": "Add kubernetes_persistent_volume_claim resource named 'archive_storage' to main.tf. Configure appropriate storage class for bare metal cluster, set storage size (e.g., 10Gi), and access modes. Ensure the PVC is created in the correct namespace and has proper labels for identification.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify PVC creation with 'terraform plan' and ensure storage class compatibility with bare metal cluster setup"
           },
           {
@@ -587,7 +587,7 @@
               "44.1"
             ],
             "details": "Implement kubernetes_namespace resource for the podcast-agent namespace. Create kubernetes_service_account resource with reference to the image pull secret variable. Ensure proper metadata configuration and namespace association for the service account.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test namespace creation and service account configuration with proper image pull secret references"
           },
           {
@@ -599,7 +599,7 @@
               "44.3"
             ],
             "details": "Complete the kubernetes_cron_job_v1 resource with container specification including image reference, environment variable configuration from ConfigMaps and Secrets, volume mounts for sources config and data archive. Configure restart policy, service account reference, and proper volume definitions including ConfigMap and PVC volumes.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Validate container configuration and volume mount paths. Test environment variable injection from ConfigMaps and Secrets"
           },
           {
@@ -610,7 +610,7 @@
               "44.4"
             ],
             "details": "Create terraform/outputs.tf with outputs for namespace name, service account name, CronJob name, and PVC name. Add any additional metadata outputs that might be useful for external references. Perform comprehensive validation of all resource dependencies and references within the Terraform configuration.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Execute 'terraform validate' and 'terraform plan' to ensure all resources are properly configured and dependencies are correctly established. Verify output values are accessible and meaningful"
           }
         ]
@@ -625,7 +625,7 @@
         "dependencies": [
           44
         ],
-        "status": "pending",
+        "status": "in-progress",
         "subtasks": [
           {
             "id": 1,
@@ -687,7 +687,7 @@
     ],
     "metadata": {
       "created": "2025-09-21T08:00:58.083Z",
-      "updated": "2025-09-22T09:21:48.070Z",
+      "updated": "2025-09-22T09:24:30.485Z",
       "description": "Tasks for master context"
     }
   }

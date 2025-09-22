@@ -15,6 +15,7 @@ from .processors import (
     summarize_text,
 )
 from .processors.impact import generate_impact_points
+from .analysis.monthly_archive import MonthlyArchive
 from .output.issue_formatter import (
     format_issue_title,
     format_issue_body,
@@ -39,6 +40,7 @@ class Orchestrator:
         self.max_items_per_source = max_items_per_source
         self.max_total_items = max_total_items
         self.dedup = Deduplicator()
+        self.archive = MonthlyArchive(base_dir=Path("/app/data") if Path("/app/data").exists() else Path("data/archive"))
 
     def _fetch_source(self, source: Source) -> List[Article]:
         articles: List[Article] = []
@@ -198,6 +200,12 @@ class Orchestrator:
                 and processed_non_duplicate >= self.max_total_items
             ):
                 break
+
+        # Persist processed articles to monthly archive (best effort)
+        try:
+            self.archive.store_articles(fetched_all)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("Failed to store monthly archive: %s", exc)
 
         # Grouped issues are handled by the auto-issues pipeline via CLI flag
 
