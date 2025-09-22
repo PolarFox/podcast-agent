@@ -72,13 +72,17 @@ def fetch_rss_entries(source: Source, *, timeout: int = 30) -> List[RSSItem]:
     for entry in getattr(parsed, "entries", []) or []:
         title = getattr(entry, "title", None) or ""
         link = getattr(entry, "link", None) or ""
-        description = getattr(entry, "summary", None)
+        # Prefer 'summary' but fall back to 'description' or content[0].value
+        description = getattr(entry, "summary", None) or getattr(entry, "description", None)
         published = _parse_datetime(entry)
 
         content_val = None
         contents = getattr(entry, "content", None)
         if contents and isinstance(contents, list) and contents:
             content_val = contents[0].get("value")
+        if not content_val:
+            # Fallback to description if content not provided
+            content_val = description
 
         items.append(
             RSSItem(
