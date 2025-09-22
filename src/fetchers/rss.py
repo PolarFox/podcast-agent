@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Iterable, List, Optional
 
 import feedparser
+import requests
 
 from ..models import Source
 from ..utils.logging import get_logger
@@ -21,6 +22,15 @@ class RSSItem:
     content: Optional[str]
 
 
+_DEFAULT_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/127.0.0.0 Safari/537.36"
+    )
+}
+
+
 def _parse_datetime(entry: dict) -> Optional[datetime]:
     # feedparser may provide 'published_parsed' or 'updated_parsed'
     for key in ("published_parsed", "updated_parsed"):
@@ -34,14 +44,32 @@ def _parse_datetime(entry: dict) -> Optional[datetime]:
 
 
 def fetch_rss_entries(source: Source, *, timeout: int = 30) -> List[RSSItem]:
+    """Fetch and parse RSS/Atom feed entries with timeouts and basic robustness.
+
+    The underlying network request is done with ``requests`` to ensure
+    consistent timeouts and headers. The response body is then parsed by
+    ``feedparser`` to handle various feed formats.
+    """
     if source.type != "rss":
         raise ValueError("fetch_rss_entries requires a source of type 'rss'")
 
     logger.debug("Fetching RSS from %s", source.url)
-    parsed = feedparser.parse(source.url)
+    try:
+        resp = requests.get(source.url, headers=_DEFAULT_HEADERS, timeout=timeout)
+        if resp.status_code >= 400:
+            logger.warning("RSS fetch failed (%s): %s", resp.status_code, source.url)
+            resp.raise_for_status()
+        parsed = feedparser.parse(resp.content)
+    except requests.RequestException as exc:
+        logger.warning("RSS request error for %s: %s", source.url, exc)
+        raise
 
     items: List[RSSItem] = []
-    for entry in parsed.entries:
+    if getattr(parsed, "bozo", False):
+        # feedparser sets bozo when it encounters a feed error but may still parse entries
+        logger.debug("Feed 'bozo' flagged for %s: %s", source.url, getattr(parsed, "bozo_exception", None))
+
+    for entry in getattr(parsed, "entries", []) or []:
         title = getattr(entry, "title", None) or ""
         link = getattr(entry, "link", None) or ""
         description = getattr(entry, "summary", None)

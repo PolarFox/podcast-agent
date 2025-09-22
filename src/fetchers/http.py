@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Dict, List, Optional
+from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup
@@ -28,14 +29,21 @@ _DEFAULT_HEADERS: Dict[str, str] = {
     )
 }
 
+def _validated_url(url: str) -> str:
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        raise ValueError(f"Invalid URL for HTTP fetch: {url}")
+    return url
+
 
 def fetch_http_entries(source: Source, *, timeout: int = 30) -> List[HTTPItem]:
     if source.type != "http":
         raise ValueError("fetch_http_entries requires a source of type 'http'")
 
     headers = {**_DEFAULT_HEADERS, **(source.headers or {})}
-    logger.debug("Fetching HTTP content from %s", source.url)
-    resp = requests.get(source.url, headers=headers, timeout=timeout)
+    url = _validated_url(source.url)
+    logger.debug("Fetching HTTP content from %s", url)
+    resp = requests.get(url, headers=headers, timeout=timeout)
     if resp.status_code >= 400:
         logger.warning("HTTP fetch failed (%s): %s", resp.status_code, source.url)
         resp.raise_for_status()
