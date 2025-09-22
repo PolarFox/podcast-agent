@@ -87,12 +87,20 @@ def normalize_article(article: "Article") -> "Article":  # quoted type to avoid 
     normalized_title = normalize_plain_text(article.title)
     iso_date = parse_date_to_iso(article.published_date)
 
-    return replace(
-        article,
-        title=normalized_title,
-        raw_text=normalized_text,
-        published_date=iso_date,
-    )
+    # Avoid importing Article at module import time; construct with replace
+    try:
+        return replace(
+            article,
+            title=normalized_title,
+            raw_text=normalized_text,
+            published_date=iso_date,
+        )
+    except TypeError:
+        # If the provided object is not a dataclass (defensive), fallback to mutation
+        article.title = normalized_title
+        article.raw_text = normalized_text
+        article.published_date = iso_date
+        return article
 
 
 def batch_normalize(articles: Iterable["Article"]) -> List["Article"]:
