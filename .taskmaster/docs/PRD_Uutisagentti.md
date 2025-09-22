@@ -6,20 +6,34 @@ Agentti kerää Agile / Arkkitehtuuri / Pilvi -uutisia ja tapahtumia, luokittele
 ---
 
 ## 2. Scope / MVP
-- CronJob (K8s baremetal, hallinta Terraformilla) ajaa agentin säännöllisesti (esim. 1×/vrk).  
-- Lähteiden lista konfiguroitavissa (`sources.yaml`).  
-- Kerää uutiset RSS/HTTP:stä.  
-- Poistaa duplikaatit (hash + similariteetti).  
-- Luokittelee 4 teemaan: Agile, DevOps, Architecture/Infra, Leadership.  
-- Summarointi: TL;DR + 2–3 bulletia *“mitä tämä tarkoittaa tiimille”*.  
-- Luo GitHub Issue ehdotuksen:  
-  - **Title:** `[ARCH] Consumer-Driven Contract Testing`  
-  - **Labels:** `draft, agile|devops|architecture|leadership`  
-  - **Body:**  
-    - Lähteen tiivistelmä  
-    - “Impact to teams” -bulletit  
-    - Linkit alkuperäiseen  
-    - Suositus: “Sopii keskiviikon Architecture & Infra -jaksoon”  
+
+Agentin toiminta jakautuu kahteen päävaiheeseen: jatkuvaan artikkelien keräämiseen ja kuukausittaiseen issue-generointiin.
+
+### Vaihe 1: Artikkelien kerääminen ja prosessointi
+- CronJob (K8s baremetal, hallinta Terraformilla) ajaa agentin säännöllisesti (esim. 1×/vrk).
+- Agentti hakee uudet artikkelit `sources.yaml`-tiedostossa määritellyistä RSS/HTTP-lähteistä.
+- Jokainen artikkeli prosessoidaan putkessa:
+  - **Normalisointi:** Sisältö siistitään ja jäsennetään.
+  - **Duplikaattien poisto:** Duplikaatit tunnistetaan ja poistetaan (hash + similariteetti).
+  - **Rikastaminen:** Artikkeli luokitellaan yhteen neljästä teemasta (Agile, DevOps, Architecture/Infra, Leadership) ja siitä luodaan tiivistelmä (TL;DR + "mitä tämä tarkoittaa tiimille").
+- Prosessoidut artikkelit tallennetaan persistoivaan **kuukausittaiseen data-arkistoon**, joka kerää potentiaalisia aiheita kuukauden aikana.
+
+### Vaihe 2: Kuukausittainen issue-generointi
+- Kuukausittain (tai triggeristä) käynnistyy erillinen työnkulku, joka lukee kaikki kuukauden aikana kerätyt artikkelit data-arkistosta.
+- **Priorisointi ja suodatus:** Korkean prioriteetin artikkelit valitaan pisteytyksen perusteella.
+- **Ryhmittely:** Toisiinsa liittyvät artikkelit ryhmitellään yhtenäisiksi aihekokonaisuuksiksi.
+- **Ryhmien duplikaattien poisto:** Ryhmiä verrataan keskenään, jotta vältetään päällekkäisten issue-ehdotusten luominen.
+- **Issueiden luonti:** Jokaisesta uniikista, korkean prioriteetin ryhmästä luodaan yksi formatoitu GitHub-issue. Issue sisältää tiivistelmät kaikista ryhmään kuuluvista artikkeleista.
+- Issueiden luonti tapahtuu eräajona.
+
+Alkuperäinen GitHub Issue -ehdotus:
+  - **Title:** `[ARCH] Consumer-Driven Contract Testing`
+  - **Labels:** `draft, agile|devops|architecture|leadership`
+  - **Body:**
+    - Lähteen tiivistelmä
+    - “Impact to teams” -bulletit
+    - Linkit alkuperäiseen
+    - Suositus: “Sopii keskiviikon Architecture & Infra -jaksoon”
 
 ---
 
@@ -56,14 +70,21 @@ Agentti kerää Agile / Arkkitehtuuri / Pilvi -uutisia ja tapahtumia, luokittele
 ---
 
 ## 6. Priorisointi ja kuukausikohtainen tilanneanalyysi
-- Agentti pisteyttää ja järjestää aiheet kuukausinäkymää (seuraavat 4 viikkoa) varten.  
-- Tuottaa analyysin tiedostoon `docs/analysis/situational-YYYY-MM.md`:  
-  - Kuukauden yleiskuva, top-N lista perusteineen  
-  - Kategoriatasapaino (Agile/DevOps/Architecture/Leadership)  
-  - Suositellut aiheet viikoille 1–4 (deterministinen jako)  
-- Pisteytyssignaalit: tuoreus (ajan vaimennus 4 viikkoa), lähteen auktoriteetti, uutuusarvo vs. viime kuukaudet, mahdolliset engagement-signaalit (jos saatavilla), kategoriabalanssi.  
-- Konfiguroitava suunnitteluhorisontti: oletus 4 viikkoa.  
-- Analyysi voidaan commitoida repo:on (konfiguroitavissa, dry-run tuettu).  
+- Kuukausittainen prosessi muuttaa kerätyn data-arkiston sisällön konkreettisiksi GitHub issue-ehdotuksiksi.
+- **Syöte:** Työnkulku käyttää koko kuukauden data-arkistoa.
+- **Pisteytys ja suodatus:** Artikkelit pisteytetään ja priorisoidaan tulevaa 4 viikon suunnitteluhorisonttia varten. Signaaleja ovat tuoreus (vaimennus), lähteen auktoriteetti, uutuusarvo ja kategoriatasapaino.
+- **Ryhmittely ja eräajo:**
+  - Korkean prioriteetin artikkelit ryhmitellään aihepiireittäin.
+  - Ryhmistä poistetaan duplikaatit uniikkien ehdotusten varmistamiseksi.
+  - Uniikeista ryhmistä valmistellaan eräajo issueiden luomiseksi.
+- **Ensisijainen tuloste: GitHub Issuet:** Prosessin päätavoite on luoda draft-issueita GitHubiin valmiina jatkokäsittelyä varten.
+- **Toissijainen tuloste: Tilanneanalyysi:** Prosessin sivutuotteena generoidaan yhteenveto tiedostoon `docs/analysis/situational-YYYY-MM.md`. Tämä tiedosto sisältää:
+  - Yleiskatsauksen kuukauden aiheista.
+  - Kategoriatasapainon (Agile/DevOps/Architecture/Leadership).
+  - Listan suositelluista aiheista ja artikkeli-ryhmistä, joista ne muodostuivat.
+- Pisteytyssignaalit: tuoreus (ajan vaimennus 4 viikkoa), lähteen auktoriteetti, uutuusarvo vs. viime kuukaudet, mahdolliset engagement-signaalit (jos saatavilla), kategoriabalanssi.
+- Konfiguroitava suunnitteluhorisontti: oletus 4 viikkoa.
+- Analyysi voidaan commitoida repoon (konfiguroitavissa, dry-run tuettu).
 
 ---
 
