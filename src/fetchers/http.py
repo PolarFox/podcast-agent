@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup
+from bs4.element import Comment
 
 from ..models import Source
 from ..utils.logging import get_logger
@@ -55,8 +56,14 @@ def fetch_http_entries(source: Source, *, timeout: int = 30) -> List[HTTPItem]:
     meta_desc = soup.find("meta", attrs={"name": "description"})
     description = meta_desc["content"].strip() if meta_desc and meta_desc.get("content") else None
 
-    main = soup.find("main") or soup.body
-    content = main.get_text("\n", strip=True) if main else None
+    # Prefer main content; if missing, strip script/style and read body text
+    main = soup.find("main") or soup.find("article") or soup.body
+    if main is None:
+        content = None
+    else:
+        for tag in main.find_all(["script", "style", "noscript"], recursive=True):
+            tag.decompose()
+        content = main.get_text("\n", strip=True)
 
     logger.info("Fetched HTTP page: %s", source.name)
     return [HTTPItem(title=title, url=source.url, description=description, content=content)]
