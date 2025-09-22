@@ -7,22 +7,40 @@ from .category_selector import CATEGORIES
 
 
 def redistribute_shortfalls(
-    per_category: Dict[str, List[PrioritizedItem]], *, target_total: int = 64
+    *,
+    buckets: Dict[str, List[PrioritizedItem]],
+    selected: Dict[str, List[PrioritizedItem]],
+    target_total: int = 64,
+    per_category_limit: int = 16,
 ) -> Dict[str, List[PrioritizedItem]]:
-    # Compute shortfalls and surplus pools
-    result = {c: list(per_category.get(c, [])) for c in CATEGORIES}
+    result = {c: list(selected.get(c, [])) for c in CATEGORIES}
     current_total = sum(len(v) for v in result.values())
     if current_total >= target_total:
         return result
 
-    # Build a global surplus pool from any leftover candidates in categories
-    # beyond their initial selection (not available here), so we approximate by
-    # allowing categories with remaining capacity to take from others' tails.
-    # Since we don't have tails, we simply prioritize categories with the most
-    # items to fill the remaining slots to reach target.
+    # Build a global tail pool preserving overall score order
+    global_tail: List[PrioritizedItem] = []
+    for cat in CATEGORIES:
+        pool = buckets.get(cat, [])
+        already = set(id(x) for x in result.get(cat, []))
+        for it in pool:
+            if id(it) not in already:
+                global_tail.append(it)
 
-    remaining = target_total - current_total
-    # Greedy: cycle through categories in round-robin, duplicating from their own pool tails as placeholder
-    # Note: In a real system, we'd pass scored tails; here we cannot fabricate new items, so we keep counts.
-    # Therefore, if we cannot increase total (no extra items), we just return as-is.
+    # Sort tail by score desc then title asc to ensure determinism
+    global_tail.sort(key=lambda it: (it.score, it.article.title.lower()), reverse=True)
+
+    # Fill remaining slots while respecting per-category caps
+    needed = target_total - current_total
+    for it in global_tail:
+        if needed <= 0:
+            break
+        cat = it.article.category or "Uncategorized"
+        if cat not in result:
+            continue
+        if len(result[cat]) >= per_category_limit:
+            continue
+        result[cat].append(it)
+        needed -= 1
+
     return result

@@ -169,10 +169,10 @@ def main() -> int:
         for src in sources:
             candidates_src.extend(orch._fetch_source(src))
         from .analysis.monthly_gate import ensure_monthly_ready
-        from .analysis.category_selector import select_top_per_category
+        from .analysis.category_selector import select_with_redistribution
 
         ensure_monthly_ready()
-        per_cat = select_top_per_category(candidates_src, per_category=16, horizon_weeks=args.horizon_weeks)
+        per_cat = select_with_redistribution(candidates_src, per_category=16, total=64, horizon_weeks=args.horizon_weeks)
         total = sum(len(v) for v in per_cat.values())
         logger.info("Selected candidates per category: %s (total=%s)", {k: len(v) for k, v in per_cat.items()}, total)
 
