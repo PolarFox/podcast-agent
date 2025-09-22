@@ -10,6 +10,7 @@ from .models import Article, Source
 from .processors import (
     Deduplicator,
     clean_html_to_text,
+    batch_normalize,
     classify_text,
     summarize_text,
 )
@@ -123,11 +124,9 @@ class Orchestrator:
         fetched_all = self.fetch_all(sources)
         fetched_count += len(fetched_all)
 
+        # Normalize in batch for consistency and performance
+        fetched_all = batch_normalize(fetched_all)
         for art in fetched_all:
-                # Normalize
-                art.raw_text = clean_html_to_text(art.raw_text)
-                # Also normalize title punctuation/whitespace for better dedup
-                art.title = art.title and art.title.strip()
 
                 # Deduplicate
                 is_dup, reason = self.dedup.is_duplicate(art, prior_titles=prior_titles)
