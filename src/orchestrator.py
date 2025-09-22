@@ -126,6 +126,8 @@ class Orchestrator:
         for art in fetched_all:
                 # Normalize
                 art.raw_text = clean_html_to_text(art.raw_text)
+                # Also normalize title punctuation/whitespace for better dedup
+                art.title = art.title and art.title.strip()
 
                 # Deduplicate
                 is_dup, reason = self.dedup.is_duplicate(art, prior_titles=prior_titles)
